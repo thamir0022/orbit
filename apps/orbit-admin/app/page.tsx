@@ -1,5 +1,6 @@
 import Image, { type ImageProps } from "next/image";
 import { Button } from "@repo/ui/button";
+import { add } from "@orbit/math/add";
 import styles from "./page.module.css";
 
 type Props = Omit<ImageProps, "src"> & {
@@ -19,6 +20,7 @@ const ThemeImage = (props: Props) => {
 };
 
 export default function Home() {
+  console.log("🚀 ~ Home ~ add(1, 2);:", add(1, 2))
   return (
     <div className={styles.page}>
       <main className={styles.main}>
