@@ -11,10 +11,10 @@
   },
   "iconLibrary": "lucide",
   "aliases": {
-    "components": "@repo/ui/components",
-    "utils": "@repo/ui/lib/utils",
-    "hooks": "@repo/ui/hooks",
-    "lib": "@repo/ui/lib",
-    "ui": "@repo/ui/components"
+    "components": "@orbit/ui/components",
+    "utils": "@orbit/ui/lib/utils",
+    "hooks": "@orbit/ui/hooks",
+    "lib": "@orbit/ui/lib",
+    "ui": "@orbit/ui/components"
   }
 }

@@ -1,4 +1,4 @@
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@orbit/ui/components/button";
 
 export default function Page() {
   return (
