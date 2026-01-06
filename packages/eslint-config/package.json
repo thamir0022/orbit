@@ -4,10 +4,12 @@
   "type": "module",
   "private": true,
   "exports": {
-    "./base": "./base.js",
-    "./next-js": "./next.js",
-    "./nest-js": "./nest.js",
-    "./react-internal": "./react-internal.js"
+    "./base.js": "./base.js",
+    "./library.js": "./library.js",
+    "./next.js": "./next.js",
+    "./nest.js": "./nest.js",
+    "./prettier-base.js": "./prettier-base.js",
+    "./react-internal.js": "./react-internal.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -21,5 +23,8 @@
     "globals": "^16.5.0",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.50.0"
+  },
+  "dependencies": {
+    "eslint-config-next": "^16.1.1"
   }
 }

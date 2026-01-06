@@ -1,9 +1,9 @@
-import { nestJsConfig } from '@orbit/eslint-config/nest-js';
+import { nestJsConfig } from '@orbit/eslint-config/nest.js';
 
 /** @type {import("eslint").Linter.Config} */
 export default [
-  ...nestJsConfig,
   {
-    ignores: ['.prettierrc.mjs', 'eslint.config.mjs'],
+    ignores: ['eslint.config.mjs'],
   },
+  ...nestJsConfig,
 ];
