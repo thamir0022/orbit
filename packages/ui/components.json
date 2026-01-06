@@ -12,9 +12,9 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@orbit/ui/components",
-    "utils": "@orbit/ui/lib/utils",
-    "hooks": "@orbit/ui/hooks",
-    "lib": "@orbit/ui/lib",
+    "utils": "@orbit/lib/utils",
+    "hooks": "@orbit/hooks",
+    "lib": "@orbit/lib",
     "ui": "@orbit/ui/components"
   }
 }
