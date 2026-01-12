@@ -2,7 +2,7 @@ import { ValueObject } from '@/shared/domain'
 import { UuidUtil } from '@/shared/utils'
 
 interface UserIdProps {
-  value: string;
+  value: string
 }
 
 /**

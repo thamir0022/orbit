@@ -1,18 +1,18 @@
 import { ValueObject } from '@/shared/domain'
 
 export interface UserPreferencesData {
-  theme: 'light' | 'dark' | 'system';
+  theme: 'light' | 'dark' | 'system'
   notifications: {
-    email: boolean;
-    push: boolean;
-    inApp: boolean;
-  };
+    email: boolean
+    push: boolean
+    inApp: boolean
+  }
 }
 
 interface UserPreferencesProps {
-  preferences: UserPreferencesData;
-  timezone: string;
-  locale: string;
+  preferences: UserPreferencesData
+  timezone: string
+  locale: string
 }
 
 /**

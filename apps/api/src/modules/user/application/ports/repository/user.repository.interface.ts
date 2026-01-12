@@ -14,11 +14,11 @@ import { User, Email, UserId } from '@/modules/user/domain'
  */
 
 export interface IUserRepository {
-  findById(id: UserId): Promise<User | null>;
-  findByEmail(email: Email): Promise<User | null>;
-  existsByEmail(email: Email): Promise<boolean>;
-  save(user: User): Promise<User>;
-  delete(id: UserId): Promise<void>;
+  findById(id: UserId): Promise<User | null>
+  findByEmail(email: Email): Promise<User | null>
+  existsByEmail(email: Email): Promise<boolean>
+  save(user: User): Promise<User>
+  delete(id: UserId): Promise<void>
 }
 
 export const USER_REPOSITORY = Symbol('IUserRepository')

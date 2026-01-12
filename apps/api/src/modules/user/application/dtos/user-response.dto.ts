@@ -17,12 +17,12 @@ export class UserResponseDto {
   authProvider: AuthProvider
   status: UserStatus
   preferences: {
-    theme: string;
+    theme: string
     notifications: {
-      email: boolean;
-      push: boolean;
-      inApp: boolean;
-    };
+      email: boolean
+      push: boolean
+      inApp: boolean
+    }
   }
   timezone: string
   locale: string

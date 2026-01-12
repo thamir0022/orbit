@@ -1,10 +1,10 @@
 import { DomainEvent } from '../../../../shared/domain/domain-event'
 
 interface UserCreatedEventProps {
-  userId: string;
-  email: string;
-  firstName: string;
-  lastName: string;
+  userId: string
+  email: string
+  firstName: string
+  lastName: string
 }
 
 /**

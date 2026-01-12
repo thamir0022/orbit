@@ -1,7 +1,7 @@
 import { Result, ValueObject } from '@/shared/domain'
 
 interface EmailProps {
-  value: string;
+  value: string
 }
 
 export class Email extends ValueObject<EmailProps> {

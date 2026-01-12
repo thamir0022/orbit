@@ -11,5 +11,5 @@ export abstract class DomainEvent {
     this.eventId = crypto.randomUUID()
   }
 
-  abstract get eventName(): string;
+  abstract get eventName(): string
 }

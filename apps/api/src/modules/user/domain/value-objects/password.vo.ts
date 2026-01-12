@@ -2,8 +2,8 @@ import { ValueObject } from '@/shared/domain'
 import { Result } from '@/shared/domain'
 
 interface PasswordProps {
-  value: string;
-  isHashed: boolean;
+  value: string
+  isHashed: boolean
 }
 
 /**

@@ -11,22 +11,22 @@
  */
 
 export interface TokenPayload {
-  userId: string;
-  email: string;
+  userId: string
+  email: string
 }
 
 export interface TokenPair {
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
+  accessToken: string
+  refreshToken: string
+  expiresIn: number
 }
 
 export interface ITokenGenerator {
-  generateAccessToken(payload: TokenPayload): string;
-  generateRefreshToken(payload: TokenPayload): string;
-  generateTokenPair(payload: TokenPayload): TokenPair;
-  verifyAccessToken(token: string): TokenPayload | null;
-  verifyRefreshToken(token: string): TokenPayload | null;
+  generateAccessToken(payload: TokenPayload): string
+  generateRefreshToken(payload: TokenPayload): string
+  generateTokenPair(payload: TokenPayload): TokenPair
+  verifyAccessToken(token: string): TokenPayload | null
+  verifyRefreshToken(token: string): TokenPayload | null
 }
 
 export const TOKEN_GENERATOR = Symbol('ITokenGenerator')

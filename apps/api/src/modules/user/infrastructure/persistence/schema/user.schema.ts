@@ -2,7 +2,7 @@ import { type UserPreferencesData } from '@/modules/user/domain'
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import type { HydratedDocument, Types } from 'mongoose'
 
-export type UserDocument = HydratedDocument<UserModel>;
+export type UserDocument = HydratedDocument<UserModel>
 
 @Schema({
   collection: 'users',

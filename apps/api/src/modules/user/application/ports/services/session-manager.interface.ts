@@ -11,21 +11,21 @@
  */
 
 export interface SessionData {
-  userId: string;
-  email: string;
-  refreshToken: string;
-  ipAddress?: string;
-  userAgent?: string;
-  createdAt: Date;
-  expiresAt: Date;
+  userId: string
+  email: string
+  refreshToken: string
+  ipAddress?: string
+  userAgent?: string
+  createdAt: Date
+  expiresAt: Date
 }
 
 export interface ISessionManager {
-  createSession(data: SessionData): Promise<string>;
-  getSession(sessionId: string): Promise<SessionData | null>;
-  invalidateSession(sessionId: string): Promise<void>;
-  invalidateAllUserSessions(userId: string): Promise<void>;
-  extendSession(sessionId: string, newExpiresAt: Date): Promise<void>;
+  createSession(data: SessionData): Promise<string>
+  getSession(sessionId: string): Promise<SessionData | null>
+  invalidateSession(sessionId: string): Promise<void>
+  invalidateAllUserSessions(userId: string): Promise<void>
+  extendSession(sessionId: string, newExpiresAt: Date): Promise<void>
 }
 
 export const SESSION_MANAGER = Symbol('ISessionManager')
