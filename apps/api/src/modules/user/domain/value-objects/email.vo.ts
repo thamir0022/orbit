@@ -1,4 +1,4 @@
-import { Result, ValueObject } from '@/shared/domain';
+import { Result, ValueObject } from '@/shared/domain'
 
 interface EmailProps {
   value: string;
@@ -6,30 +6,30 @@ interface EmailProps {
 
 export class Email extends ValueObject<EmailProps> {
   private static readonly EMAIL_REGEX =
-    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
   private constructor(props: EmailProps) {
-    super(props);
+    super(props)
   }
 
   get value(): string {
-    return this.props.value;
+    return this.props.value
   }
 
   private static isValidFormat(email: string): boolean {
-    return this.EMAIL_REGEX.test(email);
+    return this.EMAIL_REGEX.test(email)
   }
 
   private static normalize(email: string): string {
-    return email.toLowerCase().trim();
+    return email.toLowerCase().trim()
   }
 
   static create(email: string): Result<Email, string> {
-    const normalizedEmail = this.normalize(email);
+    const normalizedEmail = this.normalize(email)
 
     if (!this.isValidFormat(normalizedEmail))
-      return Result.fail('Invalid email format');
+      return Result.fail('Invalid email format')
 
-    return Result.ok(new Email({ value: normalizedEmail }));
+    return Result.ok(new Email({ value: normalizedEmail }))
   }
 }

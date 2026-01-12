@@ -16,5 +16,4 @@ export interface IPasswordHasher {
   compare(plainPassword: string, hashedPassword: string): Promise<boolean>;
 }
 
-
-export const PASSWORD_HASHER = Symbol("IPasswordHasher")
+export const PASSWORD_HASHER = Symbol('IPasswordHasher')

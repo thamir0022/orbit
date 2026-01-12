@@ -2,9 +2,9 @@ import {
   Email,
   Password,
   UserPreferences,
-} from '@/modules/user/domain/value-objects';
-import { AuthProvider, UserStatus } from '@/modules/user/domain/enums';
-import { UserId } from '@/modules/user/domain/value-objects/user-id';
+} from '@/modules/user/domain/value-objects'
+import { AuthProvider, UserStatus } from '@/modules/user/domain/enums'
+import { UserId } from '@/modules/user/domain/value-objects/user-id'
 
 export interface UserProps {
   id: UserId;
@@ -13,7 +13,7 @@ export interface UserProps {
   displayName: string;
   email: Email;
   passwordHash?: Password;
-  roleId?: string; // UPDATE THIS WITH 
+  roleId?: string; // UPDATE THIS WITH
   avatarUrl?: string;
   emailVerified: boolean;
 

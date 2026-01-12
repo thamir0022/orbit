@@ -1,4 +1,4 @@
-import { User, Email, UserId } from '@/modules/user/domain';
+import { User, Email, UserId } from '@/modules/user/domain'
 
 /**
  * User Repository Interface (Port)
@@ -21,5 +21,4 @@ export interface IUserRepository {
   delete(id: UserId): Promise<void>;
 }
 
-
-export const USER_REPOSITORY = Symbol("IUserRepository")
+export const USER_REPOSITORY = Symbol('IUserRepository')

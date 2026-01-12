@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger'
+import { Transform } from 'class-transformer'
 import {
   IsEmail,
   IsNotEmpty,
@@ -7,7 +7,7 @@ import {
   Matches,
   MaxLength,
   MinLength,
-} from 'class-validator';
+} from 'class-validator'
 
 /**
  * Sign Up Request DTO
@@ -26,7 +26,7 @@ export class SignUpRequestDto {
   @MinLength(1)
   @MaxLength(50)
   @Transform(({ value }) => value?.trim())
-  firstName: string;
+  firstName: string
 
   @ApiProperty({
     description: 'User last name',
@@ -39,7 +39,7 @@ export class SignUpRequestDto {
   @MinLength(1)
   @MaxLength(50)
   @Transform(({ value }) => value?.trim())
-  lastName: string;
+  lastName: string
 
   @ApiProperty({
     description: 'User email address',
@@ -48,7 +48,7 @@ export class SignUpRequestDto {
   @IsEmail()
   @IsNotEmpty()
   @Transform(({ value }) => value?.toLowerCase().trim())
-  email: string;
+  email: string
 
   @ApiProperty({
     description:
@@ -64,5 +64,5 @@ export class SignUpRequestDto {
     message:
       'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
   })
-  password: string;
+  password: string
 }

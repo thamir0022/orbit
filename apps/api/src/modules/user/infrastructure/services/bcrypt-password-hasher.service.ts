@@ -1,6 +1,6 @@
-import brcypt from 'bcryptjs';
-import { IPasswordHasher } from '@/modules/user/application/ports/services/password-hasher.interface';
-import { Injectable } from '@nestjs/common';
+import brcypt from 'bcryptjs'
+import { IPasswordHasher } from '@/modules/user/application/ports/services/password-hasher.interface'
+import { Injectable } from '@nestjs/common'
 
 /**
  * Bcrypt Password Hasher Implementation (Adapter)
@@ -13,16 +13,16 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class BcryptPasswordHasher implements IPasswordHasher {
-  private readonly SALT_ROUNDS = 12;
+  private readonly SALT_ROUNDS = 12
 
   async hash(plainPassword: string): Promise<string> {
-    return brcypt.hash(plainPassword, this.SALT_ROUNDS);
+    return brcypt.hash(plainPassword, this.SALT_ROUNDS)
   }
 
   async compare(
     plainPassword: string,
     hashedPassword: string
   ): Promise<boolean> {
-    return brcypt.compare(plainPassword, hashedPassword);
+    return brcypt.compare(plainPassword, hashedPassword)
   }
 }

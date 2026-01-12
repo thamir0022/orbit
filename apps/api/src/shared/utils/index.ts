@@ -1,1 +1,1 @@
-export * from "./uuid.util"
+export * from './uuid.util'

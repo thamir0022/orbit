@@ -1,7 +1,10 @@
-import { Inject, Injectable } from "@nestjs/common"
-import { CACHE_MANAGER, type Cache } from "@nestjs/cache-manager"
-import { v4 as uuidv4 } from "uuid"
-import type { ISessionManager, SessionData } from "../../application/ports/services/session-manager.interface"
+import { Inject, Injectable } from '@nestjs/common'
+import { CACHE_MANAGER, type Cache } from '@nestjs/cache-manager'
+import { v4 as uuidv4 } from 'uuid'
+import type {
+  ISessionManager,
+  SessionData,
+} from '../../application/ports/services/session-manager.interface'
 
 /**
  * Redis Session Manager (Adapter)
@@ -12,12 +15,12 @@ import type { ISessionManager, SessionData } from "../../application/ports/servi
  */
 @Injectable()
 export class RedisSessionManager implements ISessionManager {
-  private readonly SESSION_PREFIX = "session:"
-  private readonly USER_SESSIONS_PREFIX = "user-sessions:"
+  private readonly SESSION_PREFIX = 'session:'
+  private readonly USER_SESSIONS_PREFIX = 'user-sessions:'
 
   constructor(
     @Inject(CACHE_MANAGER)
-    private readonly cacheManager: Cache  
+    private readonly cacheManager: Cache
   ) {}
 
   async createSession(data: SessionData): Promise<string> {
@@ -67,7 +70,10 @@ export class RedisSessionManager implements ISessionManager {
       const sessions: string[] = JSON.parse(userSessions)
       const updatedSessions = sessions.filter((id) => id !== sessionId)
       if (updatedSessions.length > 0) {
-        await this.cacheManager.set(userSessionsKey, JSON.stringify(updatedSessions))
+        await this.cacheManager.set(
+          userSessionsKey,
+          JSON.stringify(updatedSessions)
+        )
       } else {
         await this.cacheManager.del(userSessionsKey)
       }
@@ -80,7 +86,11 @@ export class RedisSessionManager implements ISessionManager {
 
     if (userSessions) {
       const sessions: string[] = JSON.parse(userSessions)
-      await Promise.all(sessions.map((sessionId) => this.cacheManager.del(`${this.SESSION_PREFIX}${sessionId}`)))
+      await Promise.all(
+        sessions.map((sessionId) =>
+          this.cacheManager.del(`${this.SESSION_PREFIX}${sessionId}`)
+        )
+      )
       await this.cacheManager.del(userSessionsKey)
     }
   }

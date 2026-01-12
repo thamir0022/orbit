@@ -5,12 +5,12 @@ import {
   Post,
   UsePipes,
   ValidationPipe,
-} from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SignUpRequestDto } from '../dtos/sign-up.request.dto';
-import { SignUpCommand } from '../../application/commands/sign-up/sign-up.command';
-import { SignUpResponseDto } from '../dtos/sign-up.response.dto';
+} from '@nestjs/common'
+import { CommandBus } from '@nestjs/cqrs'
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { SignUpRequestDto } from '../dtos/sign-up.request.dto'
+import { SignUpCommand } from '../../application/commands/sign-up/sign-up.command'
+import { SignUpResponseDto } from '../dtos/sign-up.response.dto'
 
 @ApiTags('Users')
 @Controller('users')
@@ -40,14 +40,14 @@ export class UserController {
       dto.lastName,
       dto.email,
       dto.password
-    );
+    )
 
-    const user = await this.commandBus.execute(command);
+    const user = await this.commandBus.execute(command)
 
     return {
       success: true,
       message: 'User registered successfully. Please verify your email.',
       data: user,
-    };
+    }
   }
 }

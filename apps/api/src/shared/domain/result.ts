@@ -6,7 +6,7 @@ export class Result<T, E = Error> {
   private constructor(
     private readonly _isSuccess: boolean,
     private readonly _value?: T,
-    private readonly _error?: E,
+    private readonly _error?: E
   ) {}
 
   get isSuccess(): boolean {
@@ -19,14 +19,14 @@ export class Result<T, E = Error> {
 
   get value(): T {
     if (!this._isSuccess) {
-      throw new Error("Cannot get value of a failed result")
+      throw new Error('Cannot get value of a failed result')
     }
     return this._value as T
   }
 
   get error(): E {
     if (this._isSuccess) {
-      throw new Error("Cannot get error of a successful result")
+      throw new Error('Cannot get error of a successful result')
     }
     return this._error as E
   }

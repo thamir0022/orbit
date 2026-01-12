@@ -1,10 +1,10 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { MongoDbModule } from './shared/infrastructure/database/mongodb.module';
-import { RedisModule } from './shared/infrastructure/cache/redis.module';
-import { UserModule } from './modules/user/user.module';
-import { DomainExceptionFilter } from './shared/infrastructure/filters/domain-exception.filter';
-import { APP_FILTER } from '@nestjs/core';
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+import { MongoDbModule } from './shared/infrastructure/database/mongodb.module'
+import { RedisModule } from './shared/infrastructure/cache/redis.module'
+import { UserModule } from './modules/user/user.module'
+import { DomainExceptionFilter } from './shared/infrastructure/filters/domain-exception.filter'
+import { APP_FILTER } from '@nestjs/core'
 
 @Module({
   imports: [
@@ -28,5 +28,4 @@ import { APP_FILTER } from '@nestjs/core';
     },
   ],
 })
-
 export class AppModule {}

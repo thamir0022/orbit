@@ -29,4 +29,4 @@ export interface ITokenGenerator {
   verifyRefreshToken(token: string): TokenPayload | null;
 }
 
-export const TOKEN_GENERATOR = Symbol("ITokenGenerator")
+export const TOKEN_GENERATOR = Symbol('ITokenGenerator')

@@ -1,18 +1,18 @@
-import { ValueObject } from "@/shared/domain"
+import { ValueObject } from '@/shared/domain'
 
 export interface UserPreferencesData {
-  theme: "light" | "dark" | "system"
+  theme: 'light' | 'dark' | 'system';
   notifications: {
-    email: boolean
-    push: boolean
-    inApp: boolean
-  }
+    email: boolean;
+    push: boolean;
+    inApp: boolean;
+  };
 }
 
 interface UserPreferencesProps {
-  preferences: UserPreferencesData
-  timezone: string
-  locale: string
+  preferences: UserPreferencesData;
+  timezone: string;
+  locale: string;
 }
 
 /**
@@ -39,19 +39,23 @@ export class UserPreferences extends ValueObject<UserPreferencesProps> {
   static createDefault(): UserPreferences {
     return new UserPreferences({
       preferences: {
-        theme: "system",
+        theme: 'system',
         notifications: {
           email: true,
           push: true,
           inApp: true,
         },
       },
-      timezone: "UTC",
-      locale: "en-IN",
+      timezone: 'UTC',
+      locale: 'en-IN',
     })
   }
 
-  static create(preferences: Partial<UserPreferencesData>, timezone?: string, locale?: string): UserPreferences {
+  static create(
+    preferences: Partial<UserPreferencesData>,
+    timezone?: string,
+    locale?: string
+  ): UserPreferences {
     const defaultPrefs = this.createDefault()
 
     return new UserPreferences({

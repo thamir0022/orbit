@@ -28,4 +28,4 @@ export interface ISessionManager {
   extendSession(sessionId: string, newExpiresAt: Date): Promise<void>;
 }
 
-export const SESSION_MANAGER = Symbol('ISessionManager');
+export const SESSION_MANAGER = Symbol('ISessionManager')

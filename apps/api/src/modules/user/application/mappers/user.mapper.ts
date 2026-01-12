@@ -1,4 +1,4 @@
-import { UserResponseDto } from '@/modules/user/application/dtos/user-response.dto';
+import { UserResponseDto } from '@/modules/user/application/dtos/user-response.dto'
 import {
   AuthProvider,
   Email,
@@ -8,8 +8,8 @@ import {
   UserPreferences,
   UserStatus,
   UserProps,
-} from '@/modules/user/domain';
-import {type UserDocument } from "@/modules/user/infrastructure/persistence/schema/user.schema"
+} from '@/modules/user/domain'
+import { type UserDocument } from '@/modules/user/infrastructure/persistence/schema/user.schema'
 
 /**
  * User Mapper
@@ -41,7 +41,7 @@ export class UserMapper {
       lastActiveAt: user.lastActiveAt,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-    };
+    }
   }
 
   /**
@@ -74,7 +74,7 @@ export class UserMapper {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       deletedAt: user.deletedAt,
-    };
+    }
   }
 
   /**
@@ -112,8 +112,8 @@ export class UserMapper {
       createdAt: document.createdAt,
       updatedAt: document.updatedAt,
       deletedAt: document.deletedAt,
-    };
+    }
 
-    return User.reconstitute(props);
+    return User.reconstitute(props)
   }
 }
