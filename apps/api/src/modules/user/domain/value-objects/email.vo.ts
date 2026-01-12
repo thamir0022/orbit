@@ -1,4 +1,4 @@
-import { ValueObject } from '@/shared/domain/value-object';
+import { Result, ValueObject } from '@/shared/domain';
 
 interface EmailProps {
   value: string;
@@ -24,5 +24,12 @@ export class Email extends ValueObject<EmailProps> {
     return email.toLowerCase().trim();
   }
 
-  static create() {}
+  static create(email: string): Result<Email, string> {
+    const normalizedEmail = this.normalize(email);
+
+    if (!this.isValidFormat(normalizedEmail))
+      return Result.fail('Invalid email format');
+
+    return Result.ok(new Email({ value: normalizedEmail }));
+  }
 }

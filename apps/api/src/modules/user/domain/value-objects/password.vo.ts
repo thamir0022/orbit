@@ -1,30 +1,72 @@
-export class Password {
-  private readonly value: string;
-  private readonly minLength = 8; // UPDATE WITH ENV
-  private readonly maxLength = 128; // UPDATE WITH ENV
+import { ValueObject } from '@/shared/domain';
+import { Result } from '@/shared/domain';
 
-  constructor(password: string) {
-    this.validate(password);
-    this.value = password;
+interface PasswordProps {
+  value: string;
+  isHashed: boolean;
+}
+
+/**
+ * Password Value Object
+ * Encapsulates password validation rules
+ */
+export class Password extends ValueObject<PasswordProps> {
+  private static readonly MIN_LENGTH = 8;
+  private static readonly MAX_LENGTH = 128;
+
+  private constructor(props: PasswordProps) {
+    super(props);
   }
 
-  private validate(password: string): void {
-    if (password.length < this.minLength)
-      throw new Error(`Password must be at least ${this.minLength} characters`); // UPDATE WITH PasswordException
+  get value(): string {
+    return this.props.value;
+  }
 
-    if (password.length > this.maxLength)
-      throw new Error(`Password must not exceed ${this.maxLength} characters`); // UPDATE WITH PasswordException
+  get isHashed(): boolean {
+    return this.props.isHashed;
+  }
 
-    if (!/[A-Z]/.test(password))
-      throw new Error('Password must contain at least one uppercase character'); // UPDATE WITH PasswordException
+  private static validateStrength(password: string): string[] {
+    const errors: string[] = [];
 
-    if (!/[a-b]/.test(password))
-      throw new Error('Password must contain at least one lower character'); // UPDATE WITH PasswordException
+    if (password.length < this.MIN_LENGTH) {
+      errors.push(`Password must be at least ${this.MIN_LENGTH} characters`);
+    }
 
-    if (!/\d/.test(password))
-      throw new Error('Password must contain at least one number'); // UPDATE WITH PasswordException
+    if (password.length > this.MAX_LENGTH) {
+      errors.push(`Password must be at most ${this.MAX_LENGTH} characters`);
+    }
 
-    if (!/[!@#$%^&*()_+\-=[\]{};:'",.<>?/\\|`~]/.test(password))
-      throw new Error('Password must contain at least one special character'); // UPDATE WITH PasswordException
+    if (!/[A-Z]/.test(password)) {
+      errors.push('Password must contain at least one uppercase letter');
+    }
+
+    if (!/[a-z]/.test(password)) {
+      errors.push('Password must contain at least one lowercase letter');
+    }
+
+    if (!/[0-9]/.test(password)) {
+      errors.push('Password must contain at least one number');
+    }
+
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      errors.push('Password must contain at least one special character');
+    }
+
+    return errors;
+  }
+
+  static create(password: string): Result<Password, string[]> {
+    const errors = this.validateStrength(password);
+
+    if (errors.length > 0) {
+      return Result.fail(errors);
+    }
+
+    return Result.ok(new Password({ value: password, isHashed: false }));
+  }
+
+  static fromHashed(hashedPassword: string): Password {
+    return new Password({ value: hashedPassword, isHashed: true });
   }
 }

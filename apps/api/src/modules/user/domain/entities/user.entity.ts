@@ -6,7 +6,7 @@ import {
 } from '@/modules/user/domain/value-objects';
 import { UserId } from '@/modules/user/domain/value-objects/user-id';
 import { AuthProvider, UserStatus } from '@/modules/user/domain/enums';
-import { AggregateRoot } from '@/shared/domain/aggregate-root';
+import { AggregateRoot } from '@/shared/domain';
 import { UserCreatedEvent } from '@/modules/user/domain/events';
 
 export class User extends AggregateRoot<UserId> {
@@ -29,6 +29,8 @@ export class User extends AggregateRoot<UserId> {
   private _lastLoginAt?: Date;
   private _lastActiveAt?: Date;
   private _preferences: UserPreferences;
+  private _timezone: string;
+  private _locale: string;
   private readonly _createdAt: Date;
   private _updatedAt: Date;
   private _deletedAt?: Date;
@@ -107,7 +109,7 @@ export class User extends AggregateRoot<UserId> {
     return this._lockedUntil;
   }
 
-  get authProvider(): string {
+  get authProvider(): AuthProvider {
     return this._authProvider;
   }
 
@@ -133,6 +135,14 @@ export class User extends AggregateRoot<UserId> {
 
   get preferences() {
     return this._preferences;
+  }
+
+  get timezone(): string {
+    return this._timezone;
+  }
+
+  get locale(): string {
+    return this._locale;
   }
 
   get roleId() {
