@@ -1,8 +1,4 @@
-import {
-  Email,
-  Password,
-  UserPreferences,
-} from '@/modules/user/domain'
+import { Email, Password, UserPreferences } from '@/modules/user/domain'
 import { AuthProvider, UserStatus } from '@/modules/user/domain'
 import { UserId } from '@/modules/user/domain'
 

@@ -1,10 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { CACHE_MANAGER, type Cache } from '@nestjs/cache-manager'
 import { v4 as uuidv4 } from 'uuid'
-import type {
-  ISessionManager,
-  SessionData,
-} from '@/modules/user/application'
+import type { ISessionManager, SessionData } from '@/modules/user/application'
 
 /**
  * Redis Session Manager (Adapter)

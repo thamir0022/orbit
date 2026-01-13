@@ -1,10 +1,7 @@
 import { Module } from '@nestjs/common'
 import { CqrsModule } from '@nestjs/cqrs'
 import { MongooseModule } from '@nestjs/mongoose'
-import {
-  UserModel,
-  UserSchema,
-} from '@/modules/user/infrastructure'
+import { UserModel, UserSchema } from '@/modules/user/infrastructure'
 import { UserController } from '@/modules/user/presentation'
 
 // Providers
