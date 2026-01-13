@@ -1,5 +1,5 @@
-import { BaseEntity } from './base-entity'
-import type { DomainEvent } from './domain-event'
+import { BaseEntity } from '@/shared/domain/base-entity'
+import type { DomainEvent } from '@/shared/domain/domain-event'
 
 /**
  * Aggregate Root - Entry point for aggregate operations

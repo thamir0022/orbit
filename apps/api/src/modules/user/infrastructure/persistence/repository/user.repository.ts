@@ -4,7 +4,7 @@ import type { IUserRepository } from '@/modules/user/application/ports'
 import type { User } from '@/modules/user/domain'
 import type { Email } from '@/modules/user/domain'
 import type { UserId } from '@/modules/user/domain'
-import { UserModel, type UserDocument } from '../schema/user.schema'
+import { UserModel, type UserDocument } from '@/modules/user/infrastructure/persistence/schema/user.schema'
 import { UserMapper } from '@/modules/user/application/mappers/user.mapper'
 import { InjectModel } from '@nestjs/mongoose'
 

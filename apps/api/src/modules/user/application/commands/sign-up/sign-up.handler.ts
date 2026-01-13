@@ -16,7 +16,7 @@ import {
   Password,
   User,
 } from '@/modules/user/domain'
-import { UserMapper } from '../../mappers/user.mapper'
+import { UserMapper } from '@/modules/user/application/mappers/user.mapper'
 
 @CommandHandler(SignUpCommand)
 export class SignUpHandler implements ICommandHandler<SignUpCommand> {

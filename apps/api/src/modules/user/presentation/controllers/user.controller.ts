@@ -9,9 +9,9 @@ import {
 } from '@nestjs/common'
 import { CommandBus } from '@nestjs/cqrs'
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { SignUpRequestDto } from '../dtos/sign-up.request.dto'
-import { SignUpCommand } from '../../application/commands/sign-up/sign-up.command'
-import { SignUpResponseDto } from '../dtos/sign-up.response.dto'
+import { SignUpRequestDto } from '@/modules/user/presentation/dtos/sign-up.request.dto'
+import { SignUpCommand } from '@/modules/user/application/commands/sign-up/sign-up.command'
+import { SignUpResponseDto } from '@/modules/user/presentation/dtos/sign-up.response.dto'
 
 @ApiTags('Users')
 @Controller('users')

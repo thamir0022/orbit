@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import type {
   ISessionManager,
   SessionData,
-} from '../../application/ports/services/session-manager.interface'
+} from '@/modules/user/application/ports/services/session-manager.interface'
 
 /**
  * Redis Session Manager (Adapter)

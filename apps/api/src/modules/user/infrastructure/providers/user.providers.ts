@@ -1,12 +1,12 @@
 import type { Provider } from '@nestjs/common'
-import { USER_REPOSITORY } from '../../application/ports/repository/user.repository.interface'
-import { PASSWORD_HASHER } from '../../application/ports/services/password-hasher.interface'
-import { TOKEN_GENERATOR } from '../../application/ports/services/token-generator.interface'
-import { SESSION_MANAGER } from '../../application/ports/services/session-manager.interface'
-import { UserRepository } from '../persistence/repository/user.repository'
-import { BcryptPasswordHasher } from '../services/bcrypt-password-hasher.service'
-import { JwtTokenGenerator } from '../services/jwt-token-generator.service'
-import { RedisSessionManager } from '../services/redis-session-manager.service'
+import { USER_REPOSITORY } from '@/modules/user/application/ports/repository/user.repository.interface'
+import { PASSWORD_HASHER } from '@/modules/user/application/ports/services/password-hasher.interface'
+import { TOKEN_GENERATOR } from '@/modules/user/application/ports/services/token-generator.interface'
+import { SESSION_MANAGER } from '@/modules/user/application/ports/services/session-manager.interface'
+import { UserRepository } from '@/modules/user/infrastructure/persistence/repository/user.repository'
+import { BcryptPasswordHasher } from '@/modules/user/infrastructure/services/bcrypt-password-hasher.service'
+import { JwtTokenGenerator } from '@/modules/user/infrastructure/services/jwt-token-generator.service'
+import { RedisSessionManager } from '@/modules/user/infrastructure/services/redis-session-manager.service'
 
 /**
  * User Module Providers
