@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   HttpCode,
   HttpStatus,
@@ -34,7 +35,7 @@ export class UserController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid input data',
   })
-  async signUp(dto: SignUpRequestDto): Promise<SignUpResponseDto> {
+  async signUp(@Body() dto: SignUpRequestDto): Promise<SignUpResponseDto> {
     const command = new SignUpCommand(
       dto.firstName,
       dto.lastName,
