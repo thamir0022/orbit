@@ -14,6 +14,7 @@ import { redisStore } from 'cache-manager-redis-yet'
             host: configService.get<string>('REDIS_HOST', 'localhost'),
             port: configService.get<number>('REDIS_PORT', 6379),
           },
+          username: configService.get<string>('REDIS_USERNAME'),
           password: configService.get<string>('REDIS_PASSWORD'),
           ttl: 60000, // 60 seconds default TTL
         }),
