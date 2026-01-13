@@ -2,9 +2,9 @@ import {
   Email,
   Password,
   UserPreferences,
-} from '@/modules/user/domain/value-objects'
-import { AuthProvider, UserStatus } from '@/modules/user/domain/enums'
-import { UserId } from '@/modules/user/domain/value-objects/user-id'
+} from '@/modules/user/domain'
+import { AuthProvider, UserStatus } from '@/modules/user/domain'
+import { UserId } from '@/modules/user/domain'
 
 export interface UserProps {
   id: UserId

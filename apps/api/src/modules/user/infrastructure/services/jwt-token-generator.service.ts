@@ -5,7 +5,7 @@ import type {
   ITokenGenerator,
   TokenPayload,
   TokenPair,
-} from '@/modules/user/application/ports/services/token-generator.interface'
+} from '@/modules/user/application'
 
 /**
  * JWT Token Generator (Adapter)

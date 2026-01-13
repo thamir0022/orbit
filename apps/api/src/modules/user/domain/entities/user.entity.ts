@@ -1,13 +1,13 @@
-import { CreateUserProps, UserProps } from '@/modules/user/domain/interfaces'
+import { CreateUserProps, UserProps } from '@/modules/user/domain'
 import {
   Email,
   Password,
   UserPreferences,
-} from '@/modules/user/domain/value-objects'
-import { UserId } from '@/modules/user/domain/value-objects/user-id'
-import { AuthProvider, UserStatus } from '@/modules/user/domain/enums'
+} from '@/modules/user/domain'
+import { UserId } from '@/modules/user/domain'
+import { AuthProvider, UserStatus } from '@/modules/user/domain'
 import { AggregateRoot } from '@/shared/domain'
-import { UserCreatedEvent } from '@/modules/user/domain/events'
+import { UserCreatedEvent } from '@/modules/user/domain'
 
 export class User extends AggregateRoot<UserId> {
   private _firstName: string

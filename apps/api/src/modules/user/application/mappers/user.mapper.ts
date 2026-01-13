@@ -1,4 +1,4 @@
-import { UserResponseDto } from '@/modules/user/application/dtos/user-response.dto'
+import { UserResponseDto } from '@/modules/user/application'
 import {
   AuthProvider,
   Email,
@@ -9,7 +9,7 @@ import {
   UserStatus,
   UserProps,
 } from '@/modules/user/domain'
-import { type UserDocument } from '@/modules/user/infrastructure/persistence/schema/user.schema'
+import { type UserDocument } from '@/modules/user/infrastructure'
 
 /**
  * User Mapper
