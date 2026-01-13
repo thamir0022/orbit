@@ -1,11 +1,13 @@
-import { EventBus, ICommandHandler } from '@nestjs/cqrs'
-import { SignUpCommand } from '@/modules/user/application/commands/sign-up/sign-up.command'
-import { Logger } from '@nestjs/common'
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs'
+import { SignUpCommand } from '@/modules/user/application'
+import { Inject, Logger } from '@nestjs/common'
 import {
-  IPasswordHasher,
-  IUserRepository,
-} from '@/modules/user/application/ports'
-import { UserResponseDto } from '@/modules/user/application/dtos/user-response.dto'
+  PASSWORD_HASHER,
+  USER_REPOSITORY,
+  type IPasswordHasher,
+  type IUserRepository,
+} from '@/modules/user/application'
+import { UserResponseDto } from '@/modules/user/application'
 import {
   Email,
   EmailAlreadyExistsException,
@@ -14,13 +16,16 @@ import {
   Password,
   User,
 } from '@/modules/user/domain'
-import { UserMapper } from '../../mappers/user.mapper'
+import { UserMapper } from '@/modules/user/application'
 
+@CommandHandler(SignUpCommand)
 export class SignUpHandler implements ICommandHandler<SignUpCommand> {
   private readonly logger = new Logger(SignUpHandler.name)
 
   constructor(
+    @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
+    @Inject(PASSWORD_HASHER)
     private readonly passwordHasher: IPasswordHasher,
     private readonly eventBus: EventBus
   ) {}

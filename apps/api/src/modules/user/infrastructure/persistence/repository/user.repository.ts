@@ -1,11 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common'
 import type { Model } from 'mongoose'
-import type { IUserRepository } from '@/modules/user/application/ports'
+import type { IUserRepository } from '@/modules/user/application'
 import type { User } from '@/modules/user/domain'
 import type { Email } from '@/modules/user/domain'
 import type { UserId } from '@/modules/user/domain'
-import { UserModel, type UserDocument } from '../schema/user.schema'
-import { UserMapper } from '@/modules/user/application/mappers/user.mapper'
+import {
+  UserModel,
+  type UserDocument,
+} from '@/modules/user/infrastructure/persistence/schema/user.schema'
+import { UserMapper } from '@/modules/user/application'
 import { InjectModel } from '@nestjs/mongoose'
 
 /**
@@ -74,12 +77,12 @@ export class UserRepository implements IUserRepository {
   }
 
   async existsByEmail(email: Email): Promise<boolean> {
-    const count = await this.userModel.countDocuments({
+    const isExist = await this.userModel.exists({
       email: email.value,
       deletedAt: null,
     })
 
-    return count > 0
+    return !!isExist
   }
 
   async delete(id: UserId): Promise<void> {

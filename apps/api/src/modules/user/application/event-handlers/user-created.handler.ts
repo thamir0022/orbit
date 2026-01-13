@@ -2,7 +2,7 @@ import { EventsHandler, type IEventHandler } from '@nestjs/cqrs'
 import { Logger } from '@nestjs/common'
 import { Inject } from '@nestjs/common'
 import { CACHE_MANAGER, type Cache } from '@nestjs/cache-manager'
-import { UserCreatedEvent } from '../../domain/events/user-created.event'
+import { UserCreatedEvent } from '@/modules/user/domain'
 
 /**
  * User Created Event Handler

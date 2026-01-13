@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   HttpCode,
   HttpStatus,
@@ -8,9 +9,9 @@ import {
 } from '@nestjs/common'
 import { CommandBus } from '@nestjs/cqrs'
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { SignUpRequestDto } from '../dtos/sign-up.request.dto'
-import { SignUpCommand } from '../../application/commands/sign-up/sign-up.command'
-import { SignUpResponseDto } from '../dtos/sign-up.response.dto'
+import { SignUpRequestDto } from '@/modules/user/presentation'
+import { SignUpCommand } from '@/modules/user/application'
+import { SignUpResponseDto } from '@/modules/user/presentation'
 
 @ApiTags('Users')
 @Controller('users')
@@ -34,7 +35,7 @@ export class UserController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid input data',
   })
-  async signUp(dto: SignUpRequestDto): Promise<SignUpResponseDto> {
+  async signUp(@Body() dto: SignUpRequestDto): Promise<SignUpResponseDto> {
     const command = new SignUpCommand(
       dto.firstName,
       dto.lastName,

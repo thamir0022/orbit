@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { MongoDbModule } from './shared/infrastructure/database/mongodb.module'
-import { RedisModule } from './shared/infrastructure/cache/redis.module'
-import { UserModule } from './modules/user/user.module'
-import { DomainExceptionFilter } from './shared/infrastructure/filters/domain-exception.filter'
+import { MongoDbModule } from '@/shared/infrastructure'
+import { RedisModule } from '@/shared/infrastructure'
+import { UserModule } from '@/modules/user/user.module'
+import { DomainExceptionFilter } from '@/shared/presentation/filters/domain-exception.filter'
 import { APP_FILTER } from '@nestjs/core'
 
 @Module({

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { UserResponseDto } from '@/modules/user/application/dtos/user-response.dto'
+import { UserResponseDto } from '@/modules/user/application'
 
 /**
  * Sign Up Response DTO

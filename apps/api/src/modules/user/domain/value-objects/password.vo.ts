@@ -59,9 +59,7 @@ export class Password extends ValueObject<PasswordProps> {
   static create(password: string): Result<Password, string[]> {
     const errors = this.validateStrength(password)
 
-    if (errors.length > 0) {
-      return Result.fail(errors)
-    }
+    if (errors.length > 0) return Result.fail(errors)
 
     return Result.ok(new Password({ value: password, isHashed: false }))
   }
