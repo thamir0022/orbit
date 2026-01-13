@@ -26,6 +26,8 @@ export * from './ports'
 // Commands
 export * from './commands/sign-up/sign-up.command'
 export * from './commands/sign-up/sign-up.handler'
+export * from './commands/sign-in/sign-in.command'
+export * from './commands/sign-in/sign-in.handler'
 
 // DTOs
 export * from './dtos/user-response.dto'
@@ -35,3 +37,4 @@ export * from './mappers/user.mapper'
 
 // Event Handlers
 export * from './event-handlers/user-created.handler'
+export * from './event-handlers/user-sign-in.handler'

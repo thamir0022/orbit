@@ -32,7 +32,11 @@ export class RedisSessionManager implements ISessionManager {
     const userSessions = await this.cacheManager.get<string>(userSessionsKey)
     const sessions: string[] = userSessions ? JSON.parse(userSessions) : []
     sessions.push(sessionId)
-    await this.cacheManager.set(userSessionsKey, JSON.stringify(sessions), ttl)
+    await this.cacheManager.set(
+      userSessionsKey,
+      sessions,
+      Math.floor(ttl / 1000)
+    )
 
     return sessionId
   }

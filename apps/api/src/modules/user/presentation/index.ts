@@ -22,3 +22,5 @@ export * from './controllers/user.controller'
 // DTOs
 export * from './dtos/sign-up.request.dto'
 export * from './dtos/sign-up.response.dto'
+export * from './dtos/sign-in.request.dto'
+export * from './dtos/sign-in.response.dto'
