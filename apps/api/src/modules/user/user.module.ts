@@ -19,6 +19,7 @@ import {
   UserCreatedHandler,
   UserSignedInHandler,
 } from '@/modules/user/application'
+import { RedisModule } from '@/shared/infrastructure'
 
 const commandHandlers = [SignUpHandler, SignInHandler]
 const eventHandlers = [UserCreatedHandler, UserSignedInHandler]
@@ -30,6 +31,7 @@ const eventHandlers = [UserCreatedHandler, UserSignedInHandler]
 @Module({
   imports: [
     CqrsModule,
+    RedisModule,
     MongooseModule.forFeature([{ name: UserModel.name, schema: UserSchema }]),
   ],
   controllers: [UserController],

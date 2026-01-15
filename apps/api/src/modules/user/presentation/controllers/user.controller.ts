@@ -1,23 +1,24 @@
 import {
   Body,
   Controller,
+  Headers,
   HttpCode,
   HttpStatus,
   Ip,
   Post,
-  UsePipes,
-  ValidationPipe,
+  Res,
 } from '@nestjs/common'
+import { type Response } from 'express'
 import { CommandBus } from '@nestjs/cqrs'
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
-import {
-  SignInResponseDto,
-  SignUpRequestDto,
-} from '@/modules/user/presentation'
 import { SignUpCommand } from '@/modules/user/application'
-import { SignUpResponseDto } from '@/modules/user/presentation'
-import { SignInRequestDto } from '@/modules/user/presentation'
 import { SignInCommand } from '@/modules/user/application'
+import {
+  SignUpRequestDto,
+  SignInResponseDto,
+  SignInRequestDto,
+  SignUpResponseDto,
+} from '../dtos/'
 
 @ApiTags('Users')
 @Controller('users')
@@ -26,7 +27,6 @@ export class UserController {
 
   @Post('sign-up')
   @HttpCode(HttpStatus.CREATED)
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   @ApiBody({ type: SignUpRequestDto })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -60,7 +60,6 @@ export class UserController {
 
   @Post('sign-in')
   @HttpCode(HttpStatus.OK)
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   @ApiOperation({ summary: 'Authenticate a user' })
   @ApiBody({ type: SignInRequestDto })
   @ApiResponse({
@@ -78,18 +77,28 @@ export class UserController {
   })
   async signIn(
     @Ip() ip: string,
+    @Headers('user-agent') userAgent: string,
+    @Res({ passthrough: true }) res: Response,
     @Body()
     dto: SignInRequestDto
   ): Promise<SignInResponseDto> {
-    const command = new SignInCommand(dto.email, dto.password, ip)
+    const command = new SignInCommand(dto.email, dto.password, ip, userAgent)
 
     const result = await this.commandBus.execute(command)
+    const { accessToken, refreshToken } = result.tokens
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    })
 
     return {
       success: true,
       message: 'Sign in successful',
       data: result.user,
-      tokens: result.tokens,
+      accessToken: accessToken,
       sessionId: result.sessionId,
     }
   }

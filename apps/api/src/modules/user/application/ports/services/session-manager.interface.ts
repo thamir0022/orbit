@@ -13,7 +13,7 @@
 export interface SessionData {
   userId: string
   email: string
-  refreshToken: string
+  accessToken: string
   ipAddress?: string
   userAgent?: string
   createdAt: Date

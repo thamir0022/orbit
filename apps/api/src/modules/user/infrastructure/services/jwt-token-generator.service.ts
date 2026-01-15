@@ -1,11 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as jwt from 'jsonwebtoken'
-import type {
-  ITokenGenerator,
-  TokenPayload,
-  TokenPair,
-} from '@/modules/user/application'
+import type { ITokenGenerator, TokenPayload } from '@/modules/user/application'
 
 /**
  * JWT Token Generator (Adapter)
@@ -52,14 +48,6 @@ export class JwtTokenGenerator implements ITokenGenerator {
     })
   }
 
-  generateTokenPair(payload: TokenPayload): TokenPair {
-    return {
-      accessToken: this.generateAccessToken(payload),
-      refreshToken: this.generateRefreshToken(payload),
-      expiresIn: this.accessTokenExpiresIn,
-    }
-  }
-
   verifyAccessToken(token: string): TokenPayload | null {
     try {
       return jwt.verify(token, this.accessTokenSecret) as TokenPayload
@@ -74,5 +62,13 @@ export class JwtTokenGenerator implements ITokenGenerator {
     } catch {
       return null
     }
+  }
+
+  get accessTokenExpiry(): number {
+    return this.accessTokenExpiresIn
+  }
+
+  get refreshTokenExpiry(): number {
+    return this.refreshTokenExpiresIn
   }
 }

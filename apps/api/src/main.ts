@@ -10,17 +10,14 @@ async function bootstrap() {
   // Global prefix
   app.setGlobalPrefix('api/v1')
 
-  // Global validation pipeline
-  const validationPipe = new ValidationPipe({
-    transform: true,
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transformOptions: {
-      enableImplicitConversion: true,
-    },
-  })
-
-  app.useGlobalPipes(validationPipe)
+  // Global pipes
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    })
+  )
 
   // CORS
   app.enableCors({

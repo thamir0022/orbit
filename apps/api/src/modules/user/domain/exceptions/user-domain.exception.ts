@@ -1,5 +1,6 @@
 import { DomainException } from '@/shared/domain'
 import { HttpStatus } from '@nestjs/common'
+import { UserStatus } from '@/modules/user/domain'
 
 export class EmailAlreadyExistsException extends DomainException {
   constructor(email: string) {
@@ -52,10 +53,10 @@ export class AccountSuspendedException extends DomainException {
 export class AccountInactiveException extends DomainException {
   readonly httpStatusCode = HttpStatus.FORBIDDEN
 
-  constructor() {
+  constructor(status: UserStatus) {
     super(
       'ACCOUNT_INACTIVE',
-      'Your account has been deactivated. Please contact support.'
+      `Your account is ${status}. Please contact support.`
     )
   }
 }

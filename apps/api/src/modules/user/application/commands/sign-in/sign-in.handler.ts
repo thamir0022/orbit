@@ -2,7 +2,7 @@ import { CommandHandler, EventBus, type ICommandHandler } from '@nestjs/cqrs'
 import { SignInCommand } from './sign-in.command'
 import type { IUserRepository } from '@/modules/user/application'
 import type { IPasswordHasher } from '@/modules/user/application'
-import type { ITokenGenerator, TokenPair } from '@/modules/user/application'
+import type { ITokenGenerator } from '@/modules/user/application'
 import type { ISessionManager } from '@/modules/user/application'
 import { Email } from '@/modules/user/domain'
 import { UserStatus } from '@/modules/user/domain'
@@ -23,7 +23,10 @@ import { Inject, Logger } from '@nestjs/common'
 
 export interface SignInResult {
   user: UserResponseDto
-  tokens: TokenPair
+  tokens: {
+    accessToken: string
+    refreshToken: string
+  }
   sessionId: string
 }
 
@@ -61,9 +64,8 @@ export class SignInHandler implements ICommandHandler<
 
     // 1. Validate and create Email value object (Domain)
     const emailResult = Email.create(command.email)
-    if (emailResult.isFailure) {
-      throw new InvalidCredentialsException()
-    }
+    if (emailResult.isFailure) throw new InvalidCredentialsException()
+
     const email = emailResult.value
 
     // 2. Find user by email (via Repository Port)
@@ -74,7 +76,8 @@ export class SignInHandler implements ICommandHandler<
     if (user.isLocked()) throw new AccountLockedException(user.lockedUntil!)
 
     // 4. Check account status (Domain business rule)
-    if (user.status !== UserStatus.ACTIVE) throw new AccountInactiveException()
+    if (user.status !== UserStatus.ACTIVE)
+      throw new AccountInactiveException(user.status)
 
     // 5. Verify password (via Password Hasher Port)
     if (!user.passwordHash) throw new InvalidCredentialsException()
@@ -94,36 +97,30 @@ export class SignInHandler implements ICommandHandler<
     // 6. Record successful login (Domain behavior)
     user.recordLogin()
 
-    // 7. Generate token pair (via Token Generator Port)
+    // 7. Save the user
+    await this.userRepository.save(user)
+
+    // 8. Generate token pair (via Token Generator Port)
     const tokenPayload = {
       userId: user.userId.value,
       email: user.email.value,
     }
-    const tokens = this.tokenGenerator.generateTokenPair(tokenPayload)
 
-    // 8. Create session in Redis (via Session Manager Port)
+    const accessToken = this.tokenGenerator.generateAccessToken(tokenPayload)
+    const refreshToken = this.tokenGenerator.generateRefreshToken(tokenPayload)
+
+    // 9. Create session in Redis (via Session Manager Port)
     const sessionId = await this.sessionManager.createSession({
       userId: user.userId.value,
       email: user.email.value,
-      refreshToken: tokens.refreshToken,
+      accessToken,
       ipAddress: command.ipAddress,
       userAgent: command.userAgent,
       createdAt: new Date(),
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     })
 
-    // 9. Publish domain events (following sign-up handler pattern)
-    // user.addDomainEvent(
-    //   new UserSignedInEvent({
-    //     userId: user.userId.value,
-    //     email: user.email.value,
-    //     ipAddress: command.ipAddress,
-    //     userAgent: command.userAgent,
-    //     timestamp: new Date(),
-    //   })
-    // )
-    await this.userRepository.save(user)
-
+    // 10. Publish domain events
     const events = user.domainEvents
     events.forEach((event) => this.eventBus.publish(event))
     user.clearEvents()
@@ -134,9 +131,8 @@ export class SignInHandler implements ICommandHandler<
     return {
       user: UserMapper.toResponseDto(user),
       tokens: {
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-        expiresIn: tokens.expiresIn,
+        accessToken,
+        refreshToken,
       },
       sessionId,
     }

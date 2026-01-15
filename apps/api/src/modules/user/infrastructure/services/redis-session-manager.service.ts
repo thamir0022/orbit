@@ -1,109 +1,135 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { CACHE_MANAGER, type Cache } from '@nestjs/cache-manager'
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager'
 import { v4 as uuidv4 } from 'uuid'
 import type { ISessionManager, SessionData } from '@/modules/user/application'
 
 /**
- * Redis Session Manager (Adapter)
+ * Redis-backed Session Manager
  *
- * INFRASTRUCTURE LAYER - Implements the ISessionManager port
- *
- * Encapsulates Redis caching details for session management.
+ * Infrastructure layer adapter
  */
 @Injectable()
 export class RedisSessionManager implements ISessionManager {
-  private readonly SESSION_PREFIX = 'session:'
-  private readonly USER_SESSIONS_PREFIX = 'user-sessions:'
+  private static readonly SESSION_PREFIX = 'session:'
+  private static readonly USER_SESSIONS_PREFIX = 'user-sessions:'
 
   constructor(
     @Inject(CACHE_MANAGER)
-    private readonly cacheManager: Cache
+    private readonly cache: Cache
   ) {}
+
+  /* -------------------------------------------------------------------------- */
+  /* Public API                                                                 */
+  /* -------------------------------------------------------------------------- */
 
   async createSession(data: SessionData): Promise<string> {
     const sessionId = uuidv4()
-    const sessionKey = `${this.SESSION_PREFIX}${sessionId}`
-    const userSessionsKey = `${this.USER_SESSIONS_PREFIX}${data.userId}`
+    const ttl = this.calculateTTL(data.expiresAt)
 
-    const ttl = data.expiresAt.getTime() - Date.now()
-
-    await this.cacheManager.set(sessionKey, JSON.stringify(data), ttl)
-
-    const userSessions = await this.cacheManager.get<string>(userSessionsKey)
-    const sessions: string[] = userSessions ? JSON.parse(userSessions) : []
-    sessions.push(sessionId)
-    await this.cacheManager.set(
-      userSessionsKey,
-      sessions,
-      Math.floor(ttl / 1000)
-    )
+    await Promise.all([
+      this.storeSession(sessionId, data, ttl),
+      this.appendUserSession(data.userId, sessionId, ttl),
+    ])
 
     return sessionId
   }
 
   async getSession(sessionId: string): Promise<SessionData | null> {
-    const sessionKey = `${this.SESSION_PREFIX}${sessionId}`
-    const data = await this.cacheManager.get<string>(sessionKey)
+    const session = await this.cache.get<SessionData>(
+      this.sessionKey(sessionId)
+    )
+    if (!session) return null
 
-    if (!data) {
-      return null
-    }
-
-    const parsed = JSON.parse(data)
-    return {
-      ...parsed,
-      createdAt: new Date(parsed.createdAt),
-      expiresAt: new Date(parsed.expiresAt),
-    }
+    return session
   }
 
   async invalidateSession(sessionId: string): Promise<void> {
     const session = await this.getSession(sessionId)
     if (!session) return
 
-    const sessionKey = `${this.SESSION_PREFIX}${sessionId}`
-    const userSessionsKey = `${this.USER_SESSIONS_PREFIX}${session.userId}`
-
-    await this.cacheManager.del(sessionKey)
-
-    const userSessions = await this.cacheManager.get<string>(userSessionsKey)
-    if (userSessions) {
-      const sessions: string[] = JSON.parse(userSessions)
-      const updatedSessions = sessions.filter((id) => id !== sessionId)
-      if (updatedSessions.length > 0) {
-        await this.cacheManager.set(
-          userSessionsKey,
-          JSON.stringify(updatedSessions)
-        )
-      } else {
-        await this.cacheManager.del(userSessionsKey)
-      }
-    }
+    await Promise.all([
+      this.cache.del(this.sessionKey(sessionId)),
+      this.removeUserSession(session.userId, sessionId),
+    ])
   }
 
   async invalidateAllUserSessions(userId: string): Promise<void> {
-    const userSessionsKey = `${this.USER_SESSIONS_PREFIX}${userId}`
-    const userSessions = await this.cacheManager.get<string>(userSessionsKey)
+    const sessions = await this.getUserSessions(userId)
+    if (!sessions.length) return
 
-    if (userSessions) {
-      const sessions: string[] = JSON.parse(userSessions)
-      await Promise.all(
-        sessions.map((sessionId) =>
-          this.cacheManager.del(`${this.SESSION_PREFIX}${sessionId}`)
-        )
-      )
-      await this.cacheManager.del(userSessionsKey)
-    }
+    await Promise.all([
+      ...sessions.map((id) => this.cache.del(this.sessionKey(id))),
+      this.cache.del(this.userSessionsKey(userId)),
+    ])
   }
 
   async extendSession(sessionId: string, newExpiresAt: Date): Promise<void> {
     const session = await this.getSession(sessionId)
     if (!session) return
 
-    session.expiresAt = newExpiresAt
-    const sessionKey = `${this.SESSION_PREFIX}${sessionId}`
-    const ttl = newExpiresAt.getTime() - Date.now()
+    const ttl = this.calculateTTL(newExpiresAt)
 
-    await this.cacheManager.set(sessionKey, JSON.stringify(session), ttl)
+    await this.storeSession(
+      sessionId,
+      { ...session, expiresAt: newExpiresAt },
+      ttl
+    )
+  }
+
+  /* -------------------------------------------------------------------------- */
+  /* Private Helpers                                                            */
+  /* -------------------------------------------------------------------------- */
+
+  private async storeSession(
+    sessionId: string,
+    data: SessionData,
+    ttl: number
+  ): Promise<void> {
+    await this.cache.set(this.sessionKey(sessionId), data, ttl)
+  }
+
+  private async appendUserSession(
+    userId: string,
+    sessionId: string,
+    ttl: number
+  ): Promise<void> {
+    const sessions = await this.getUserSessions(userId)
+    sessions.push(sessionId)
+
+    await this.cache.set(this.userSessionsKey(userId), sessions, ttl)
+  }
+
+  private async removeUserSession(
+    userId: string,
+    sessionId: string
+  ): Promise<void> {
+    const sessions = await this.getUserSessions(userId)
+    const updated = sessions.filter((id) => id !== sessionId)
+
+    if (updated.length === 0) {
+      await this.cache.del(this.userSessionsKey(userId))
+      return
+    }
+
+    await this.cache.set(this.userSessionsKey(userId), updated)
+  }
+
+  private async getUserSessions(userId: string): Promise<string[]> {
+    const raw = await this.cache.get<string[]>(this.userSessionsKey(userId))
+
+    return raw ? raw : []
+  }
+
+  private calculateTTL(expiresAt: Date): number {
+    const ttlMs = expiresAt.getTime() - Date.now()
+    return Math.max(Math.floor(ttlMs / 1000), 0)
+  }
+
+  private sessionKey(sessionId: string): string {
+    return `${RedisSessionManager.SESSION_PREFIX}${sessionId}`
+  }
+
+  private userSessionsKey(userId: string): string {
+    return `${RedisSessionManager.USER_SESSIONS_PREFIX}${userId}`
   }
 }

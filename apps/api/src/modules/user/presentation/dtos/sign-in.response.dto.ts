@@ -12,12 +12,6 @@ export class TokenResponseDto {
   accessToken: string
 
   @ApiProperty({
-    description: 'JWT refresh token',
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-  })
-  refreshToken: string
-
-  @ApiProperty({
     description: 'Access token expiration time in seconds',
     example: 900,
   })
@@ -48,7 +42,7 @@ export class SignInResponseDto {
   @ApiProperty({
     description: 'Authentication tokens',
   })
-  tokens: TokenResponseDto
+  accessToken: string
 
   @ApiProperty({
     description: 'Session identifier',
