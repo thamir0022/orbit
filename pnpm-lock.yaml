@@ -47,6 +47,9 @@ importers:
       '@nestjs/swagger':
         specifier: ^11.2.4
         version: 11.2.5(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.12(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.12)(reflect-metadata@0.2.2)(rxjs@7.8.2))(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)
+      '@orbit/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
       bcryptjs:
         specifier: ^3.0.3
         version: 3.0.3
@@ -99,9 +102,6 @@ importers:
       '@orbit/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@orbit/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.6
