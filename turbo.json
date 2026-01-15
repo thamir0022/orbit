@@ -25,6 +25,20 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "api#dev": {
+      "env": [
+        "NODE_ENV",
+        "PORT", 
+        "CORS_ORIGINS", 
+        "MONGODB_URI", 
+        "MONGODB_DB_NAME", 
+        "REDIS_URL", 
+        "REDIS_USERNAME", 
+        "REDIS_PASSWORD", 
+        "JWT_SECRET", 
+        "JWT_EXPIRES_IN"
+      ]
     }
   }
 }

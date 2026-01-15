@@ -21,7 +21,7 @@ async function bootstrap() {
 
   // CORS
   app.enableCors({
-    origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000'],
+    origin: process.env.CORS_ORIGINS,
     credentials: true,
   })
 
@@ -36,12 +36,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('api/docs', app, document)
 
-  const port = process.env.PORT || 5000
+  const PORT = process.env.PORT || 5000
 
-  await app.listen(port)
+  await app.listen(PORT)
 
-  logger.log(`🚀 Orbit API is running on: http://localhost:${port}/api/v1`)
-  logger.log(`📚 Swagger docs available at: http://localhost:${port}/api/docs`)
+  logger.log(`🚀 Orbit API is running on: http://localhost:${PORT}/api/v1`)
+  logger.log(`📚 Swagger docs available at: http://localhost:${PORT}/api/docs`)
 }
 
 void bootstrap()
