@@ -8,20 +8,7 @@ import { UserModel, UserSchema } from '@/modules/user/infrastructure'
 // Controllers
 import { UserController } from '@/modules/user/presentation'
 
-// Providers
-import { userProviders } from '@/modules/user/infrastructure'
-
-// Command Handlers
-import { SignUpHandler, SignInHandler } from '@/modules/user/application'
-
-// Event Handlers
-import {
-  UserCreatedHandler,
-  UserSignedInHandler,
-} from '@/modules/user/application'
-
-const commandHandlers = [SignUpHandler, SignInHandler]
-const eventHandlers = [UserCreatedHandler, UserSignedInHandler]
+import { RedisModule } from '@/shared/infrastructure'
 
 /**
  * User Module
@@ -30,10 +17,10 @@ const eventHandlers = [UserCreatedHandler, UserSignedInHandler]
 @Module({
   imports: [
     CqrsModule,
+    RedisModule,
     MongooseModule.forFeature([{ name: UserModel.name, schema: UserSchema }]),
   ],
   controllers: [UserController],
-  providers: [...userProviders, ...commandHandlers, ...eventHandlers],
-  exports: [...userProviders],
+  providers: [],
 })
 export class UserModule {}
