@@ -1,4 +1,4 @@
-import { nextJsConfig } from '@orbit/eslint-config/next.js';
+import { nextJsConfig } from '@orbit/eslint-config/next.js'
 
 /** @type {import("eslint").Linter.Config} */
 export default [
@@ -14,4 +14,4 @@ export default [
     ],
   },
   ...nextJsConfig,
-];
+]
