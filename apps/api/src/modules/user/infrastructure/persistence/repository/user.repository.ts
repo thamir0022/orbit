@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import type { Model } from 'mongoose'
-import type { IUserRepository } from '@/modules/user/application'
+import type { IUserRepository } from '@/modules/user/application/ports/repository/user.repository.interface'
 import type { User } from '@/modules/user/domain'
 import type { Email } from '@/modules/user/domain'
 import type { UserId } from '@/modules/user/domain'
@@ -8,7 +8,7 @@ import {
   UserModel,
   type UserDocument,
 } from '@/modules/user/infrastructure/persistence/schema/user.schema'
-import { UserMapper } from '@/modules/user/application'
+import { UserMapper } from '@/modules/user/application/mappers/user.mapper'
 import { InjectModel } from '@nestjs/mongoose'
 
 /**

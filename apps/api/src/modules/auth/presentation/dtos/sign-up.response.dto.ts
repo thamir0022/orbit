@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { UserResponseDto } from '@/modules/user/application'
+import { UserResponseDto } from '../../application'
 
 /**
  * Sign Up Response DTO
@@ -11,10 +11,15 @@ export class SignUpResponseDto {
 
   @ApiProperty({
     description: 'Response message',
-    example: 'User registered successfully',
+    example: 'Account registered successfully',
   })
   message: string
 
   @ApiProperty({ description: 'User data', type: UserResponseDto })
-  data: UserResponseDto
+  data: {
+    user: UserResponseDto
+    accessToken: string
+    sessionId: string
+    accessTokenExpiresAt: Date
+  }
 }

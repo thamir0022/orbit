@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import type { UserResponseDto } from '@/modules/user/application'
+import type { UserResponseDto } from '../../application'
 
 /**
  * Token Response DTO
@@ -37,16 +37,10 @@ export class SignInResponseDto {
   @ApiProperty({
     description: 'User data',
   })
-  data: UserResponseDto
-
-  @ApiProperty({
-    description: 'Authentication tokens',
-  })
-  accessToken: string
-
-  @ApiProperty({
-    description: 'Session identifier',
-    example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-  })
-  sessionId: string
+  data: {
+    user: UserResponseDto
+    accessToken: string
+    sessionId: string
+    accessTokenExpiresAt: Date
+  }
 }

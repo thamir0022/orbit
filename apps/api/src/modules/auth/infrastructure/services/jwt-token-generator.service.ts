@@ -1,7 +1,14 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as jwt from 'jsonwebtoken'
-import type { ITokenGenerator, TokenPayload } from '@/modules/user/application'
+import type {
+  AccessTokenPayload,
+  AccessTokenResult,
+  ITokenGenerator,
+  RefreshTokenPayload,
+  RefreshTokenResult,
+} from '../../application/ports/services/token-generator.interface'
+import { UuidUtil } from '@/shared/utils'
 
 /**
  * JWT Token Generator (Adapter)
@@ -26,49 +33,49 @@ export class JwtTokenGenerator implements ITokenGenerator {
       'JWT_REFRESH_SECRET',
       'refresh-secret'
     )
-    this.accessTokenExpiresIn = this.configService.get<number>(
-      'JWT_ACCESS_EXPIRES_IN',
-      900
+    this.accessTokenExpiresIn = Number(
+      this.configService.get<number>('JWT_ACCESS_EXPIRES_IN', 900)
     )
-    this.refreshTokenExpiresIn = this.configService.get<number>(
-      'JWT_REFRESH_EXPIRES_IN',
-      604800
+    this.refreshTokenExpiresIn = Number(
+      this.configService.get<number>('JWT_REFRESH_EXPIRES_IN', 604800)
     )
   }
 
-  generateAccessToken(payload: TokenPayload): string {
+  generateAccessToken(payload: AccessTokenPayload): string {
     return jwt.sign(payload, this.accessTokenSecret, {
+      jwtid: UuidUtil.generate(),
       expiresIn: this.accessTokenExpiresIn,
     })
   }
 
-  generateRefreshToken(payload: TokenPayload): string {
+  generateRefreshToken(payload: RefreshTokenPayload): string {
     return jwt.sign(payload, this.refreshTokenSecret, {
+      jwtid: UuidUtil.generate(),
       expiresIn: this.refreshTokenExpiresIn,
     })
   }
 
-  verifyAccessToken(token: string): TokenPayload | null {
+  verifyAccessToken(token: string): AccessTokenResult | null {
     try {
-      return jwt.verify(token, this.accessTokenSecret) as TokenPayload
+      return jwt.verify(token, this.accessTokenSecret) as AccessTokenResult
     } catch {
       return null
     }
   }
 
-  verifyRefreshToken(token: string): TokenPayload | null {
+  verifyRefreshToken(token: string): RefreshTokenResult | null {
     try {
-      return jwt.verify(token, this.refreshTokenSecret) as TokenPayload
+      return jwt.verify(token, this.refreshTokenSecret) as RefreshTokenResult
     } catch {
       return null
     }
   }
 
-  get accessTokenExpiry(): number {
-    return this.accessTokenExpiresIn
+  accessTokenTTL(now = Date.now()): Date {
+    return new Date(now + this.accessTokenExpiresIn * 1000)
   }
 
-  get refreshTokenExpiry(): number {
-    return this.refreshTokenExpiresIn
+  refreshTokenTTL(now = Date.now()): Date {
+    return new Date(now + this.refreshTokenExpiresIn * 1000)
   }
 }

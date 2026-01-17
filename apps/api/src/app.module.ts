@@ -5,6 +5,7 @@ import { RedisModule } from '@/shared/infrastructure'
 import { UserModule } from '@/modules/user/user.module'
 import { DomainExceptionFilter } from '@/shared/presentation/filters/domain-exception.filter'
 import { APP_FILTER } from '@nestjs/core'
+import { AuthModule } from './modules/auth/auth.module'
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { APP_FILTER } from '@nestjs/core'
     RedisModule,
 
     // Features Module
+    AuthModule,
     UserModule,
   ],
   providers: [

@@ -1,4 +1,4 @@
-import { UserResponseDto } from '@/modules/user/application'
+import { UserResponseDto } from '@/modules/auth/application'
 import {
   AuthProvider,
   Email,

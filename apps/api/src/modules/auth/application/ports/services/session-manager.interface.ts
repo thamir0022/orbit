@@ -13,19 +13,24 @@
 export interface SessionData {
   userId: string
   email: string
-  accessToken: string
-  ipAddress?: string
-  userAgent?: string
+  ipAddress: string
+  userAgent: string
+}
+
+export interface Session extends SessionData {
+  sessionId: string
   createdAt: Date
   expiresAt: Date
 }
 
 export interface ISessionManager {
   createSession(data: SessionData): Promise<string>
-  getSession(sessionId: string): Promise<SessionData | null>
+  getSession(sessionId: string): Promise<Session | null>
   invalidateSession(sessionId: string): Promise<void>
   invalidateAllUserSessions(userId: string): Promise<void>
   extendSession(sessionId: string, newExpiresAt: Date): Promise<void>
+  blacklistToken(jti: string, expiresAt: Date): Promise<void>
+  isTokenBlacklisted(jti: string): Promise<boolean>
 }
 
 export const SESSION_MANAGER = Symbol('ISessionManager')

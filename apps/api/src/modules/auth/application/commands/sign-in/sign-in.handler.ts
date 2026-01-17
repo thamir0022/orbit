@@ -1,9 +1,23 @@
 import { CommandHandler, EventBus, type ICommandHandler } from '@nestjs/cqrs'
 import { SignInCommand } from './sign-in.command'
-import type { IUserRepository } from '@/modules/user/application'
-import type { IPasswordHasher } from '@/modules/user/application'
-import type { ITokenGenerator } from '@/modules/user/application'
-import type { ISessionManager } from '@/modules/user/application'
+import {
+  IUserRepository,
+  USER_REPOSITORY,
+} from '@/modules/user/application/ports/repository/user.repository.interface'
+import {
+  PASSWORD_HASHER,
+  type IPasswordHasher,
+} from '../../ports/services/password-hasher.interface'
+import {
+  AccessTokenPayload,
+  RefreshTokenPayload,
+  TOKEN_GENERATOR,
+  type ITokenGenerator,
+} from '../../ports/services/token-generator.interface'
+import {
+  SESSION_MANAGER,
+  type ISessionManager,
+} from '../../ports/services/session-manager.interface'
 import { Email } from '@/modules/user/domain'
 import { UserStatus } from '@/modules/user/domain'
 import {
@@ -11,21 +25,17 @@ import {
   AccountLockedException,
   AccountInactiveException,
 } from '@/modules/user/domain'
-import {
-  PASSWORD_HASHER,
-  SESSION_MANAGER,
-  TOKEN_GENERATOR,
-  USER_REPOSITORY,
-  UserMapper,
-} from '@/modules/user/application'
-import type { UserResponseDto } from '@/modules/user/application'
+import type { UserResponseDto } from '../../dtos/user-response.dto'
 import { Inject, Logger } from '@nestjs/common'
+import { UserMapper } from '@/modules/user/application/mappers/user.mapper'
 
 export interface SignInResult {
   user: UserResponseDto
   tokens: {
     accessToken: string
     refreshToken: string
+    refreshTokenExpiresAt: Date
+    accessTokenExpiresAt: Date
   }
   sessionId: string
 }
@@ -49,14 +59,14 @@ export class SignInHandler implements ICommandHandler<
   private readonly logger = new Logger(SignInHandler.name)
   constructor(
     @Inject(USER_REPOSITORY)
-    private readonly userRepository: IUserRepository,
+    private readonly _userRepository: IUserRepository,
     @Inject(PASSWORD_HASHER)
-    private readonly passwordHasher: IPasswordHasher,
+    private readonly _passwordHasher: IPasswordHasher,
     @Inject(TOKEN_GENERATOR)
-    private readonly tokenGenerator: ITokenGenerator,
+    private readonly _tokenGenerator: ITokenGenerator,
     @Inject(SESSION_MANAGER)
-    private readonly sessionManager: ISessionManager,
-    private readonly eventBus: EventBus
+    private readonly _sessionManager: ISessionManager,
+    private readonly _eventBus: EventBus
   ) {}
 
   async execute(command: SignInCommand): Promise<SignInResult> {
@@ -69,7 +79,7 @@ export class SignInHandler implements ICommandHandler<
     const email = emailResult.value
 
     // 2. Find user by email (via Repository Port)
-    const user = await this.userRepository.findByEmail(email)
+    const user = await this._userRepository.findByEmail(email)
     if (!user) throw new InvalidCredentialsException()
 
     // 3. Check if account is locked (Domain business rule)
@@ -82,7 +92,7 @@ export class SignInHandler implements ICommandHandler<
     // 5. Verify password (via Password Hasher Port)
     if (!user.passwordHash) throw new InvalidCredentialsException()
 
-    const isPasswordValid = await this.passwordHasher.compare(
+    const isPasswordValid = await this._passwordHasher.compare(
       command.password,
       user.passwordHash.value
     )
@@ -90,7 +100,7 @@ export class SignInHandler implements ICommandHandler<
     if (!isPasswordValid) {
       // Domain behavior: record failed login
       user.recordFailedLogin()
-      await this.userRepository.save(user)
+      await this._userRepository.save(user)
       throw new InvalidCredentialsException()
     }
 
@@ -98,34 +108,35 @@ export class SignInHandler implements ICommandHandler<
     user.recordLogin()
 
     // 7. Save the user
-    await this.userRepository.save(user)
+    await this._userRepository.save(user)
 
-    // 8. Generate token pair (via Token Generator Port)
-    const tokenPayload = {
-      userId: user.userId.value,
+    const sessionId = await this._sessionManager.createSession({
+      userId: user.id.value,
       email: user.email.value,
-    }
-
-    const accessToken = this.tokenGenerator.generateAccessToken(tokenPayload)
-    const refreshToken = this.tokenGenerator.generateRefreshToken(tokenPayload)
-
-    // 9. Create session in Redis (via Session Manager Port)
-    const sessionId = await this.sessionManager.createSession({
-      userId: user.userId.value,
-      email: user.email.value,
-      accessToken,
       ipAddress: command.ipAddress,
       userAgent: command.userAgent,
-      createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     })
+
+    const accessToken = this._tokenGenerator.generateAccessToken({
+      sub: user.id.value,
+      sid: sessionId,
+      email: user.email.value,
+    })
+
+    const refreshToken = this._tokenGenerator.generateRefreshToken({
+      sub: user.id.value,
+      sid: user.id.value,
+    })
+
+    const now = Date.now()
+
+    const refreshTokenExpiresAt = this._tokenGenerator.refreshTokenTTL(now)
+    const accessTokenExpiresAt = this._tokenGenerator.accessTokenTTL(now)
 
     // 10. Publish domain events
     const events = user.domainEvents
-    events.forEach((event) => this.eventBus.publish(event))
+    events.forEach((event) => this._eventBus.publish(event))
     user.clearEvents()
-
-    this.logger.log(`User signed in successfully: ${user.userId.value}`)
 
     // 10. Return result (Application DTO)
     return {
@@ -133,6 +144,8 @@ export class SignInHandler implements ICommandHandler<
       tokens: {
         accessToken,
         refreshToken,
+        refreshTokenExpiresAt,
+        accessTokenExpiresAt,
       },
       sessionId,
     }

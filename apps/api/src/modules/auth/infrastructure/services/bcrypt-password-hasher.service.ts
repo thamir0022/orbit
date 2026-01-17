@@ -1,5 +1,5 @@
 import brcypt from 'bcryptjs'
-import { IPasswordHasher } from '@/modules/user/application'
+import { IPasswordHasher } from '../../application/ports/services/password-hasher.interface'
 import { Injectable } from '@nestjs/common'
 
 /**
