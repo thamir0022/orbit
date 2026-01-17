@@ -2,11 +2,11 @@ import { Inject, Injectable, Logger } from '@nestjs/common'
 import { Cache } from 'cache-manager'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
-import { v4 as uuidv4 } from 'uuid'
 import type {
   ISessionManager,
   Session,
 } from '../../application/ports/services/session-manager.interface'
+import { UuidUtil } from '@/shared/utils'
 
 // Define input DTO for clarity
 interface CreateSessionDto {
@@ -34,7 +34,7 @@ export class RedisSessionManager implements ISessionManager {
   /* -------------------------------------------------------------------------- */
 
   async createSession(data: CreateSessionDto): Promise<string> {
-    const sessionId = uuidv4()
+    const sessionId = UuidUtil.generate()
     const now = Date.now()
     
     // 1. Get duration from config (Default: 7 days)
