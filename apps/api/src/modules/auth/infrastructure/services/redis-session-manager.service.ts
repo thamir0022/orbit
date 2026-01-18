@@ -36,10 +36,10 @@ export class RedisSessionManager implements ISessionManager {
   async createSession(data: CreateSessionDto): Promise<string> {
     const sessionId = UuidUtil.generate()
     const now = Date.now()
-    
+
     // 1. Get duration from config (Default: 7 days)
     const ttl = this.getDefaultTTL()
-    
+
     const session: Session = {
       sessionId,
       userId: data.userId,
@@ -47,7 +47,7 @@ export class RedisSessionManager implements ISessionManager {
       ipAddress: data.ipAddress,
       userAgent: data.userAgent,
       createdAt: new Date(now),
-      expiresAt: new Date(now + ttl) // Sync JSON with Redis TTL
+      expiresAt: new Date(now + ttl), // Sync JSON with Redis TTL
     }
 
     await Promise.all([
@@ -74,8 +74,8 @@ export class RedisSessionManager implements ISessionManager {
 
   async invalidateAllUserSessions(userId: string): Promise<void> {
     const sessions = await this.getUserSessions(userId)
-    
-    const deletePromises = sessions.map((id) => 
+
+    const deletePromises = sessions.map((id) =>
       this.cache.del(this.sessionKey(id))
     )
 
@@ -105,12 +105,12 @@ export class RedisSessionManager implements ISessionManager {
 
   /**
    * Blacklists a JTI (Access Token ID) until it expires naturally.
-   * This is used during logout to invalidate the specific Access Token 
+   * This is used during logout to invalidate the specific Access Token
    * the user is currently holding.
    */
   async blacklistToken(jti: string, expiresAt: Date): Promise<void> {
     const ttl = this.calculateRemainingTTL(expiresAt)
-    
+
     // If token is already expired, no need to blacklist
     if (ttl <= 0) return
 
@@ -151,7 +151,11 @@ export class RedisSessionManager implements ISessionManager {
       await this.cache.del(this.userSessionsKey(userId))
     } else {
       // Keep remaining list alive for the default duration
-      await this.cache.set(this.userSessionsKey(userId), updated, this.getDefaultTTL())
+      await this.cache.set(
+        this.userSessionsKey(userId),
+        updated,
+        this.getDefaultTTL()
+      )
     }
   }
 
@@ -183,7 +187,13 @@ export class RedisSessionManager implements ISessionManager {
     return Math.max(expiresAt.getTime() - Date.now(), 0)
   }
 
-  private sessionKey(id: string): string { return `${RedisSessionManager.SESSION_PREFIX}${id}` }
-  private userSessionsKey(id: string): string { return `${RedisSessionManager.USER_SESSIONS_PREFIX}${id}` }
-  private blacklistKey(jti: string): string { return `${RedisSessionManager.BLACKLIST_PREFIX}${jti}` }
+  private sessionKey(id: string): string {
+    return `${RedisSessionManager.SESSION_PREFIX}${id}`
+  }
+  private userSessionsKey(id: string): string {
+    return `${RedisSessionManager.USER_SESSIONS_PREFIX}${id}`
+  }
+  private blacklistKey(jti: string): string {
+    return `${RedisSessionManager.BLACKLIST_PREFIX}${jti}`
+  }
 }
