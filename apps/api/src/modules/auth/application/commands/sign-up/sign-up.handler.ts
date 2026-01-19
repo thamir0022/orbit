@@ -27,6 +27,7 @@ import {
 } from '../../ports/services/session-manager.interface'
 import { UserResponseDto } from '../../dtos/user-response.dto'
 import { UserMapper } from '@/modules/user/application/mappers/user.mapper'
+import { UuidUtil } from '@/shared/utils'
 
 export interface SignUpResult {
   user: UserResponseDto
@@ -92,20 +93,25 @@ export class SignUpHandler implements ICommandHandler<
     // 6. Persist user (Infrastructure concern via Port)
     const savedUser = await this._userRepository.save(user)
 
+    const refreshTokenId = UuidUtil.generate()
+
     const sessionId = await this._sessionManager.createSession({
       userId: user.id.value,
+      jti: refreshTokenId,
       email: user.email.value,
       ipAddress: command.ipAddress,
       userAgent: command.userAgent,
     })
 
     const accessToken = this._tokenGenerator.generateAccessToken({
+      jti: UuidUtil.generate(),
       sub: user.id.value,
       sid: sessionId,
       email: user.email.value,
     })
 
     const refreshToken = this._tokenGenerator.generateRefreshToken({
+      jti: refreshTokenId,
       sub: user.id.value,
       sid: user.id.value,
     })

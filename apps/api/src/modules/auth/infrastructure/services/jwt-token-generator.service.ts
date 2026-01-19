@@ -8,7 +8,6 @@ import type {
   RefreshTokenPayload,
   RefreshTokenResult,
 } from '../../application/ports/services/token-generator.interface'
-import { UuidUtil } from '@/shared/utils'
 
 /**
  * JWT Token Generator (Adapter)
@@ -43,14 +42,12 @@ export class JwtTokenGenerator implements ITokenGenerator {
 
   generateAccessToken(payload: AccessTokenPayload): string {
     return jwt.sign(payload, this.accessTokenSecret, {
-      jwtid: UuidUtil.generate(),
       expiresIn: this.accessTokenExpiresIn,
     })
   }
 
   generateRefreshToken(payload: RefreshTokenPayload): string {
     return jwt.sign(payload, this.refreshTokenSecret, {
-      jwtid: UuidUtil.generate(),
       expiresIn: this.refreshTokenExpiresIn,
     })
   }

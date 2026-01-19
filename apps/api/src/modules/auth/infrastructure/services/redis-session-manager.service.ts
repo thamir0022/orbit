@@ -5,16 +5,12 @@ import { ConfigService } from '@nestjs/config'
 import type {
   ISessionManager,
   Session,
+  SessionData,
+  UpdateSession,
 } from '../../application/ports/services/session-manager.interface'
 import { UuidUtil } from '@/shared/utils'
 
 // Define input DTO for clarity
-interface CreateSessionDto {
-  userId: string
-  email: string
-  ipAddress: string
-  userAgent: string
-}
 
 @Injectable()
 export class RedisSessionManager implements ISessionManager {
@@ -33,7 +29,7 @@ export class RedisSessionManager implements ISessionManager {
   /* Session Management (Refresh Tokens)                                        */
   /* -------------------------------------------------------------------------- */
 
-  async createSession(data: CreateSessionDto): Promise<string> {
+  async createSession(data: SessionData): Promise<string> {
     const sessionId = UuidUtil.generate()
     const now = Date.now()
 
@@ -43,6 +39,7 @@ export class RedisSessionManager implements ISessionManager {
     const session: Session = {
       sessionId,
       userId: data.userId,
+      jti: data.jti,
       email: data.email,
       ipAddress: data.ipAddress,
       userAgent: data.userAgent,
@@ -85,13 +82,13 @@ export class RedisSessionManager implements ISessionManager {
     ])
   }
 
-  async extendSession(sessionId: string, newExpiresAt: Date): Promise<void> {
+  async extendSession({sessionId, updates, expiresAt} : UpdateSession): Promise<void> {
     const session = await this.getSession(sessionId)
     if (!session) return
 
     // Calculate remaining time
-    const ttl = this.calculateRemainingTTL(newExpiresAt)
-    const updatedSession = { ...session, expiresAt: newExpiresAt }
+    const ttl = this.calculateRemainingTTL(expiresAt)
+    const updatedSession = { ...session,  ...updates, expiresAt }
 
     await Promise.all([
       this.cache.set(this.sessionKey(sessionId), updatedSession, ttl),

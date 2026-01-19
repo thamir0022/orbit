@@ -2,23 +2,6 @@ import { ApiProperty } from '@nestjs/swagger'
 import type { UserResponseDto } from '../../application'
 
 /**
- * Token Response DTO
- */
-export class TokenResponseDto {
-  @ApiProperty({
-    description: 'JWT access token',
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-  })
-  accessToken: string
-
-  @ApiProperty({
-    description: 'Access token expiration time in seconds',
-    example: 900,
-  })
-  expiresIn: number
-}
-
-/**
  * Sign In Response DTO
  */
 export class SignInResponseDto {

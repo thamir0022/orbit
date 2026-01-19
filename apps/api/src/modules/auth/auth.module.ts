@@ -9,8 +9,9 @@ import { authProviders } from './infrastructure/providers/auth.providers'
 import { RedisModule } from '../../shared/infrastructure/cache/redis.module'
 import { MongooseModule } from '@nestjs/mongoose'
 import { UserModel, UserSchema } from '../user/infrastructure'
+import { RefreshTokenHandler } from './application/commands/refresh-token/refresh-token.handler'
 
-const commandHandlers = [SignUpHandler, SignInHandler]
+const commandHandlers = [SignUpHandler, SignInHandler, RefreshTokenHandler]
 const eventHandlers = [UserCreatedHandler, UserSignedInHandler]
 
 @Module({

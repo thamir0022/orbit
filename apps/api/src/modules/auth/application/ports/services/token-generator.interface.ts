@@ -11,18 +11,19 @@
  */
 
 export interface AccessTokenPayload {
+  jti: string // JWT Token Id
   sub: string // Subject - User Id
   email: string
   sid: string // Session Id
 }
 
 export interface RefreshTokenPayload {
+  jti: string // JWT Token Id
   sub: string // Subject - User Id
   sid: string // Session Id
 }
 
 interface JwtStandardClaims {
-  jti: string
   iat: number
   exp: number
 }

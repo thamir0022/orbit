@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Headers,
   HttpCode,
   HttpStatus,
@@ -20,6 +21,9 @@ import {
 } from '../dtos'
 import { SignUpCommand } from '../../application/commands/sign-up/sign-up.command'
 import { SignInCommand } from '../../application'
+import { RefreshTokenResponseDto } from '../dtos/refresh-token.response.dto'
+import { RefreshTokenCommand } from '../../application/commands/refresh-token/refresh-token.command'
+import { Cookie } from '@/shared/presentation/decorators/cookie.decorator'
 
 @Controller('auth')
 export class AuthController {
@@ -110,6 +114,44 @@ export class AuthController {
         accessToken: tokens.accessToken,
         sessionId,
         accessTokenExpiresAt: tokens.accessTokenExpiresAt,
+      },
+    }
+  }
+
+  @Get('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Access token refreshed successfully',
+    type: RefreshTokenResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid or expired refresh token',
+  })
+  async refresh(
+    @Headers('user-agent') userAgent: string,
+    @Cookie('refresh_token') refreshToken: string,
+    @Ip() ipAddress: string,
+    @Res({ passthrough: true }) res: Response
+  ): Promise<RefreshTokenResponseDto> {
+    const command = new RefreshTokenCommand(refreshToken, ipAddress, userAgent)
+
+    const { tokens, sessionId } = await this._commandBus.execute(command)
+
+    res.cookie('refresh_token', tokens.refreshToken, {
+      httpOnly: true,
+      secure: this._config.get<string>('NODE_ENV') === 'production',
+      expires: tokens.refreshTokenExpiresAt,
+    })
+
+    return {
+      success: true,
+      message: 'Access token refreshed successfully',
+      data: {
+        accessToken: tokens.accessToken,
+        accessTokenExpiresAt: tokens.accessTokenExpiresAt,
+        sessionId,
       },
     }
   }
