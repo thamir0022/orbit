@@ -12,9 +12,12 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@orbit/ui/components",
+    "ui": "@orbit/ui/components",
     "utils": "@orbit/lib/utils",
-    "hooks": "@orbit/hooks",
     "lib": "@orbit/lib",
-    "ui": "@orbit/ui/components"
+    "hooks": "@orbit/hooks"
+  },
+  "registries": {
+    "@react-bits": "https://reactbits.dev/r/{name}.json"
   }
 }
