@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
-import '@orbit/ui/globals.css'
+import '@orbit/ui/global.css'
 import './global.css'
 import { ThemeProvider } from '@orbit/ui/components/theme-provider'
 
