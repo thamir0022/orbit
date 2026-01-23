@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import '@orbit/ui/globals.css'
+import './global.css'
 import { ThemeProvider } from '@orbit/ui/components/theme-provider'
 
 const geistSans = localFont({
