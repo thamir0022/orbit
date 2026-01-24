@@ -1,18 +1,12 @@
-import * as React from "react"
-import {
-  Control,
-  Controller,
-  FieldPath,
-  FieldValues,
-} from "react-hook-form"
+import * as React from 'react'
+import { Control, Controller, FieldPath, FieldValues } from 'react-hook-form'
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldLabel,
-} from "@orbit/ui/components/field"
-import { Input } from "@orbit/ui/components/input"
-
+} from '@orbit/ui/components/field'
+import { Input } from '@orbit/ui/components/input'
 
 interface CustomInputProps<T extends FieldValues> {
   control: Control<T>
@@ -33,7 +27,7 @@ export function CustomInput<T extends FieldValues>({
   description,
   className,
   placeholder,
-  type = "text",
+  type = 'text',
   inputProps,
 }: CustomInputProps<T>) {
   const id = React.useId()
@@ -49,13 +43,11 @@ export function CustomInput<T extends FieldValues>({
 
         return (
           <Field className={className} data-invalid={isError}>
-            <FieldLabel htmlFor={id}>
-              {label}
-            </FieldLabel>
+            <FieldLabel htmlFor={id}>{label}</FieldLabel>
 
             <Input
-              {...field}       // Safe to spread for standard Inputs
-              {...inputProps}  // Spread extra native props (e.g. disabled)
+              {...field} // Safe to spread for standard Inputs
+              {...inputProps} // Spread extra native props (e.g. disabled)
               id={id}
               type={type}
               placeholder={placeholder}
@@ -63,7 +55,7 @@ export function CustomInput<T extends FieldValues>({
               aria-describedby={
                 isError ? errorId : description ? descriptionId : undefined
               }
-              value={field.value ?? ""} // Null safety
+              value={field.value ?? ''} // Null safety
             />
 
             {description && (

@@ -1,5 +1,5 @@
 @import 'tailwindcss';
 
 @utility sub-heading {
-  @apply text-2xl font-medium 
+  @apply text-2xl font-medium;
 }

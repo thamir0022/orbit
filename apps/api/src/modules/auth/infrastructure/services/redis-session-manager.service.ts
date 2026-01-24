@@ -82,13 +82,17 @@ export class RedisSessionManager implements ISessionManager {
     ])
   }
 
-  async extendSession({sessionId, updates, expiresAt} : UpdateSession): Promise<void> {
+  async extendSession({
+    sessionId,
+    updates,
+    expiresAt,
+  }: UpdateSession): Promise<void> {
     const session = await this.getSession(sessionId)
     if (!session) return
 
     // Calculate remaining time
     const ttl = this.calculateRemainingTTL(expiresAt)
-    const updatedSession = { ...session,  ...updates, expiresAt }
+    const updatedSession = { ...session, ...updates, expiresAt }
 
     await Promise.all([
       this.cache.set(this.sessionKey(sessionId), updatedSession, ttl),
