@@ -9,6 +9,10 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check"
   },
+  "peerDependencies": {
+    "eslint": "^9.39.2",
+    "typescript": "5.9.2"
+  },
   "dependencies": {
     "@orbit/hooks": "workspace:*",
     "@orbit/lib": "workspace:*",
@@ -39,9 +43,7 @@
     "@types/node": "^20.19.9",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
-    "eslint": "^9.32.0",
-    "tailwindcss": "^4.1.11",
-    "typescript": "^5.9.2"
+    "tailwindcss": "^4.1.11"
   },
   "exports": {
     "./global.css": "./src/styles/global.css",

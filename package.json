@@ -6,16 +6,17 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
-    "format": "turbo run format",
     "format:check": "turbo run format:check",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
     "@orbit/eslint-config": "workspace:*",
     "@orbit/typescript-config": "workspace:*",
+    "eslint": "^9.39.2",
     "prettier": "^3.7.4",
     "turbo": "^2.7.5",
-    "typescript": "5.9.2"
+    "typescript": "^5.9.3"
   },
   "packageManager": "pnpm@10.28.1",
   "engines": {
