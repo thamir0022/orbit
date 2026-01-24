@@ -1,1 +1,5 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+@utility sub-heading {
+  @apply text-2xl font-medium 
+}
