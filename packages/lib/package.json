@@ -11,7 +11,7 @@
   },
   "peerDependencies": {
     "eslint": "^9.39.2",
-    "typescript": "5.9.2"
+    "typescript": "5.9.3"
   },
   "dependencies": {
     "clsx": "^2.1.1",
