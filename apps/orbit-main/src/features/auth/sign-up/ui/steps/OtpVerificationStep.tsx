@@ -1,4 +1,4 @@
-import { Step } from '@orbit/ui/components/stepper'
+import { Step } from '../stepper'
 import { Button } from '@orbit/ui/components/button'
 import {
   InputOTP,
@@ -8,8 +8,9 @@ import {
   REGEXP_ONLY_DIGITS,
 } from '@orbit/ui/components/input-otp'
 import { IoIosArrowBack } from 'react-icons/io'
+import { useSignUpStepper } from '../../model/useSignUpStepper'
 
-export default function Step2({
+export function OtpVerificationStep({
   setCurrentStep,
 }: {
   setCurrentStep: React.Dispatch<React.SetStateAction<number>>

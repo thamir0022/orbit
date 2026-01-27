@@ -1,4 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@orbit/ui/components/button'
 import {
   Field,
@@ -22,52 +21,17 @@ import {
   SelectValue,
 } from '@orbit/ui/components/select'
 import { Badge } from '@orbit/ui/components/badge'
-import { Step } from '@orbit/ui/components/stepper'
-import { Controller, useForm } from 'react-hook-form'
-import z from 'zod'
+import { Step } from '../stepper'
+import { Controller } from 'react-hook-form'
+import { useOrganization } from '../../model/useOrganization'
 
-export default function Step4({}: {
-  setCurrentStep: React.Dispatch<React.SetStateAction<number>>
-}) {
-  const ORG_TYPES = ['startup', 'enterprise', 'agency'] as const
-  const TEAM_SIZES = [
-    'solo',
-    '2-10',
-    '11-50',
-    '51-200',
-    '201-500',
-    '500+',
-  ] as const
-
-  const formSchema = z.object({
-    name: z.string().min(1, { message: 'Organization name is required.' }),
-    subdomain: z.string().min(1, { message: 'Subdomain is required.' }),
-    type: z.enum(ORG_TYPES, {
-      message: 'Please select an organization type.',
-    }),
-    size: z
-      .enum(TEAM_SIZES, { message: 'Please select a team size.' })
-      .optional(),
-  })
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: '',
-      subdomain: '',
-      type: undefined,
-      size: undefined,
-    },
-  })
-
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log(data)
-  }
+export function OrganizationSetupStep() {
+  const { form, submit } = useOrganization()
 
   return (
-    <Step className="">
+    <Step>
       <h2 className="text-center mb-5 sub-heading">Create Your Organization</h2>
-      <form id="create-org-form" onSubmit={form.handleSubmit(onSubmit)}>
+      <form id="create-org-form" onSubmit={form.handleSubmit(submit)}>
         <FieldGroup className="flex gap-3">
           <Controller
             name="name"

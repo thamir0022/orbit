@@ -3,6 +3,7 @@ import localFont from 'next/font/local'
 import '@orbit/ui/global.css'
 import './global.css'
 import { ThemeProvider } from '@orbit/ui/components/theme-provider'
+import { cn } from '@orbit/lib/utils'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -24,8 +25,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <body
+        className={cn(
+          'w-screen h-screen',
+          geistMono.variable,
+          geistSans.variable
+        )}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -1,4 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@orbit/ui/components/button'
 import {
   Field,
@@ -7,49 +6,21 @@ import {
   FieldLabel,
 } from '@orbit/ui/components/field'
 import { Input } from '@orbit/ui/components/input'
-import { Step } from '@orbit/ui/components/stepper'
-import { Controller, useForm } from 'react-hook-form'
-import z from 'zod'
+import { Step } from '../stepper'
+import { Controller } from 'react-hook-form'
+import { useProfile } from '../../model/useProfile'
 
-export default function Step3({
+export function ProfileSetupStep({
   setCurrentStep,
 }: {
   setCurrentStep: React.Dispatch<React.SetStateAction<number>>
 }) {
-  const formSchema = z
-    .object({
-      firstName: z.string().min(1, { message: 'First name is required.' }),
-      lastName: z.string().min(1, { message: 'Last name is required.' }),
-      password: z
-        .string()
-        .min(8, { message: 'Password must be at least 8 characters.' }),
-      confirmPassword: z
-        .string()
-        .min(8, { message: 'Password must be at least 8 characters.' }),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-      message: 'Passwords do not match.',
-      path: ['confirmPassword'],
-    })
+  const { form, submit } = useProfile(() => setCurrentStep((c) => c + 1))
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      password: '',
-      confirmPassword: '',
-    },
-  })
-
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log(data)
-    setCurrentStep((curr: number) => curr + 1)
-  }
   return (
     <Step>
       <h2 className="text-center mb-5 sub-heading">Create Your Profile</h2>
-      <form id="create-account-form" onSubmit={form.handleSubmit(onSubmit)}>
+      <form id="create-account-form" onSubmit={form.handleSubmit(submit)}>
         <FieldGroup className="flex gap-3">
           <div className="flex gap-3">
             <Controller
