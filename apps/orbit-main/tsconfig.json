@@ -1,7 +1,7 @@
 {
   "extends": "@orbit/typescript-config/nextjs.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "paths": {
       "@/*": ["./*"]
     },
