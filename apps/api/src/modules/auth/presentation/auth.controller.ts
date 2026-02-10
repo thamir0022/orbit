@@ -9,38 +9,45 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common'
-import { AUTH_SERVICE, type IAuthService } from '../application'
 import { SignInRequestDto, SignInResponseDto } from './dtos'
 import { CurrentUser } from '@/shared/presentation/decorators/current-user.decorator'
 import { User } from '@/modules/user/domain'
 import { type Response } from 'express'
 import { ConfigService } from '@nestjs/config'
 import { AuthGuard } from '@nestjs/passport'
-import { ApiBody, ApiResponse } from '@nestjs/swagger'
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiTags,
+} from '@nestjs/swagger'
 import { ApiOkResponseGeneric } from '@/shared/infrastructure/decorators/api-ok-response.decorator'
+import {
+  SIGN_IN_WITH_EMAIL,
+  type ISignInWithEmailUseCase,
+} from '../application/usecases/sign-in-with-email.interface'
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
-    @Inject(AUTH_SERVICE)
-    private readonly _authService: IAuthService,
+    @Inject(SIGN_IN_WITH_EMAIL)
+    private readonly _signInWithEmailUseCase: ISignInWithEmailUseCase,
     private readonly _config: ConfigService
   ) {}
 
   @Post('sign-in')
   @HttpCode(HttpStatus.CREATED)
   @ApiBody({ type: SignInRequestDto })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
+  @ApiCreatedResponse({
     description: 'Account registered successfully',
     type: SignInResponseDto,
   })
-  @ApiResponse({
-    status: HttpStatus.CONFLICT,
+  @ApiConflictResponse({
     description: 'Account with this email already exists',
   })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
+  @ApiBadRequestResponse({
     description: 'Invalid input data',
   })
   @UseGuards(AuthGuard('local'))
@@ -51,13 +58,11 @@ export class AuthController {
     @Ip() ipAddress: string,
     @Res({ passthrough: true }) res: Response
   ): Promise<SignInResponseDto> {
-    const { user, tokens, sessionId } = await this._authService.signIn(
-      currentUser,
-      {
-        ipAddress,
-        userAgent,
-      }
-    )
+    const { user, tokens, sessionId } =
+      await this._signInWithEmailUseCase.excecute({
+        user: currentUser,
+        clientInfo: { ipAddress, userAgent },
+      })
 
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,

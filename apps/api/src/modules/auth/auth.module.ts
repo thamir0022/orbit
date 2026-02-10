@@ -6,6 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose'
 import { UserModel, UserSchema } from '../user/infrastructure'
 import { AuthController } from './presentation/auth.controller'
 import { LocalStrategy } from './infrastructure/strategies/local.strategy'
+import { SIGN_IN_WITH_EMAIL } from './application/usecases/sign-in-with-email.interface'
+import { SignInWithEmailUseCase } from './application/usecases/sign-in-with-email.usecase'
 
 @Module({
   imports: [
@@ -14,6 +16,10 @@ import { LocalStrategy } from './infrastructure/strategies/local.strategy'
     MongooseModule.forFeature([{ name: UserModel.name, schema: UserSchema }]),
   ],
   controllers: [AuthController],
-  providers: [...authProviders, LocalStrategy],
+  providers: [
+    ...authProviders,
+    LocalStrategy,
+    { provide: SIGN_IN_WITH_EMAIL, useClass: SignInWithEmailUseCase },
+  ],
 })
 export class AuthModule {}
