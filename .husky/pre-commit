@@ -1,5 +1,3 @@
-# 1. Format and lint only the files you are about to commit
-pnpm exec lint-staged
-
-# 2. Run TypeScript check across the monorepo (uses Turbo cache for speed)
-pnpm run check-types
+pnpm --filter api lint
+pnpm --filter client lint
+pnpm lint-staged
