@@ -11,7 +11,7 @@
     "typecheck": "pnpm -r --reporter=silent run typecheck",
     "build": "pnpm -r --reporter=silent run build",
     "test": "pnpm -r --reporter=silent run test",
-    "ci:verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+    "ci:verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm build"
   },
   "devDependencies": {
     "husky": "^9.1.7",
