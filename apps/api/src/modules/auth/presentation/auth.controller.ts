@@ -54,7 +54,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response
   ): Promise<SignInResponseDto> {
     const { user, tokens, sessionId } =
-      await this._signInWithEmailUseCase.excecute({
+      await this._signInWithEmailUseCase.execute({
         email: signInRequestDto.email,
         password: signInRequestDto.password,
         clientInfo: { ipAddress, userAgent },

@@ -43,7 +43,7 @@ export class SignInWithEmailUseCase implements ISignInWithEmailUseCase {
     private readonly _tokenGenerator: ITokenGenerator
   ) {}
 
-  async excecute({
+  async execute({
     email,
     password,
     clientInfo,
