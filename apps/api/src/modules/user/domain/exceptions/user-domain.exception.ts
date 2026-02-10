@@ -2,10 +2,10 @@ import { DomainException } from '@/shared/domain'
 import { HttpStatus } from '@nestjs/common'
 import { UserStatus } from '@/modules/user/domain'
 
-export class EmailAlreadyExistsException extends DomainException {
+export class UserAlreadyExistsException extends DomainException {
   constructor(email: string) {
     super({
-      code: 'EMAIL_ALREADY_EXISTS',
+      code: 'USER_ALREADY_EXISTS',
       message: `User with email ${email} already exists`,
       statusCode: HttpStatus.CONFLICT,
     })
