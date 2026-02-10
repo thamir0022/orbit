@@ -2,12 +2,20 @@
   "name": "orbit",
   "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "prepare": "husky"
-  },
   "packageManager": "pnpm@10.28.2",
+  "scripts": {
+    "prepare": "husky",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "pnpm -r --reporter=silent run lint",
+    "typecheck": "pnpm -r --reporter=silent run typecheck",
+    "build": "pnpm -r --reporter=silent run build",
+    "test": "pnpm -r --reporter=silent run test",
+    "ci:verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  },
   "devDependencies": {
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.7"
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.0.0"
   }
 }
