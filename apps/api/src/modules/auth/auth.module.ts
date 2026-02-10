@@ -7,6 +7,8 @@ import { UserModel, UserSchema } from '../user/infrastructure'
 import { AuthController } from './presentation/auth.controller'
 import { SIGN_IN_WITH_EMAIL } from './application/usecases/sign-in-with-email.interface'
 import { SignInWithEmailUseCase } from './application/usecases/sign-in-with-email.usecase'
+import { SIGN_UP_WITH_EMAIL } from './application/usecases/sign-up-with-email.interface'
+import { SignUpWithEmailUseCase } from './application/usecases/sign-up-with-email.usecase'
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { SignInWithEmailUseCase } from './application/usecases/sign-in-with-emai
   providers: [
     ...authProviders,
     { provide: SIGN_IN_WITH_EMAIL, useClass: SignInWithEmailUseCase },
+    { provide: SIGN_UP_WITH_EMAIL, useClass: SignUpWithEmailUseCase },
   ],
 })
 export class AuthModule {}

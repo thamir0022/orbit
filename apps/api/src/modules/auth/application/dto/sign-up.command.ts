@@ -1,6 +1,6 @@
 import { ClientInfo } from '../interfaces/auth.interface'
 
-export interface SignInCommand {
+export interface SignUpCommand {
   firstName: string
   lastName: string
   email: string

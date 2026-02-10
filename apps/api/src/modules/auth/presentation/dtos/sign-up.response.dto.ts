@@ -1,25 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { AuthenticatedUser } from '../../application/interfaces/auth.interface'
+import { type AuthenticatedUser } from '../../application/interfaces/auth.interface'
 
 /**
  * Sign Up Response DTO
  * Wraps the response with success flag and message
  */
 export class SignUpResponseDto {
-  @ApiProperty({ description: 'Operation success status', example: true })
-  success: boolean
+  @ApiProperty({
+    description: 'Authenticated User data',
+  })
+  user: AuthenticatedUser
 
   @ApiProperty({
-    description: 'Response message',
-    example: 'Account registered successfully',
+    description: 'Tokens and its expiry dates',
   })
-  message: string
-
-  @ApiProperty({ description: 'User data' })
-  data: {
-    user: AuthenticatedUser
+  tokens: {
     accessToken: string
-    sessionId: string
-    accessTokenExpiresAt: Date
+    accessTokenExpiresIn: number
   }
+
+  @ApiProperty({ description: 'User session ID' })
+  sessionId: string
 }
