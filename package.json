@@ -1,22 +1,21 @@
 {
   "name": "orbit",
+  "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@10.28.2",
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "lint:fix": "turbo run lint:fix",
-    "format": "turbo run format",
-    "format:check": "turbo run format:check",
-    "check-types": "turbo run check-types"
+    "prepare": "husky",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "pnpm -r --reporter=silent run lint",
+    "typecheck": "pnpm -r --reporter=silent run typecheck",
+    "build": "pnpm -r --reporter=silent run build",
+    "test": "pnpm -r --reporter=silent run test",
+    "ci:verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm build"
   },
   "devDependencies": {
-    "prettier": "^3.7.4",
-    "turbo": "^2.7.2",
-    "typescript": "5.9.2"
-  },
-  "packageManager": "pnpm@9.0.0",
-  "engines": {
-    "node": ">=18"
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.0.0"
   }
 }

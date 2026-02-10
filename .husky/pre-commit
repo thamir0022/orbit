@@ -1,0 +1,3 @@
+pnpm --filter api lint
+pnpm --filter client lint
+pnpm lint-staged

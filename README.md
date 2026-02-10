@@ -1,135 +1,60 @@
-# Turborepo starter
+# Orbit 🪐
 
-This Turborepo starter is maintained by the Turborepo core team.
+**The All-In-One Workspace for Modern Teams.**
 
-## Using this example
+[![Status: In Development](https://img.shields.io/badge/Status-In%20Development-blue.svg)]()
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![NestJS](https://img.shields.io/badge/nestjs-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![NextJS](https://img.shields.io/badge/next%20js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 
-Run the following command:
+## 🌟 Overview
 
-```sh
-npx create-turbo@latest
-```
+Orbit is an ambitious SaaS platform designed to replace fragmented team toolstacks. It combines the core functionalities of the industry's most popular productivity apps into a single, unified workspace.
 
-## What's inside?
+**No more context-switching. Orbit acts as your:**
 
-This Turborepo includes the following packages/apps:
+- **Slack Alternative:** Real-time team communication, channels, and direct messaging.
+- **Jira Alternative:** Agile project management, issue tracking, and sprint planning.
+- **Notion Alternative:** Collaborative documentation, wikis, and knowledge bases.
+- **Google Meet Alternative:** Integrated video and audio conferencing.
 
-### Apps and Packages
+Currently in its **early development phase**, built with enterprise-grade architecture for scalability and maintainability.
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@orbit/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@orbit/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@orbit/typescript-config`: `tsconfig.json`s used throughout the monorepo
+---
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## 🏗️ Architecture
 
-### Utilities
+Orbit uses **Clean Architecture + Domain-Driven Design (DDD)** to handle business complexity:
 
-This Turborepo has some additional tools already setup for you:
+**Layered approach:**
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+1. **Domain Layer:** Pure business logic (Entities, Value Objects)
+2. **Application Layer:** Use cases and orchestration
+3. **Infrastructure Layer:** Databases, external APIs
+4. **Presentation Layer:** Controllers, WebSockets, GraphQL
 
-### Build
+**Monorepo powered by Turborepo** for optimal developer experience.
 
-To build all apps and packages, run the following command:
+---
 
-```
-cd my-turborepo
+## 🛠️ Tech Stack
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+**Language:** TypeScript
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+**Backend:**
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+- **Framework:** NestJS
+- **Architecture:** Clean Architecture + DDD
+- **Validation:** class-validator & class-transformer
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+**Frontend:**
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+- **Framework:** Next.js
+- **UI:** Shadcn/ui + Tailwind CSS
 
-### Develop
+**Tooling:**
 
-To develop all apps and packages, run the following command:
+- **Monorepo:** Turborepo + pnpm
+- **Code Quality:** ESLint + Prettier
 
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+  ***
