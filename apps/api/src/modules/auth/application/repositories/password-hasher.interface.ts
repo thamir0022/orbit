@@ -1,3 +1,5 @@
+import { Password } from '@/modules/user/domain'
+
 /**
  * Password Hasher Interface (Port)
  *
@@ -12,7 +14,7 @@
  */
 
 export interface IPasswordHasher {
-  hash(plainPassword: string): Promise<string>
+  hash(plainPassword: Password): Promise<string>
   compare(plainPassword: string, hashedPassword: string): Promise<boolean>
 }
 
