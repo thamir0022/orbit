@@ -1,11 +1,7 @@
-import { User } from '@/modules/user/domain'
-
-export interface ClientInfo {
-  ipAddress: string
-  userAgent: string
-}
+import { ClientInfo } from '../interfaces/auth.interface'
 
 export interface SignInCommand {
-  user: User
+  email: string
+  password: string
   clientInfo: ClientInfo
 }

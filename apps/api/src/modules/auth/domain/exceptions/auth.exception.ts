@@ -2,25 +2,31 @@ import { DomainException } from '@/shared/domain'
 import { HttpStatus } from '@nestjs/common'
 
 export class InvalidRefreshTokenException extends DomainException {
-  readonly httpStatusCode = HttpStatus.UNAUTHORIZED
-
   constructor() {
-    super('INVALID_REFRESH_TOKEN', 'Refresh token is invalid or expired')
+    super({
+      code: 'INVALID_REFRESH_TOKEN',
+      message: 'Refresh token is invalid or expired',
+      statusCode: HttpStatus.UNAUTHORIZED,
+    })
   }
 }
 
 export class SessionNotFoundException extends DomainException {
-  readonly httpStatusCode = HttpStatus.UNAUTHORIZED
-
   constructor(sessionId: string) {
-    super('SESSION_NOT_FOUND', `Session ${sessionId} not found or expired`)
+    super({
+      code: 'SESSION_NOT_FOUND',
+      message: `Session ${sessionId} not found or expired`,
+      statusCode: HttpStatus.UNAUTHORIZED,
+    })
   }
 }
 
 export class RefreshTokenMismatchException extends DomainException {
-  readonly httpStatusCode = HttpStatus.UNAUTHORIZED
-
   constructor() {
-    super('REFRESH_TOKEN_MISMATCH', 'Invalid refresh token')
+    super({
+      code: 'REFRESH_TOKEN_MISMATCH',
+      message: 'Invalid refresh token',
+      statusCode: HttpStatus.UNAUTHORIZED,
+    })
   }
 }

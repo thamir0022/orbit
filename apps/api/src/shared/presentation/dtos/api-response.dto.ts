@@ -10,7 +10,7 @@ export class ApiResponseDto<T> {
   @ApiProperty({ example: 'Operation successful' })
   message: string
 
-  // We will define this dynamically in the decorator.
+  @ApiProperty({ example: '{user: {id: 1234, email: "john@mail.com"}}' })
   data: T
 
   @ApiProperty({ example: '2026-02-09T12:00:00Z' })
@@ -19,6 +19,12 @@ export class ApiResponseDto<T> {
   @ApiProperty({ example: '/api/v1/auth/login' })
   path: string
 
+  @ApiProperty({ example: 'POST' })
+  method: string
+
   @ApiProperty({ required: false, nullable: true })
-  error: any
+  error: {
+    code: string
+    message: string
+  } | null
 }

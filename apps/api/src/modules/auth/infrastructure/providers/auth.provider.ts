@@ -5,12 +5,10 @@ import { BcryptPasswordHasher } from '../services/bcrypt-password-hasher.service
 import { JwtTokenGenerator } from '../services/jwt-token-generator.service'
 import { RedisSessionManager } from '../services/redis-session-manager.service'
 import {
-  AUTH_SERVICE,
   PASSWORD_HASHER,
   SESSION_MANAGER,
   TOKEN_GENERATOR,
 } from '../../application'
-import { AuthService } from '../../application/services/auth.service'
 
 /**
  * Auth Module Providers
@@ -39,9 +37,5 @@ export const authProviders: Provider[] = [
   {
     provide: SESSION_MANAGER,
     useClass: RedisSessionManager,
-  },
-  {
-    provide: AUTH_SERVICE,
-    useClass: AuthService,
   },
 ]

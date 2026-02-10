@@ -1,19 +1,7 @@
-interface Tokens {
-  accessToken: string
-  accessTokenExpiresIn: number
-  refreshToken: string
-  refreshTokenExpiresIn: number
-}
-
-interface User {
-  id: string
-  email: string
-  firstName: string
-  lastName: string
-  displayName: string
-}
+import { AuthenticatedUser, Tokens } from '../interfaces/auth.interface'
 
 export interface SignUpResult {
+  user: AuthenticatedUser
   tokens: Tokens
-  user: User
+  sessionId: string
 }

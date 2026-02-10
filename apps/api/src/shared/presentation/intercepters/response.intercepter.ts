@@ -6,18 +6,18 @@ import {
 } from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { ApiResponse } from '../../infrastructure'
 import { Request, Response } from 'express'
+import { ApiResponseDto } from '@/shared/presentation/dtos/api-response.dto'
 
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<
   T,
-  ApiResponse<T>
+  ApiResponseDto<T>
 > {
   intercept(
     context: ExecutionContext,
     next: CallHandler
-  ): Observable<ApiResponse<T>> {
+  ): Observable<ApiResponseDto<T>> {
     const ctx = context.switchToHttp()
     const request = ctx.getRequest<Request>()
     const response = ctx.getResponse<Response>()
@@ -28,10 +28,12 @@ export class ResponseInterceptor<T> implements NestInterceptor<
         return {
           success: true,
           statusCode,
+          message: 'Success',
           data,
           error: null,
           timestamp: new Date().toISOString(),
           path: request.url,
+          method: request.method,
         }
       })
     )

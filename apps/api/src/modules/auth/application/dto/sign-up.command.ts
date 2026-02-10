@@ -1,4 +1,4 @@
-import { ClientInfo } from './sign-in.command'
+import { ClientInfo } from '../interfaces/auth.interface'
 
 export interface SignInCommand {
   firstName: string

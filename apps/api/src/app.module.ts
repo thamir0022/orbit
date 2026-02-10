@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { MongoDbModule } from '@/shared/infrastructure'
 import { RedisModule } from '@/shared/infrastructure'
 import { UserModule } from '@/modules/user/user.module'
-import { DomainExceptionFilter } from '@/shared/presentation/filters/domain-exception.filter'
+import { GlobalExceptionFilter } from '@/shared/presentation/filters/global-exception.filter'
 import { APP_FILTER } from '@nestjs/core'
 import { AuthModule } from './modules/auth/auth.module'
 
@@ -26,7 +26,7 @@ import { AuthModule } from './modules/auth/auth.module'
   providers: [
     {
       provide: APP_FILTER,
-      useClass: DomainExceptionFilter,
+      useClass: GlobalExceptionFilter,
     },
   ],
 })

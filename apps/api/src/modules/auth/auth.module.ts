@@ -5,7 +5,6 @@ import { RedisModule } from '@/shared/infrastructure'
 import { MongooseModule } from '@nestjs/mongoose'
 import { UserModel, UserSchema } from '../user/infrastructure'
 import { AuthController } from './presentation/auth.controller'
-import { LocalStrategy } from './infrastructure/strategies/local.strategy'
 import { SIGN_IN_WITH_EMAIL } from './application/usecases/sign-in-with-email.interface'
 import { SignInWithEmailUseCase } from './application/usecases/sign-in-with-email.usecase'
 
@@ -18,7 +17,6 @@ import { SignInWithEmailUseCase } from './application/usecases/sign-in-with-emai
   controllers: [AuthController],
   providers: [
     ...authProviders,
-    LocalStrategy,
     { provide: SIGN_IN_WITH_EMAIL, useClass: SignInWithEmailUseCase },
   ],
 })

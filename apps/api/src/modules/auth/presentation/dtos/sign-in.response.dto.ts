@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import type { AuthenticatedUser } from '../../application/dto/sign-in.result'
+import type { AuthenticatedUser } from '../../application/interfaces/auth.interface'
 
 /**
  * Sign In Response DTO

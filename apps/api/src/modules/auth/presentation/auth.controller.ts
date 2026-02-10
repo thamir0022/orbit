@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Headers,
   HttpCode,
@@ -7,14 +8,10 @@ import {
   Ip,
   Post,
   Res,
-  UseGuards,
 } from '@nestjs/common'
 import { SignInRequestDto, SignInResponseDto } from './dtos'
-import { CurrentUser } from '@/shared/presentation/decorators/current-user.decorator'
-import { User } from '@/modules/user/domain'
 import { type Response } from 'express'
 import { ConfigService } from '@nestjs/config'
-import { AuthGuard } from '@nestjs/passport'
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -22,11 +19,11 @@ import {
   ApiCreatedResponse,
   ApiTags,
 } from '@nestjs/swagger'
-import { ApiOkResponseGeneric } from '@/shared/infrastructure/decorators/api-ok-response.decorator'
 import {
   SIGN_IN_WITH_EMAIL,
   type ISignInWithEmailUseCase,
 } from '../application/usecases/sign-in-with-email.interface'
+import { ApiResponseDto } from '@/shared/presentation/dtos/api-response.dto'
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -42,7 +39,7 @@ export class AuthController {
   @ApiBody({ type: SignInRequestDto })
   @ApiCreatedResponse({
     description: 'Account registered successfully',
-    type: SignInResponseDto,
+    type: ApiResponseDto<SignInResponseDto>,
   })
   @ApiConflictResponse({
     description: 'Account with this email already exists',
@@ -50,17 +47,16 @@ export class AuthController {
   @ApiBadRequestResponse({
     description: 'Invalid input data',
   })
-  @UseGuards(AuthGuard('local'))
-  @ApiOkResponseGeneric({ type: SignInResponseDto })
   async signIn(
-    @CurrentUser() currentUser: User,
     @Headers('user-agent') userAgent: string,
     @Ip() ipAddress: string,
+    @Body() signInRequestDto: SignInRequestDto,
     @Res({ passthrough: true }) res: Response
   ): Promise<SignInResponseDto> {
     const { user, tokens, sessionId } =
       await this._signInWithEmailUseCase.excecute({
-        user: currentUser,
+        email: signInRequestDto.email,
+        password: signInRequestDto.password,
         clientInfo: { ipAddress, userAgent },
       })
 
