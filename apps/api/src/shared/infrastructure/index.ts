@@ -1,2 +1,4 @@
 export * from './cache/redis.module'
 export * from './database/mongodb.module'
+export * from './interfaces/mongodb.config.interface'
+export * from './interfaces/app.config.interface'

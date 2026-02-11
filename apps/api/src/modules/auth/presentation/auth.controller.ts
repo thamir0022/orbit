@@ -17,7 +17,6 @@ import {
   SignUpResponseDto,
 } from './dtos'
 import type { Response } from 'express'
-import { ConfigService } from '@nestjs/config'
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -41,6 +40,10 @@ import {
   REFRESH_TOKEN,
 } from '../application/usecases/refresh-token.interface'
 import { RefreshTokenResponseDto } from './dtos/refresh-token.response.dto'
+import {
+  type IJwtConfig,
+  JWT_CONFIG,
+} from '../infrastructure/interfaces/jwt.config.interface'
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -52,7 +55,8 @@ export class AuthController {
     private readonly _signUpWithEmailUseCase: ISignUpWithEmailUseCase,
     @Inject(REFRESH_TOKEN)
     private readonly _refreshTokenUseCase: IRefreshTokenInterface,
-    private readonly _config: ConfigService
+    @Inject(JWT_CONFIG)
+    private readonly _config: IJwtConfig
   ) {}
 
   @Post('sign-in')
@@ -85,8 +89,8 @@ export class AuthController {
 
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
-      secure: this._config.get<string>('NODE_ENV') === 'production',
-      maxAge: this._config.get('JWT_REFRESH_EXPIRES_IN', 604800),
+      secure: this._config.isProduction,
+      maxAge: this._config.refreshTokenExpiresIn,
       path: '/api/v1/auth/refresh',
     })
 
@@ -95,7 +99,7 @@ export class AuthController {
       sessionId,
       tokens: {
         accessToken: tokens.accessToken,
-        accessTokenExpiresIn: this._config.get('JWT_ACCESS_EXPIRES_IN', 900),
+        accessTokenExpiresIn: this._config.accessTokenExpiresIn,
       },
     }
   }
@@ -132,8 +136,8 @@ export class AuthController {
 
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
-      secure: this._config.get<string>('NODE_ENV') === 'production',
-      maxAge: this._config.get('JWT_REFRESH_EXPIRES_IN', 604800),
+      secure: this._config.isProduction,
+      maxAge: this._config.refreshTokenExpiresIn,
       path: '/api/v1/auth/refresh',
     })
 
@@ -142,7 +146,7 @@ export class AuthController {
       sessionId,
       tokens: {
         accessToken: tokens.accessToken,
-        accessTokenExpiresIn: this._config.get('JWT_ACCESS_EXPIRES_IN', 900),
+        accessTokenExpiresIn: this._config.accessTokenExpiresIn,
       },
     }
   }
@@ -166,8 +170,8 @@ export class AuthController {
 
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
-      secure: this._config.get<string>('NODE_ENV') === 'production',
-      maxAge: this._config.get('JWT_REFRESH_EXPIRES_IN', 604800),
+      secure: this._config.isProduction,
+      maxAge: this._config.refreshTokenExpiresIn,
       path: '/api/v1/auth/refresh',
     })
 
@@ -176,7 +180,7 @@ export class AuthController {
       sessionId,
       tokens: {
         accessToken: tokens.accessToken,
-        accessTokenExpiresIn: this._config.get('JWT_ACCESS_EXPIRES_IN', 900),
+        accessTokenExpiresIn: this._config.accessTokenExpiresIn,
       },
     }
   }

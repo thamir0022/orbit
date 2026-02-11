@@ -4,10 +4,13 @@ import { Logger, ValidationPipe } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import cookieParser from 'cookie-parser'
 import { ResponseInterceptor } from './shared/presentation/intercepters/response.intercepter'
+import { APP_CONFIG, IAppConfig } from './shared/infrastructure'
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap')
   const app = await NestFactory.create(AppModule)
+
+  const config = app.get<IAppConfig>(APP_CONFIG)
 
   // Global prefix
   app.setGlobalPrefix('api/v1')
@@ -23,7 +26,7 @@ async function bootstrap() {
 
   // CORS
   app.enableCors({
-    origin: process.env.CORS_ORIGINS,
+    origin: config.corsOrgins,
     credentials: true,
   })
 
@@ -33,22 +36,22 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ResponseInterceptor())
 
   // Swagger documentation
-  const config = new DocumentBuilder()
+  const swaggerConfig = new DocumentBuilder()
     .setTitle('Orbit API')
     .setDescription('Comprehensive Project Management Platform API')
     .setVersion('1.0')
     .addBearerAuth()
     .build()
 
-  const document = SwaggerModule.createDocument(app, config)
+  const document = SwaggerModule.createDocument(app, swaggerConfig)
   SwaggerModule.setup('api/docs', app, document)
 
-  const PORT = process.env.PORT ?? 5000
+  const PORT = config.port ?? 5000
 
   await app.listen(PORT)
 
-  logger.log(`🚀 Orbit API is running on: http://localhost:${PORT}/api/v1`)
-  logger.log(`📚 Swagger docs available at: http://localhost:${PORT}/api/docs`)
+  logger.log(`🚀 Orbit API is running on: ${await app.getUrl()}`)
+  logger.log(`📚 Swagger docs available at: ${await app.getUrl()}/api/docs`)
 }
 
 void bootstrap()

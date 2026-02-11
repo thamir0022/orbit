@@ -1,7 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { type Cache } from 'cache-manager'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { ConfigService } from '@nestjs/config'
 import type {
   ISessionManager,
   Session,
@@ -9,6 +8,10 @@ import type {
   UpdateSession,
 } from '../../application'
 import { UuidUtil } from '@/shared/utils'
+import {
+  REDIS_CONFIG,
+  type IRedisConfig,
+} from '@/shared/infrastructure/interfaces/redis.config.interface'
 
 // Define input DTO for clarity
 
@@ -22,7 +25,8 @@ export class RedisSessionManager implements ISessionManager {
   constructor(
     @Inject(CACHE_MANAGER)
     private readonly cache: Cache,
-    private readonly _config: ConfigService
+    @Inject(REDIS_CONFIG)
+    private readonly _config: IRedisConfig
   ) {}
 
   /* -------------------------------------------------------------------------- */
@@ -178,7 +182,7 @@ export class RedisSessionManager implements ISessionManager {
    * Get the standard Session Duration (e.g. 7 Days) in Milliseconds
    */
   private getDefaultTTL(): number {
-    return Number(this._config.get<number>('SESSION_TTL_MS', 604800000))
+    return this._config.sessionTTL
   }
 
   /**
