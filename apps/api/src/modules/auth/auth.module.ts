@@ -9,6 +9,8 @@ import { SIGN_IN_WITH_EMAIL } from './application/usecases/sign-in-with-email.in
 import { SignInWithEmailUseCase } from './application/usecases/sign-in-with-email.usecase'
 import { SIGN_UP_WITH_EMAIL } from './application/usecases/sign-up-with-email.interface'
 import { SignUpWithEmailUseCase } from './application/usecases/sign-up-with-email.usecase'
+import { REFRESH_TOKEN } from './application/usecases/refresh-token.interface'
+import { RefreshTokenUseCase } from './application/usecases/refresh-token.usecase'
 
 @Module({
   imports: [
@@ -21,6 +23,7 @@ import { SignUpWithEmailUseCase } from './application/usecases/sign-up-with-emai
     ...authProviders,
     { provide: SIGN_IN_WITH_EMAIL, useClass: SignInWithEmailUseCase },
     { provide: SIGN_UP_WITH_EMAIL, useClass: SignUpWithEmailUseCase },
+    { provide: REFRESH_TOKEN, useClass: RefreshTokenUseCase },
   ],
 })
 export class AuthModule {}

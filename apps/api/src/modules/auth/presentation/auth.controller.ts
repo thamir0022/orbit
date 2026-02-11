@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Headers,
   HttpCode,
   HttpStatus,
@@ -15,7 +16,7 @@ import {
   SignUpRequestDto,
   SignUpResponseDto,
 } from './dtos'
-import { type Response } from 'express'
+import type { Response } from 'express'
 import { ConfigService } from '@nestjs/config'
 import {
   ApiBadRequestResponse,
@@ -34,6 +35,12 @@ import {
   SIGN_UP_WITH_EMAIL,
 } from '../application/usecases/sign-up-with-email.interface'
 import { ApiResponseDto } from '@/shared/presentation/dtos/api-response.dto'
+import { Cookies } from '@/shared/presentation/decorators/cookie.decorator'
+import {
+  type IRefreshTokenInterface,
+  REFRESH_TOKEN,
+} from '../application/usecases/refresh-token.interface'
+import { RefreshTokenResponseDto } from './dtos/refresh-token.response.dto'
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -43,6 +50,8 @@ export class AuthController {
     private readonly _signInWithEmailUseCase: ISignInWithEmailUseCase,
     @Inject(SIGN_UP_WITH_EMAIL)
     private readonly _signUpWithEmailUseCase: ISignUpWithEmailUseCase,
+    @Inject(REFRESH_TOKEN)
+    private readonly _refreshTokenUseCase: IRefreshTokenInterface,
     private readonly _config: ConfigService
   ) {}
 
@@ -78,6 +87,7 @@ export class AuthController {
       httpOnly: true,
       secure: this._config.get<string>('NODE_ENV') === 'production',
       maxAge: this._config.get('JWT_REFRESH_EXPIRES_IN', 604800),
+      path: '/api/v1/auth/refresh',
     })
 
     return {
@@ -124,6 +134,41 @@ export class AuthController {
       httpOnly: true,
       secure: this._config.get<string>('NODE_ENV') === 'production',
       maxAge: this._config.get('JWT_REFRESH_EXPIRES_IN', 604800),
+      path: '/api/v1/auth/refresh',
+    })
+
+    return {
+      user,
+      sessionId,
+      tokens: {
+        accessToken: tokens.accessToken,
+        accessTokenExpiresIn: this._config.get('JWT_ACCESS_EXPIRES_IN', 900),
+      },
+    }
+  }
+
+  @Get('refresh')
+  async refresh(
+    @Headers('user-agent') userAgent: string,
+    @Cookies('refresh_token') refreshToken: string,
+    @Ip() ipAddress: string,
+    @Res({ passthrough: true }) res: Response
+  ): Promise<RefreshTokenResponseDto> {
+    const { user, tokens, sessionId } = await this._refreshTokenUseCase.execute(
+      {
+        refreshToken,
+        clientInfo: {
+          ipAddress,
+          userAgent,
+        },
+      }
+    )
+
+    res.cookie('refresh_token', tokens.refreshToken, {
+      httpOnly: true,
+      secure: this._config.get<string>('NODE_ENV') === 'production',
+      maxAge: this._config.get('JWT_REFRESH_EXPIRES_IN', 604800),
+      path: '/api/v1/auth/refresh',
     })
 
     return {

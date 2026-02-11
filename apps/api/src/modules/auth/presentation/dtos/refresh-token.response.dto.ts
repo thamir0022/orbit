@@ -1,16 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { type AuthenticatedUser } from '../../application/interfaces/auth.interface'
 
 export class RefreshTokenResponseDto {
-  @ApiProperty()
-  success: boolean
+  @ApiProperty({
+    description: 'Authenticated User data',
+  })
+  user: AuthenticatedUser
 
-  @ApiProperty()
-  message: string
-
-  @ApiProperty()
-  data: {
+  @ApiProperty({
+    description: 'Tokens and its expiry dates',
+  })
+  tokens: {
     accessToken: string
-    accessTokenExpiresAt: Date
-    sessionId: string
+    accessTokenExpiresIn: number
   }
+
+  @ApiProperty({ description: 'User session ID' })
+  sessionId: string
 }
