@@ -9,7 +9,10 @@ import { APP_CONFIG, IAppConfig } from './shared/infrastructure'
 /**
  * Bootstraps, configures, and starts the NestJS application using the application configuration.
  *
- * Configures a global API prefix and validation pipe, enables CORS with configured origins and credentials, applies cookie parsing and a global response interceptor, sets up Swagger UI at `/api/docs`, and starts listening on the configured port (defaults to 5000).
+ * Configures a global API prefix and validation pipe, enables CORS with configured origins
+ * and credentials, applies cookie parsing and a global response interceptor,
+ * sets up Swagger UI at `/api/docs`, and starts listening on the configured
+ * port (defaults to 5000).
  */
 async function bootstrap() {
   const logger = new Logger('Bootstrap')
