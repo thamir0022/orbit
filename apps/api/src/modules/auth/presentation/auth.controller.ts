@@ -22,6 +22,7 @@ import {
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiTags,
 } from '@nestjs/swagger'
 import {
@@ -52,11 +53,13 @@ export class AuthController {
     description: 'Account registered successfully',
     type: ApiResponseDto<SignInResponseDto>,
   })
-  @ApiConflictResponse({
-    description: 'Account with this email already exists',
+  @ApiNotFoundResponse({
+    description: 'Account not found',
+    type: ApiResponseDto<null>,
   })
   @ApiBadRequestResponse({
     description: 'Invalid input data',
+    type: ApiResponseDto<null>,
   })
   async signIn(
     @Headers('user-agent') userAgent: string,
@@ -88,6 +91,20 @@ export class AuthController {
   }
 
   @Post('sign-up')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiBody({ type: SignUpRequestDto })
+  @ApiCreatedResponse({
+    description: 'Account sign up succesfull',
+    type: ApiResponseDto<SignUpResponseDto>,
+  })
+  @ApiConflictResponse({
+    description: 'Account already exist',
+    type: ApiResponseDto<null>,
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid input data',
+    type: ApiResponseDto<null>,
+  })
   async signUp(
     @Headers('user-agent') userAgent: string,
     @Ip() ipAddress: string,
