@@ -50,8 +50,8 @@ export class EnvironmentVariables {
   @IsDefined()
   @Type(() => Number)
   @IsInt()
-  @Min(60 * 60 * 24 * 1000)
-  @Max(60 * 60 * 24 * 30 * 1000)
+  @Min(60 * 60 * 24 * 1000) // 1 day (ms)
+  @Max(60 * 60 * 24 * 30 * 1000) // 30 days (ms)
   SESSION_TTL: number
 
   // JWT
@@ -90,10 +90,12 @@ export class EnvironmentVariables {
   @IsNotEmpty()
   GOOGLE_CLIENT_SECRET: string
 
+  @IsDefined()
   @Transform(({ value }: { value: string }) => value?.trim())
   @IsUrl({ require_protocol: true, require_tld: false })
   GOOGLE_CALLBACK_URL: string
 
+  @IsDefined()
   @Transform(({ value }: { value: string }) => value?.trim())
   @IsUrl({ require_protocol: true, require_tld: false })
   FRONTEND_URL: string

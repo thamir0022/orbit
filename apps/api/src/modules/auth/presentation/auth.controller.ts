@@ -63,7 +63,7 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   @ApiBody({ type: SignInRequestDto })
   @ApiCreatedResponse({
-    description: 'Account registered successfully',
+    description: 'Account signin successfull',
     type: ApiResponseDto<SignInResponseDto>,
   })
   @ApiNotFoundResponse({
@@ -90,7 +90,7 @@ export class AuthController {
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
       secure: this._config.isProduction,
-      maxAge: this._config.refreshTokenExpiresIn,
+      maxAge: this._config.refreshTokenExpiresIn * 1000,
       path: '/api/v1/auth/refresh',
     })
 
@@ -108,7 +108,7 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   @ApiBody({ type: SignUpRequestDto })
   @ApiCreatedResponse({
-    description: 'Account sign up succesfull',
+    description: 'Account sign up successfull',
     type: ApiResponseDto<SignUpResponseDto>,
   })
   @ApiConflictResponse({
@@ -137,7 +137,7 @@ export class AuthController {
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
       secure: this._config.isProduction,
-      maxAge: this._config.refreshTokenExpiresIn,
+      maxAge: this._config.refreshTokenExpiresIn * 1000,
       path: '/api/v1/auth/refresh',
     })
 
@@ -171,7 +171,7 @@ export class AuthController {
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
       secure: this._config.isProduction,
-      maxAge: this._config.refreshTokenExpiresIn,
+      maxAge: this._config.refreshTokenExpiresIn * 1000,
       path: '/api/v1/auth/refresh',
     })
 

@@ -21,7 +21,7 @@ export class AppConfigService
     return this.configService.get('PORT')
   }
 
-  get corsOrgins(): string {
+  get corsOrigins(): string {
     return this.configService.get('CORS_ORIGINS')
   }
 

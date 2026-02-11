@@ -1,7 +1,7 @@
 export interface IAppConfig {
   nodeEnv: string
   port: number
-  corsOrgins: string
+  corsOrigins: string
 }
 
 export const APP_CONFIG = Symbol('IAppConfig')

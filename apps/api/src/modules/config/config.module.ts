@@ -18,11 +18,17 @@ import { JWT_CONFIG } from '../auth/infrastructure/interfaces/jwt.config.interfa
   ],
   providers: [
     AppConfigService,
-    { provide: APP_CONFIG, useExisting: AppConfigModule },
+    { provide: APP_CONFIG, useExisting: AppConfigService },
     { provide: MONGODB_CONFIG, useExisting: AppConfigService },
     { provide: REDIS_CONFIG, useExisting: AppConfigService },
     { provide: JWT_CONFIG, useExisting: AppConfigService },
   ],
-  exports: [AppConfigService, MONGODB_CONFIG, REDIS_CONFIG, JWT_CONFIG],
+  exports: [
+    AppConfigService,
+    APP_CONFIG,
+    MONGODB_CONFIG,
+    REDIS_CONFIG,
+    JWT_CONFIG,
+  ],
 })
 export class AppConfigModule {}

@@ -93,7 +93,7 @@ export class RefreshTokenUseCase implements IRefreshTokenInterface {
         ipAddress: clientInfo.ipAddress,
         userAgent: clientInfo.userAgent,
       },
-      expiresAt: addSeconds(new Date(), this._config.accessTokenExpiresIn),
+      expiresAt: addSeconds(new Date(), this._config.refreshTokenExpiresIn),
     })
 
     const newAccessToken = this._tokenGenerator.generateAccessToken({
