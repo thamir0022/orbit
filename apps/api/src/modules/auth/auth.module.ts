@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common'
-import { PassportModule } from '@nestjs/passport'
 import { authProviders } from './infrastructure/providers/auth.provider'
 import { RedisModule } from '@/shared/infrastructure'
 import { MongooseModule } from '@nestjs/mongoose'
@@ -15,7 +14,6 @@ import { RefreshTokenUseCase } from './application/usecases/refresh-token.usecas
 @Module({
   imports: [
     RedisModule,
-    PassportModule,
     MongooseModule.forFeature([{ name: UserModel.name, schema: UserSchema }]),
   ],
   controllers: [AuthController],
