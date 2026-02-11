@@ -27,9 +27,12 @@ import {
   UserStatus,
 } from '@/modules/user/domain'
 import { UuidUtil } from '@/shared/utils'
-import { ConfigService } from '@nestjs/config'
 import { addSeconds } from 'date-fns'
 import { UserMapper } from '@/modules/user/application/mappers/user.mapper'
+import {
+  JWT_CONFIG,
+  type IJwtConfig,
+} from '../../infrastructure/interfaces/jwt.config.interface'
 
 export class RefreshTokenUseCase implements IRefreshTokenInterface {
   private readonly _logger = new Logger(RefreshTokenUseCase.name)
@@ -41,7 +44,8 @@ export class RefreshTokenUseCase implements IRefreshTokenInterface {
     private readonly _tokenGenerator: ITokenGenerator,
     @Inject(USER_REPOSITORY)
     private readonly _userRepository: IUserRepository,
-    private readonly _config: ConfigService
+    @Inject(JWT_CONFIG)
+    private readonly _config: IJwtConfig
   ) {}
   async execute(command: RefreshTokenCommand): Promise<RefreshTokenResult> {
     const { refreshToken, clientInfo } = command
@@ -89,10 +93,7 @@ export class RefreshTokenUseCase implements IRefreshTokenInterface {
         ipAddress: clientInfo.ipAddress,
         userAgent: clientInfo.userAgent,
       },
-      expiresAt: addSeconds(
-        new Date(),
-        Number(this._config.get<string>('JWT_REFRESH_EXPIRES_IN', '604800'))
-      ),
+      expiresAt: addSeconds(new Date(), this._config.refreshTokenExpiresIn),
     })
 
     const newAccessToken = this._tokenGenerator.generateAccessToken({

@@ -1,5 +1,4 @@
-import { Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
+import { Inject, Injectable } from '@nestjs/common'
 import * as jwt from 'jsonwebtoken'
 import type {
   AccessTokenPayload,
@@ -8,6 +7,7 @@ import type {
   RefreshTokenPayload,
   RefreshTokenResult,
 } from '../../application'
+import { JWT_CONFIG, type IJwtConfig } from '../interfaces/jwt.config.interface'
 
 /**
  * JWT Token Generator (Adapter)
@@ -23,21 +23,15 @@ export class JwtTokenGenerator implements ITokenGenerator {
   private readonly accessTokenExpiresIn: number
   private readonly refreshTokenExpiresIn: number
 
-  constructor(private readonly _config: ConfigService) {
-    this.accessTokenSecret = this._config.get<string>(
-      'JWT_ACCESS_SECRET',
-      'access-secret'
-    )
-    this.refreshTokenSecret = this._config.get<string>(
-      'JWT_REFRESH_SECRET',
-      'refresh-secret'
-    )
-    this.accessTokenExpiresIn = Number(
-      this._config.get<number>('JWT_ACCESS_EXPIRES_IN', 900)
-    )
-    this.refreshTokenExpiresIn = Number(
-      this._config.get<number>('JWT_REFRESH_EXPIRES_IN', 604800)
-    )
+  constructor(
+    @Inject(JWT_CONFIG)
+    private readonly _config: IJwtConfig
+  ) {
+    this.accessTokenSecret = this._config.accessTokenSecret
+    this.refreshTokenSecret = this._config.refreshTokenSecret
+
+    this.accessTokenExpiresIn = this._config.accessTokenExpiresIn
+    this.refreshTokenExpiresIn = this._config.refreshTokenExpiresIn
   }
 
   generateAccessToken(payload: AccessTokenPayload): string {

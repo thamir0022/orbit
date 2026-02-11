@@ -1,17 +1,21 @@
 import { Module, Global } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
-import { ConfigService } from '@nestjs/config'
+import {
+  type IMongoConfig,
+  MONGODB_CONFIG,
+} from '../interfaces/mongodb.config.interface'
 
 @Global()
 @Module({
   imports: [
     MongooseModule.forRootAsync({
-      useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI'),
-        dbName: configService.get<string>('MONGODB_DB_NAME', 'orbit'),
+      inject: [MONGODB_CONFIG],
+      useFactory: (config: IMongoConfig) => ({
+        uri: config.mongoDbURI,
+        dbName: config.mongoDbName,
       }),
-      inject: [ConfigService],
     }),
   ],
+  exports: [MongooseModule],
 })
 export class MongoDbModule {}
