@@ -2,16 +2,25 @@
   "name": "orbit",
   "version": "1.0.0",
   "private": true,
-  "packageManager": "pnpm@10.28.2",
+  "packageManager": "pnpm@10.29.2",
   "scripts": {
     "prepare": "husky",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "pnpm -r --reporter=silent run lint",
-    "typecheck": "pnpm -r --reporter=silent run typecheck",
-    "build": "pnpm -r --reporter=silent run build",
-    "test": "pnpm -r --reporter=silent run test",
+    "lint": "pnpm -r run lint",
+    "typecheck": "pnpm -r run typecheck",
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test",
+    "lint-staged": "lint-staged",
     "ci:verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm build"
+  },
+  "lint-staged": {
+    "apps/api/**/*.{ts,tsx,json}": [
+      "pnpm --filter api lint --fix"
+    ],
+    "apps/client/**/*.{ts,tsx,json}": [
+      "pnpm --filter client lint --fix"
+    ]
   },
   "devDependencies": {
     "husky": "^9.1.7",
