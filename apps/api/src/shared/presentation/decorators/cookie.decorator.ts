@@ -5,7 +5,7 @@ interface RequestWithCookies extends Request {
   cookies: Record<string, string>
 }
 
-export const Cookie = createParamDecorator(
+export const Cookies = createParamDecorator(
   (
     key: string | undefined,
     ctx: ExecutionContext
