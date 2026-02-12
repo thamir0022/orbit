@@ -25,6 +25,8 @@ import {
   AccountLockedException,
   Email,
   InvalidCredentialsException,
+  InvalidPasswordException,
+  Password,
   UserStatus,
 } from '@/modules/user/domain'
 import { formatDistanceToNow } from 'date-fns'
@@ -67,8 +69,13 @@ export class SignInWithEmailUseCase implements ISignInWithEmailUseCase {
     if (!user.passwordHash) throw new InvalidCredentialsException()
 
     // 4. Password Check
+
+    const passwordResult = Password.create(password)
+    if (passwordResult.isFailure)
+      throw new InvalidPasswordException(passwordResult.error)
+
     const isValid = await this._passwordHasher.compare(
-      password,
+      passwordResult.value,
       user.passwordHash.value
     )
 

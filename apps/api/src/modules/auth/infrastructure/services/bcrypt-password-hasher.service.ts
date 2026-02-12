@@ -21,9 +21,9 @@ export class BcryptPasswordHasher implements IPasswordHasher {
   }
 
   async compare(
-    plainPassword: string,
+    plainPassword: Password,
     hashedPassword: string
   ): Promise<boolean> {
-    return brcypt.compare(plainPassword, hashedPassword)
+    return brcypt.compare(plainPassword.value, hashedPassword)
   }
 }

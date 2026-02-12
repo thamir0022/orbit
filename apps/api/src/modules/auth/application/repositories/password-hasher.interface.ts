@@ -15,7 +15,7 @@ import { Password } from '@/modules/user/domain'
 
 export interface IPasswordHasher {
   hash(plainPassword: Password): Promise<string>
-  compare(plainPassword: string, hashedPassword: string): Promise<boolean>
+  compare(plainPassword: Password, hashedPassword: string): Promise<boolean>
 }
 
 export const PASSWORD_HASHER = Symbol('IPasswordHasher')
