@@ -10,7 +10,7 @@ import {
   RefreshTokenNotFoundException,
   SessionNotFoundException,
 } from '../../domain/exceptions/auth.exception'
-import { IRefreshTokenInterface } from './refresh-token.interface'
+import { IRefreshTokenUseCase } from './refresh-token.interface'
 import { RefreshTokenResult } from '../dto/refresh-token.result'
 import {
   type ISessionManager,
@@ -34,7 +34,7 @@ import {
   type IJwtConfig,
 } from '../../infrastructure/interfaces/jwt.config.interface'
 
-export class RefreshTokenUseCase implements IRefreshTokenInterface {
+export class RefreshTokenUseCase implements IRefreshTokenUseCase {
   private readonly _logger = new Logger(RefreshTokenUseCase.name)
 
   constructor(
