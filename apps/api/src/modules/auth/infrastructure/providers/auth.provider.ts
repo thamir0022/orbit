@@ -9,6 +9,8 @@ import {
   SESSION_MANAGER,
   TOKEN_GENERATOR,
 } from '../../application'
+import { OTP_MANAGER } from '../../application/repositories/otp-manager.interface'
+import { RedisOtpManager } from '../services/redis-otp-manager.service'
 
 /**
  * Auth Module Providers
@@ -37,5 +39,9 @@ export const authProviders: Provider[] = [
   {
     provide: SESSION_MANAGER,
     useClass: RedisSessionManager,
+  },
+  {
+    provide: OTP_MANAGER,
+    useClass: RedisOtpManager,
   },
 ]
