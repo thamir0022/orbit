@@ -41,6 +41,14 @@ export class AppConfigService
     return this.configService.get('SESSION_TTL')
   }
 
+  get otpTTL(): number {
+    return this.configService.get('OTP_TTL')
+  }
+
+  get otpResetTokenTTL(): number {
+    return this.configService.get('OTP_RESET_TOKEN_TTL')
+  }
+
   get accessTokenExpiresIn(): number {
     return this.configService.get('JWT_ACCESS_TOKEN_EXPIRES_IN')
   }
