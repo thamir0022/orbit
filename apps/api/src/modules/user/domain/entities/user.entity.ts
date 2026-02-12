@@ -157,6 +157,12 @@ export class User extends AggregateRoot<UserId> {
     return this._deletedAt
   }
 
+  // Setters
+  set passwordHash(hash: Password) {
+    this._passwordHash = hash
+    this.touch()
+  }
+
   static create(props: CreateUserProps): User {
     const userId = UserId.create()
     const now = new Date()
