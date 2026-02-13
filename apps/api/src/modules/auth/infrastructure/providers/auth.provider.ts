@@ -5,12 +5,14 @@ import { BcryptPasswordHasher } from '../services/bcrypt-password-hasher.service
 import { JwtTokenGenerator } from '../services/jwt-token-generator.service'
 import { RedisSessionManager } from '../services/redis-session-manager.service'
 import {
+  OAUTH_FACTORY,
   PASSWORD_HASHER,
   SESSION_MANAGER,
   TOKEN_GENERATOR,
 } from '../../application'
 import { OTP_MANAGER } from '../../application/repositories/otp-manager.interface'
 import { RedisOtpManager } from '../services/redis-otp-manager.service'
+import { OAuthFactory } from '../factory/oauth.factory'
 
 /**
  * Auth Module Providers
@@ -43,5 +45,9 @@ export const authProviders: Provider[] = [
   {
     provide: OTP_MANAGER,
     useClass: RedisOtpManager,
+  },
+  {
+    provide: OAUTH_FACTORY,
+    useClass: OAuthFactory,
   },
 ]

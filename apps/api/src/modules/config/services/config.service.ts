@@ -4,10 +4,11 @@ import { Environment, EnvironmentVariables } from '../validation/env.validation'
 import { IMongoConfig, IAppConfig } from '@/shared/infrastructure'
 import { IRedisConfig } from '@/shared/infrastructure/interfaces/redis.config.interface'
 import { IJwtConfig } from '@/modules/auth/infrastructure/interfaces/jwt.config.interface'
+import { IOAuthConfig } from '@/modules/auth/infrastructure/interfaces/oauth.config.interface'
 
 @Injectable()
 export class AppConfigService
-  implements IAppConfig, IMongoConfig, IRedisConfig, IJwtConfig
+  implements IAppConfig, IMongoConfig, IRedisConfig, IJwtConfig, IOAuthConfig
 {
   constructor(
     private configService: ConfigService<EnvironmentVariables, true>
@@ -69,5 +70,17 @@ export class AppConfigService
     return (
       this.configService.get<Environment>('NODE_ENV') === Environment.PRODUCTION
     )
+  }
+
+  get googleClientId(): string {
+    return this.configService.get('GOOGLE_CLIENT_ID')
+  }
+
+  get googleClientSecret(): string {
+    return this.configService.get('GOOGLE_CLIENT_SECRET')
+  }
+
+  get googleCallbackUrl(): string {
+    return this.configService.get('GOOGLE_CALLBACK_URL')
   }
 }

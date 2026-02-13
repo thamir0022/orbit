@@ -7,7 +7,9 @@ import {
   HttpStatus,
   Inject,
   Ip,
+  Param,
   Post,
+  Query,
   Res,
 } from '@nestjs/common'
 import {
@@ -60,6 +62,11 @@ import {
   type IPasswordResetConfirmUseCase,
   PASSWORD_RESET_CONFIRM,
 } from '../application/usecases/password-reset-confirm.interface'
+import {
+  AUTHENTICATE_WITH_OAUTH,
+  type IAuthenticateWithOAuthUseCase,
+} from '../application/usecases/authenticate-with-oauth.interface'
+import { AuthProvider } from '@/modules/user/domain'
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -77,6 +84,8 @@ export class AuthController {
     private readonly _passwordResetVerifyUseCase: IPasswordResetVerifyUseCase,
     @Inject(PASSWORD_RESET_CONFIRM)
     private readonly _passwordResetConfirmUseCase: IPasswordResetConfirmUseCase,
+    @Inject(AUTHENTICATE_WITH_OAUTH)
+    private readonly _authenticateWithOAuthUseCase: IAuthenticateWithOAuthUseCase,
     @Inject(JWT_CONFIG)
     private readonly _config: IJwtConfig
   ) {}
@@ -236,5 +245,49 @@ export class AuthController {
       resetToken: confirmPasswordResetRequestDto.resetToken,
       newPassword: confirmPasswordResetRequestDto.newPassword,
     })
+  }
+
+  @Get('oauth/:provider')
+  authenticateWithOAuth(
+    @Param('provider') provider: AuthProvider,
+    @Res() res: Response
+  ) {
+    const url = this._authenticateWithOAuthUseCase.getRedirectUrl(provider)
+    res.redirect(url)
+  }
+
+  @Get('oauth/:provider/callback')
+  async authenticateWithOAuthCallback(
+    @Headers('user-agent') userAgent: string,
+    @Ip() ipAddress: string,
+    @Param('provider') provider: AuthProvider,
+    @Query('code') code: string,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const { user, tokens, sessionId } =
+      await this._authenticateWithOAuthUseCase.execute({
+        code,
+        provider,
+        clientInfo: {
+          userAgent,
+          ipAddress,
+        },
+      })
+
+    res.cookie('refresh_token', tokens.refreshToken, {
+      httpOnly: true,
+      secure: this._config.isProduction,
+      maxAge: this._config.refreshTokenExpiresIn * 1000,
+      path: '/api/v1/auth/refresh',
+    })
+
+    return {
+      user,
+      sessionId,
+      tokens: {
+        accessToken: tokens.accessToken,
+        accessTokenExpiresIn: this._config.accessTokenExpiresIn,
+      },
+    }
   }
 }

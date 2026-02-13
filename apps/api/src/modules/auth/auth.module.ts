@@ -16,6 +16,9 @@ import { PASSWORD_RESET_VERIFY } from './application/usecases/password-reset-ver
 import { PasswordResetVerifyUseCase } from './application/usecases/password-reset-verify.usecase'
 import { PASSWORD_RESET_CONFIRM } from './application/usecases/password-reset-confirm.interface'
 import { PasswordResetConfirmUseCase } from './application/usecases/password-reset-confirm.usecase'
+import { AUTHENTICATE_WITH_OAUTH } from './application/usecases/authenticate-with-oauth.interface'
+import { AuthenticateWithOAuthUseCase } from './application/usecases/authenticate-with-oauth.usecase'
+import { GoogleOAuthProvider } from './infrastructure/providers/google.provider'
 
 @Module({
   imports: [
@@ -25,12 +28,17 @@ import { PasswordResetConfirmUseCase } from './application/usecases/password-res
   controllers: [AuthController],
   providers: [
     ...authProviders,
+    GoogleOAuthProvider,
     { provide: SIGN_IN_WITH_EMAIL, useClass: SignInWithEmailUseCase },
     { provide: SIGN_UP_WITH_EMAIL, useClass: SignUpWithEmailUseCase },
     { provide: REFRESH_TOKEN, useClass: RefreshTokenUseCase },
     { provide: PASSWORD_RESET_REQUEST, useClass: PasswordResetRequestUseCase },
     { provide: PASSWORD_RESET_VERIFY, useClass: PasswordResetVerifyUseCase },
     { provide: PASSWORD_RESET_CONFIRM, useClass: PasswordResetConfirmUseCase },
+    {
+      provide: AUTHENTICATE_WITH_OAUTH,
+      useClass: AuthenticateWithOAuthUseCase,
+    },
   ],
 })
 export class AuthModule {}
