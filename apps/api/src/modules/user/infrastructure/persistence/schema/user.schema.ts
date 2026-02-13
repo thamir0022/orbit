@@ -58,10 +58,7 @@ export class UserModel {
   authProvider: string
 
   @Prop({ sparse: true, unique: true })
-  googleId: string
-
-  @Prop({ sparse: true, unique: true })
-  githubId: string
+  oauthProviderId: string
 
   // Status
   @Prop({ required: true, default: 'active', index: true })

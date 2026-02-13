@@ -23,8 +23,7 @@ export interface UserProps {
 
   // OAuth
   authProvider: AuthProvider
-  googleId?: string
-  githubId?: string
+  oauthProviderId?: string
 
   // User status
   status: UserStatus
@@ -44,7 +43,9 @@ export interface CreateUserProps {
   firstName: string
   lastName: string
   email: Email
-  passwordHash: Password
-  authProvider?: AuthProvider
+  emailVerified?: boolean
+  passwordHash?: Password
+  authProvider: AuthProvider
+  oauthProviderId?: string
   avatarUrl?: string
 }
