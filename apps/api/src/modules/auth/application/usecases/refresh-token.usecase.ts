@@ -1,4 +1,4 @@
-import { Inject, Logger } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { RefreshTokenCommand } from '../dto/refresh-token.command'
 import {
   type ITokenGenerator,
@@ -34,6 +34,7 @@ import {
   type IJwtConfig,
 } from '../../infrastructure/interfaces/jwt.config.interface'
 
+@Injectable()
 export class RefreshTokenUseCase implements IRefreshTokenUseCase {
   private readonly _logger = new Logger(RefreshTokenUseCase.name)
 

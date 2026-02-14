@@ -4,13 +4,14 @@ import { PasswordResetVerifyResult } from '../dto/password-reset-verify.result'
 import { IPasswordResetVerifyUseCase } from './password-reset-verify.interface'
 import { Otp } from '../../domain/value-objects/otp.vo'
 import { InvalidOtpException } from '../../domain/exceptions/auth.exception'
-import { Inject } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import {
   type IOtpManager,
   OTP_MANAGER,
 } from '../repositories/otp-manager.interface'
 import { UuidUtil } from '@/shared/utils'
 
+@Injectable()
 export class PasswordResetVerifyUseCase implements IPasswordResetVerifyUseCase {
   constructor(
     @Inject(OTP_MANAGER)

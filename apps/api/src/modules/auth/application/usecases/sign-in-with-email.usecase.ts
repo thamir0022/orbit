@@ -1,4 +1,4 @@
-import { Inject, Logger } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { SignInCommand } from '../dto/sign-in.command'
 import { SignInResult } from '../dto/sign-in.result'
 import { ISignInWithEmailUseCase } from './sign-in-with-email.interface'
@@ -29,6 +29,7 @@ import {
 } from '@/modules/user/domain'
 import { formatDistanceToNow } from 'date-fns'
 
+@Injectable()
 export class SignInWithEmailUseCase implements ISignInWithEmailUseCase {
   private readonly _logger = new Logger(SignInWithEmailUseCase.name)
 

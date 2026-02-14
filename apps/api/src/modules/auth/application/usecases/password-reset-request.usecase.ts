@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { PasswordResetRequestCommand } from '../dto/password-reset-request.command'
 import { IPasswordResetRequestUseCase } from './password-reset-request.interface'
 import {
@@ -17,6 +17,7 @@ import {
   type IOtpManager,
 } from '../repositories/otp-manager.interface'
 
+@Injectable()
 export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
