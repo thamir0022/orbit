@@ -1,12 +1,13 @@
 import {
   Email,
+  InvalidEmailException,
   InvalidPasswordException,
   Password,
   UserNotFoundException,
 } from '@/modules/user/domain'
 import { PasswordResetConfirmCommand } from '../dto/password-reset-confirm.command'
 import { IPasswordResetConfirmUseCase } from './password-reset-confirm.interface'
-import { Inject } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import {
   type IOtpManager,
   OTP_MANAGER,
@@ -20,7 +21,7 @@ import {
   type IPasswordHasher,
   PASSWORD_HASHER,
 } from '../repositories/password-hasher.interface'
-
+@Injectable()
 export class PasswordResetConfirmUseCase implements IPasswordResetConfirmUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
@@ -34,13 +35,15 @@ export class PasswordResetConfirmUseCase implements IPasswordResetConfirmUseCase
   async execute(command: PasswordResetConfirmCommand): Promise<void> {
     const { resetToken, newPassword } = command
 
-    console.log({ resetToken, newPassword })
     const storedEmail = await this._cacheManager.getResetOtpToken(resetToken)
 
     if (!storedEmail) throw new InvalidOtpException()
 
     const storedEmailResult = Email.create(storedEmail)
     const passwordResult = Password.create(newPassword)
+
+    if (storedEmailResult.isFailure)
+      throw new InvalidEmailException(storedEmailResult.error)
 
     if (passwordResult.isFailure)
       throw new InvalidPasswordException(passwordResult.error)
