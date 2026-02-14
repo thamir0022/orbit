@@ -36,7 +36,14 @@ export class PasswordResetVerifyUseCase implements IPasswordResetVerifyUseCase {
 
     if (!storedOtp) throw new InvalidOtpException()
 
-    if (!otpResult.value.equals(Otp.create(storedOtp).value))
+    const storedOtpResult = Otp.create(storedOtp)
+
+    if (storedOtpResult.isFailure) {
+      await this._cacheManager.deleteOtp(emailResult.value)
+      throw new InvalidOtpException()
+    }
+
+    if (!otpResult.value.equals(storedOtpResult.value))
       throw new InvalidOtpException()
 
     await this._cacheManager.deleteOtp(emailResult.value)
