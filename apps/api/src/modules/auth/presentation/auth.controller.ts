@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Inject,
   Ip,
+  Logger,
   Param,
   ParseEnumPipe,
   Post,
@@ -73,6 +74,7 @@ import { AuthProvider } from '@/modules/user/domain'
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
+  private readonly _logger = new Logger(AuthController.name)
   constructor(
     @Inject(SIGN_IN_WITH_EMAIL)
     private readonly _signInWithEmailUseCase: ISignInWithEmailUseCase,
@@ -270,8 +272,11 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response
   ) {
     if (error) {
+      this._logger.error(
+        `Failed OAuth verification: ${error}. ${errorDescription ?? ''}`
+      )
       throw new BadRequestException(
-        `OAuth authentication failed: ${error}. ${errorDescription || ''}`
+        'OAuth authentication, failed Please try again!'
       )
     }
 
