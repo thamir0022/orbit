@@ -7,7 +7,7 @@ export interface OAuthUser {
   lastName: string
   email: string
   emailVerified: boolean
-  avatarUrl: string
+  avatarUrl?: string
 }
 
 export interface IOAuthProvider {

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { BadRequestException, Inject, Injectable } from '@nestjs/common'
 import { IOAuthProvider, OAuthUser } from '../../application'
 import { OAuth2Client } from 'google-auth-library'
 import {
@@ -33,7 +33,10 @@ export class GoogleOAuthProvider implements IOAuthProvider {
   async validateAuthCode(code: string): Promise<OAuthUser> {
     const { tokens } = await this.client.getToken(code)
 
-    if (!tokens.id_token) throw new Error() // Throw a sepecific exception
+    if (!tokens.id_token)
+      throw new BadRequestException(
+        'Failed to retrieve authentication token from Google'
+      )
 
     const ticket = await this.client.verifyIdToken({
       idToken: tokens.id_token,
@@ -42,16 +45,19 @@ export class GoogleOAuthProvider implements IOAuthProvider {
 
     const payload = ticket.getPayload()
 
-    if (!payload) throw new Error() // Throw a sepecific exception
+    if (!payload)
+      throw new BadRequestException(
+        'Failed to extract user information from Google token'
+      )
 
     return {
       provider: AuthProvider.GOOGLE,
       providerId: payload.sub,
-      firstName: payload.given_name!,
-      lastName: payload.family_name ?? payload.name?.split(' ')[1] ?? '',
+      firstName: payload.given_name ?? payload.name?.split(' ')?.at(0) ?? '',
+      lastName: payload.family_name ?? payload.name?.split(' ')?.at(1) ?? '',
       email: payload.email!,
-      emailVerified: payload.email_verified!,
-      avatarUrl: payload.profile ?? '',
+      emailVerified: payload.email_verified ?? false,
+      avatarUrl: payload.picture,
     }
   }
 }
