@@ -28,7 +28,9 @@ export class UserNotFoundException extends DomainException {
   constructor(identifier?: string) {
     super({
       code: 'USER_NOT_FOUND',
-      message: `User ${identifier && `with identifier ${identifier}`} not found!`,
+      message: identifier
+        ? `User with identifier ${identifier} not found!`
+        : 'User not found!',
       statusCode: HttpStatus.NOT_FOUND,
     })
   }
