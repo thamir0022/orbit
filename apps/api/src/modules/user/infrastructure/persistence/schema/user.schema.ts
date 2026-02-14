@@ -57,7 +57,7 @@ export class UserModel {
   @Prop({ default: 'email', index: true })
   authProvider: string
 
-  @Prop({ sparse: true, unique: true })
+  @Prop({ sparse: true })
   oauthProviderId: string
 
   // Status
