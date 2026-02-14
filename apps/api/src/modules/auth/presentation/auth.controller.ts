@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -261,10 +262,20 @@ export class AuthController {
   async authenticateWithOAuthCallback(
     @Headers('user-agent') userAgent: string,
     @Ip() ipAddress: string,
-    @Param('provider', new ParseEnumPipe(AuthProvider)) provider: AuthProvider,
+    @Param('provider', new ParseEnumPipe(AuthProvider))
+    provider: AuthProvider,
     @Query('code') code: string,
+    @Query('error') error: string,
+    @Query('error_description') errorDescription: string,
     @Res({ passthrough: true }) res: Response
   ) {
+    if (error) {
+      throw new BadRequestException(
+        `OAuth authentication failed: ${error}. ${errorDescription || ''}`
+      )
+    }
+
+    if (!code) throw new BadRequestException('Authorization code is required')
     const { user, tokens, sessionId } =
       await this._authenticateWithOAuthUseCase.execute({
         code,
