@@ -8,6 +8,7 @@ import {
   Inject,
   Ip,
   Param,
+  ParseEnumPipe,
   Post,
   Query,
   Res,
@@ -249,7 +250,7 @@ export class AuthController {
 
   @Get('oauth/:provider')
   authenticateWithOAuth(
-    @Param('provider') provider: AuthProvider,
+    @Param('provider', new ParseEnumPipe(AuthProvider)) provider: AuthProvider,
     @Res() res: Response
   ) {
     const url = this._authenticateWithOAuthUseCase.getRedirectUrl(provider)
@@ -260,7 +261,7 @@ export class AuthController {
   async authenticateWithOAuthCallback(
     @Headers('user-agent') userAgent: string,
     @Ip() ipAddress: string,
-    @Param('provider') provider: AuthProvider,
+    @Param('provider', new ParseEnumPipe(AuthProvider)) provider: AuthProvider,
     @Query('code') code: string,
     @Res({ passthrough: true }) res: Response
   ) {
