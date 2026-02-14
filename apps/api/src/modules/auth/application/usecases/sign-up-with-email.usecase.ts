@@ -1,4 +1,4 @@
-import { Inject, Logger } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { SignUpCommand } from '../dto/sign-up.command'
 import { SignUpResult } from '../dto/sign-up.result'
 import { ISignUpWithEmailUseCase } from './sign-up-with-email.interface'
@@ -30,6 +30,7 @@ import {
 } from '../repositories/token-generator.interface'
 import { UserMapper } from '@/modules/user/application/mappers/user.mapper'
 
+@Injectable()
 export class SignUpWithEmailUseCase implements ISignUpWithEmailUseCase {
   private readonly _logger = new Logger(SignUpWithEmailUseCase.name)
 

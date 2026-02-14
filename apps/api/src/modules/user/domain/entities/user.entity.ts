@@ -19,8 +19,7 @@ export class User extends AggregateRoot<UserId> {
   private _loginAttempts?: number
   private _lockedUntil?: Date | undefined
   private _authProvider: AuthProvider
-  private _googleId?: string
-  private _githubId?: string
+  private _oauthProviderId?: string
   private _status: UserStatus
   private _lastLoginAt?: Date
   private _lastActiveAt?: Date
@@ -45,8 +44,7 @@ export class User extends AggregateRoot<UserId> {
     this._loginAttempts = props.loginAttempts
     this._lockedUntil = props.lockedUntil
     this._authProvider = props.authProvider
-    this._googleId = props.googleId
-    this._githubId = props.githubId
+    this._oauthProviderId = props.oauthProviderId
     this._status = props.status
     this._lastLoginAt = props.lastLoginAt
     this._lastActiveAt = props.lastActiveAt
@@ -109,12 +107,8 @@ export class User extends AggregateRoot<UserId> {
     return this._authProvider
   }
 
-  get googleId(): string | undefined {
-    return this._googleId
-  }
-
-  get githubId(): string | undefined {
-    return this._githubId
+  get oauthProviderId(): string | undefined {
+    return this._oauthProviderId
   }
 
   get status(): UserStatus {
@@ -157,6 +151,12 @@ export class User extends AggregateRoot<UserId> {
     return this._deletedAt
   }
 
+  // Setters
+  set passwordHash(hash: Password) {
+    this._passwordHash = hash
+    this.touch()
+  }
+
   static create(props: CreateUserProps): User {
     const userId = UserId.create()
     const now = new Date()
@@ -167,11 +167,13 @@ export class User extends AggregateRoot<UserId> {
       lastName: props.lastName,
       displayName: `${props.firstName} ${props.lastName}`,
       email: props.email,
+      avatarUrl: props.avatarUrl,
       passwordHash: props.passwordHash,
-      emailVerified: false,
+      emailVerified: props.emailVerified ?? false,
       mfaEnabled: false,
       mfaBackupCodes: [],
-      authProvider: props.authProvider || AuthProvider.EMAIL,
+      authProvider: props.authProvider,
+      oauthProviderId: props.oauthProviderId,
       status: UserStatus.ACTIVE,
       preferences: UserPreferences.createDefault(),
       createdAt: now,

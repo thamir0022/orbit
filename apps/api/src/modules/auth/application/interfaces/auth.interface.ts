@@ -17,7 +17,7 @@ export interface AuthenticatedUser {
   displayName: string
   email: string
   avatarUrl?: string
-  emailVerified: boolean
+  emailVerified?: boolean
   mfaEnabled: boolean
   authProvider: AuthProvider
   status: UserStatus

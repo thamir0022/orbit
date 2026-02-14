@@ -25,10 +25,12 @@ export class InvalidPasswordException extends DomainException {
 }
 
 export class UserNotFoundException extends DomainException {
-  constructor(identifier: string) {
+  constructor(identifier?: string) {
     super({
       code: 'USER_NOT_FOUND',
-      message: `User with identifier ${identifier} not found!`,
+      message: identifier
+        ? `User with identifier ${identifier} not found!`
+        : 'User not found!',
       statusCode: HttpStatus.NOT_FOUND,
     })
   }

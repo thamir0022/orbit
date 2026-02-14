@@ -40,3 +40,14 @@ export class RefreshTokenMismatchException extends DomainException {
     })
   }
 }
+
+export class InvalidOtpException extends DomainException {
+  constructor() {
+    super({
+      code: 'INVALID_OTP',
+      message:
+        'The verification code is invalid or has expired. Please request a new code.',
+      statusCode: HttpStatus.BAD_REQUEST,
+    })
+  }
+}

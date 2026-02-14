@@ -54,6 +54,20 @@ export class EnvironmentVariables {
   @Max(60 * 60 * 24 * 30 * 1000) // 30 days (ms)
   SESSION_TTL: number
 
+  @IsDefined()
+  @Type(() => Number)
+  @IsInt()
+  @Min(60 * 1000) // 1 min (ms)
+  @Max(60 * 10 * 1000) // 10 mins (ms)
+  OTP_TTL: number
+
+  @IsDefined()
+  @Type(() => Number)
+  @IsInt()
+  @Min(60 * 5 * 1000) // 5 mins (ms)
+  @Max(60 * 30 * 1000) // 30 mins (ms)
+  OTP_RESET_TOKEN_TTL: number
+
   // JWT
   @IsDefined()
   @IsString()
