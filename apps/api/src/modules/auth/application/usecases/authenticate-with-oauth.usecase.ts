@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { BadRequestException, Inject, Injectable } from '@nestjs/common'
 import { type IAuthenticateWithOAuthUseCase } from './authenticate-with-oauth.interface'
 import {
   OAUTH_FACTORY,
@@ -12,7 +12,12 @@ import {
   TOKEN_GENERATOR,
   type ITokenGenerator,
 } from '../repositories/token-generator.interface'
-import { AuthProvider, Email, User } from '@/modules/user/domain'
+import {
+  AuthProvider,
+  Email,
+  InvalidEmailException,
+  User,
+} from '@/modules/user/domain'
 import { OAuthCommand } from '../dto/oauth.command'
 import { OAuthResult } from '../dto/oauth.result'
 import { UuidUtil } from '@/shared/utils'
@@ -48,7 +53,15 @@ export class AuthenticateWithOAuthUseCase implements IAuthenticateWithOAuthUseCa
 
     const oauthUserEmail = Email.create(oauthUser.email)
 
+    if (oauthUserEmail.isFailure)
+      throw new InvalidEmailException(oauthUserEmail.error)
+
     let user = await this._userRepository.findByEmail(oauthUserEmail.value)
+
+    if (user && user.authProvider !== AuthProvider.GOOGLE)
+      throw new BadRequestException(
+        `Your account is already linked with ${user.authProvider}, Please sign in with that.`
+      )
 
     if (!user) {
       user = User.create({
