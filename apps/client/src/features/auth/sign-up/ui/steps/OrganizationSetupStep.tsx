@@ -1,17 +1,12 @@
-import { Button } from '@/components/ui/button'
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/shared/ui/button'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/ui/field'
+import { Input } from '@/shared/ui/input'
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
   InputGroupText,
-} from '@/components/ui/input-group'
+} from '@/shared/ui/input-group'
 import {
   Select,
   SelectContent,
@@ -19,8 +14,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
+} from '@/shared/ui/select'
+import { Badge } from '@/shared/ui/badge'
 import { Step } from '../stepper'
 import { Controller } from 'react-hook-form'
 import { useOrganization } from '../../model/useOrganization'

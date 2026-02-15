@@ -1,12 +1,12 @@
 import { Step } from '../stepper'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/shared/ui/button'
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
   REGEXP_ONLY_DIGITS,
-} from '@/components/ui/input-otp'
+} from '@/shared/ui/input-otp'
 import { IoIosArrowBack } from 'react-icons/io'
 
 export function OtpVerificationStep({
