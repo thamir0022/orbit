@@ -114,29 +114,19 @@ export class AuthController {
     @Ip() ipAddress: string,
     @Body() signInRequestDto: SignInRequestDto,
     @Res({ passthrough: true }) res: Response
-  ): Promise<SignInResponseDto> {
-    const { user, tokens, sessionId } =
-      await this._signInWithEmailUseCase.execute({
-        email: signInRequestDto.email,
-        password: signInRequestDto.password,
-        clientInfo: { ipAddress, userAgent },
-      })
+  ): Promise<void> {
+    const { refreshToken } = await this._signInWithEmailUseCase.execute({
+      email: signInRequestDto.email,
+      password: signInRequestDto.password,
+      clientInfo: { ipAddress, userAgent },
+    })
 
-    res.cookie('refresh_token', tokens.refreshToken, {
+    res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: this._config.isProduction,
       maxAge: this._config.refreshTokenExpiresIn * 1000,
       path: '/api/v1/auth/refresh',
     })
-
-    return {
-      user,
-      sessionId,
-      tokens: {
-        accessToken: tokens.accessToken,
-        accessTokenExpiresIn: this._config.accessTokenExpiresIn,
-      },
-    }
   }
 
   @Post('sign-up')
@@ -159,31 +149,21 @@ export class AuthController {
     @Ip() ipAddress: string,
     @Body() signUpRequestDto: SignUpRequestDto,
     @Res({ passthrough: true }) res: Response
-  ): Promise<SignUpResponseDto> {
-    const { user, tokens, sessionId } =
-      await this._signUpWithEmailUseCase.execute({
-        firstName: signUpRequestDto.firstName,
-        lastName: signUpRequestDto.lastName,
-        email: signUpRequestDto.email,
-        password: signUpRequestDto.password,
-        clientInfo: { ipAddress, userAgent },
-      })
+  ): Promise<void> {
+    const { refreshToken } = await this._signUpWithEmailUseCase.execute({
+      firstName: signUpRequestDto.firstName,
+      lastName: signUpRequestDto.lastName,
+      email: signUpRequestDto.email,
+      password: signUpRequestDto.password,
+      clientInfo: { ipAddress, userAgent },
+    })
 
-    res.cookie('refresh_token', tokens.refreshToken, {
+    res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: this._config.isProduction,
       maxAge: this._config.refreshTokenExpiresIn * 1000,
       path: '/api/v1/auth/refresh',
     })
-
-    return {
-      user,
-      sessionId,
-      tokens: {
-        accessToken: tokens.accessToken,
-        accessTokenExpiresIn: this._config.accessTokenExpiresIn,
-      },
-    }
   }
 
   @Get('refresh')
@@ -193,15 +173,13 @@ export class AuthController {
     @Ip() ipAddress: string,
     @Res({ passthrough: true }) res: Response
   ): Promise<RefreshTokenResponseDto> {
-    const { user, tokens, sessionId } = await this._refreshTokenUseCase.execute(
-      {
-        refreshToken,
-        clientInfo: {
-          ipAddress,
-          userAgent,
-        },
-      }
-    )
+    const { tokens } = await this._refreshTokenUseCase.execute({
+      refreshToken,
+      clientInfo: {
+        ipAddress,
+        userAgent,
+      },
+    })
 
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
@@ -210,14 +188,7 @@ export class AuthController {
       path: '/api/v1/auth/refresh',
     })
 
-    return {
-      user,
-      sessionId,
-      tokens: {
-        accessToken: tokens.accessToken,
-        accessTokenExpiresIn: this._config.accessTokenExpiresIn,
-      },
-    }
+    return { accessToken: tokens.accessToken }
   }
 
   @Post('reset-password/request')

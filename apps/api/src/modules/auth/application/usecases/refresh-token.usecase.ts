@@ -28,7 +28,6 @@ import {
 } from '@/modules/user/domain'
 import { UuidUtil } from '@/shared/utils'
 import { addSeconds } from 'date-fns'
-import { UserMapper } from '@/modules/user/application/mappers/user.mapper'
 import {
   JWT_CONFIG,
   type IJwtConfig,
@@ -113,12 +112,10 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
     this._logger.log(`User ${user.id.value} refresh access token successfully`)
 
     return {
-      user: UserMapper.toResponseDto(user),
       tokens: {
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
       },
-      sessionId: session.sessionId,
     }
   }
 }
