@@ -115,7 +115,7 @@ export class AuthController {
     @Ip() ipAddress: string,
     @Body() signInRequestDto: SignInRequestDto,
     @Res() res: Response
-  ): Promise<void> {
+  ) {
     const { refreshToken } = await this._signInWithEmailUseCase.execute({
       email: signInRequestDto.email,
       password: signInRequestDto.password,
@@ -126,8 +126,9 @@ export class AuthController {
       httpOnly: true,
       secure: this._config.isProduction,
       maxAge: this._config.refreshTokenExpiresIn * 1000,
-      path: '/api/v1/auth/refresh',
     })
+
+    return res.sendStatus(204)
   }
 
   @Post('sign-up')
@@ -150,7 +151,7 @@ export class AuthController {
     @Ip() ipAddress: string,
     @Body() signUpRequestDto: SignUpRequestDto,
     @Res() res: Response
-  ): Promise<void> {
+  ) {
     const { refreshToken } = await this._signUpWithEmailUseCase.execute({
       firstName: signUpRequestDto.firstName,
       lastName: signUpRequestDto.lastName,
@@ -163,8 +164,9 @@ export class AuthController {
       httpOnly: true,
       secure: this._config.isProduction,
       maxAge: this._config.refreshTokenExpiresIn * 1000,
-      path: '/api/v1/auth/refresh',
     })
+
+    return res.sendStatus(204)
   }
 
   @Get('refresh')
@@ -186,7 +188,6 @@ export class AuthController {
       httpOnly: true,
       secure: this._config.isProduction,
       maxAge: this._config.refreshTokenExpiresIn * 1000,
-      path: '/api/v1/auth/refresh',
     })
 
     return { accessToken: tokens.accessToken }
@@ -266,7 +267,6 @@ export class AuthController {
       httpOnly: true,
       secure: this._config.isProduction,
       maxAge: this._config.refreshTokenExpiresIn * 1000,
-      path: '/api/v1/auth/refresh',
     })
 
     return res.redirect(`${this._config.frontEndUrl}`)
