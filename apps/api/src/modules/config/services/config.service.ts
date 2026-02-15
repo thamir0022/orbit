@@ -83,4 +83,8 @@ export class AppConfigService
   get googleCallbackUrl(): string {
     return this.configService.get('GOOGLE_CALLBACK_URL')
   }
+
+  get frontEndUrl(): string {
+    return this.configService.get('FRONTEND_URL')
+  }
 }

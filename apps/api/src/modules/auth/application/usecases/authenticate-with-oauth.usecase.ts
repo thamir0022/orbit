@@ -25,7 +25,6 @@ import {
   type ISessionManager,
   SESSION_MANAGER,
 } from '../repositories/session-manager.interface'
-import { UserMapper } from '@/modules/user/application/mappers/user.mapper'
 
 @Injectable()
 export class AuthenticateWithOAuthUseCase implements IAuthenticateWithOAuthUseCase {
@@ -89,14 +88,6 @@ export class AuthenticateWithOAuthUseCase implements IAuthenticateWithOAuthUseCa
       userAgent: clientInfo.userAgent,
     })
 
-    // Generate access token
-    const accessToken = this._tokenGenerator.generateAccessToken({
-      jti: UuidUtil.generate(),
-      sub: user.id.value,
-      sid: sessionId,
-      email: user.email.value,
-    })
-
     // Generate refresh token
     const refreshToken = this._tokenGenerator.generateRefreshToken({
       jti: refreshTokenId,
@@ -105,12 +96,7 @@ export class AuthenticateWithOAuthUseCase implements IAuthenticateWithOAuthUseCa
     })
 
     return {
-      user: UserMapper.toResponseDto(user),
-      tokens: {
-        accessToken,
-        refreshToken,
-      },
-      sessionId,
+      refreshToken,
     }
   }
 }
