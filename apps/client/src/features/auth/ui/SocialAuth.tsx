@@ -18,11 +18,19 @@ export function SocialAuth() {
       exit="exit"
       className="flex flex-col gap-2"
     >
-      <Button variant="outline" className="cursor-pointer border-2 py-6">
+      <Button
+        variant="outline"
+        type="button"
+        className="cursor-pointer border-2 py-6"
+      >
         <FcGoogle className="size-7" />
         Continue with Google
       </Button>
-      <Button variant="outline" className="cursor-pointer border-2 py-6">
+      <Button
+        variant="outline"
+        type="button"
+        className="cursor-pointer border-2 py-6"
+      >
         <FaGithub size="20" className="size-7" /> Continue with GitHub
       </Button>
     </motion.div>
