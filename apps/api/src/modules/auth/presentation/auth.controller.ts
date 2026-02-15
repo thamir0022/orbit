@@ -70,6 +70,7 @@ import {
   type IAuthenticateWithOAuthUseCase,
 } from '../application/usecases/authenticate-with-oauth.interface'
 import { AuthProvider } from '@/modules/user/domain'
+import { IAppConfig } from '@/shared/infrastructure'
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -91,7 +92,7 @@ export class AuthController {
     @Inject(AUTHENTICATE_WITH_OAUTH)
     private readonly _authenticateWithOAuthUseCase: IAuthenticateWithOAuthUseCase,
     @Inject(JWT_CONFIG)
-    private readonly _config: IJwtConfig
+    private readonly _config: IJwtConfig & IAppConfig
   ) {}
 
   @Post('sign-in')
@@ -113,7 +114,7 @@ export class AuthController {
     @Headers('user-agent') userAgent: string,
     @Ip() ipAddress: string,
     @Body() signInRequestDto: SignInRequestDto,
-    @Res({ passthrough: true }) res: Response
+    @Res() res: Response
   ): Promise<void> {
     const { refreshToken } = await this._signInWithEmailUseCase.execute({
       email: signInRequestDto.email,
@@ -148,7 +149,7 @@ export class AuthController {
     @Headers('user-agent') userAgent: string,
     @Ip() ipAddress: string,
     @Body() signUpRequestDto: SignUpRequestDto,
-    @Res({ passthrough: true }) res: Response
+    @Res() res: Response
   ): Promise<void> {
     const { refreshToken } = await this._signUpWithEmailUseCase.execute({
       firstName: signUpRequestDto.firstName,
@@ -215,7 +216,7 @@ export class AuthController {
   @Post('/reset-password/confirm')
   async confirmPasswordReset(
     @Body() confirmPasswordResetRequestDto: ConfirmPasswordResetRequestDto
-  ) {
+  ): Promise<void> {
     await this._passwordResetConfirmUseCase.execute({
       resetToken: confirmPasswordResetRequestDto.resetToken,
       newPassword: confirmPasswordResetRequestDto.newPassword,
@@ -228,7 +229,7 @@ export class AuthController {
     @Res() res: Response
   ) {
     const url = this._authenticateWithOAuthUseCase.getRedirectUrl(provider)
-    res.redirect(url)
+    return res.redirect(url)
   }
 
   @Get('oauth/:provider/callback')
@@ -240,8 +241,8 @@ export class AuthController {
     @Query('code') code: string,
     @Query('error') error: string,
     @Query('error_description') errorDescription: string,
-    @Res({ passthrough: true }) res: Response
-  ) {
+    @Res() res: Response
+  ): Promise<void> {
     if (error) {
       this._logger.error(
         `Failed OAuth verification: ${error}. ${errorDescription ?? ''}`
@@ -252,30 +253,22 @@ export class AuthController {
     }
 
     if (!code) throw new BadRequestException('Authorization code is required')
-    const { user, tokens, sessionId } =
-      await this._authenticateWithOAuthUseCase.execute({
-        code,
-        provider,
-        clientInfo: {
-          userAgent,
-          ipAddress,
-        },
-      })
+    const { refreshToken } = await this._authenticateWithOAuthUseCase.execute({
+      code,
+      provider,
+      clientInfo: {
+        userAgent,
+        ipAddress,
+      },
+    })
 
-    res.cookie('refresh_token', tokens.refreshToken, {
+    res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: this._config.isProduction,
       maxAge: this._config.refreshTokenExpiresIn * 1000,
       path: '/api/v1/auth/refresh',
     })
 
-    return {
-      user,
-      sessionId,
-      tokens: {
-        accessToken: tokens.accessToken,
-        accessTokenExpiresIn: this._config.accessTokenExpiresIn,
-      },
-    }
+    return res.redirect(`${this._config.frontEndUrl}`)
   }
 }
