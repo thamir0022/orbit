@@ -28,7 +28,6 @@ import {
   type ITokenGenerator,
   TOKEN_GENERATOR,
 } from '../repositories/token-generator.interface'
-import { UserMapper } from '@/modules/user/application/mappers/user.mapper'
 
 @Injectable()
 export class SignUpWithEmailUseCase implements ISignUpWithEmailUseCase {
@@ -91,15 +90,7 @@ export class SignUpWithEmailUseCase implements ISignUpWithEmailUseCase {
       userAgent: clientInfo.userAgent,
     })
 
-    // 9. Generate access token
-    const accessToken = this._tokenGenerator.generateAccessToken({
-      jti: UuidUtil.generate(),
-      sub: user.id.value,
-      sid: sessionId,
-      email: user.email.value,
-    })
-
-    // 10. Generate refresh token
+    // 9. Generate refresh token
     const refreshToken = this._tokenGenerator.generateRefreshToken({
       jti: refreshTokenId,
       sub: user.id.value,
@@ -108,14 +99,9 @@ export class SignUpWithEmailUseCase implements ISignUpWithEmailUseCase {
 
     this._logger.log(`User ${user.id.value} sign up successfully`)
 
-    // 11. Return result
+    // 11. Return refresh token
     return {
-      user: UserMapper.toResponseDto(user),
-      tokens: {
-        accessToken,
-        refreshToken,
-      },
-      sessionId,
+      refreshToken,
     }
   }
 }
