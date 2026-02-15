@@ -2,8 +2,9 @@
 
 import { Button } from '@/shared/ui/button'
 import { motion, Variants } from 'motion/react'
-import { FaGithub } from 'react-icons/fa'
+// import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
+import { loginWithProvider } from '../hooks/use-oauth'
 
 const collapseVariants: Variants = {
   initial: { opacity: 1, height: 'auto' },
@@ -21,18 +22,19 @@ export function SocialAuth() {
       <Button
         variant="outline"
         type="button"
+        onClick={() => loginWithProvider('google')}
         className="cursor-pointer border-2 py-6"
       >
         <FcGoogle className="size-7" />
         Continue with Google
       </Button>
-      <Button
+      {/* <Button
         variant="outline"
         type="button"
         className="cursor-pointer border-2 py-6"
       >
         <FaGithub size="20" className="size-7" /> Continue with GitHub
-      </Button>
+      </Button> */}
     </motion.div>
   )
 }
