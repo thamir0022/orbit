@@ -17,31 +17,31 @@ import type { ApiResponse } from '@/shared/api/types/api.types'
 import type { SignInData } from '../model/sign-in.reponse'
 import { isAxiosError } from 'axios'
 import { useUserStore } from '@/entities/user/model/user.store'
+import { AuthSeparator } from '../../ui/AuthSeparator'
 
+// Simplified variants: No manual position/zIndex needed with mode="popLayout"
 const VARIANTS = {
   enter: (direction: number) => ({
-    x: direction > 0 ? 50 : -50,
+    x: direction > 0 ? '110%' : '-110%',
     opacity: 0,
-    position: 'absolute' as const,
+    filter: 'blur(4px)',
   }),
   center: {
-    zIndex: 1,
     x: 0,
     opacity: 1,
-    position: 'relative' as const,
+    filter: 'blur(0px)',
   },
   exit: (direction: number) => ({
-    zIndex: 0,
-    x: direction < 0 ? 50 : -50,
+    x: direction < 0 ? '110%' : '-110%',
     opacity: 0,
-    position: 'absolute' as const,
+    filter: 'blur(4px)',
   }),
 }
 
 const TRANSITION: Transition = {
   type: 'spring',
-  stiffness: 350,
-  damping: 25,
+  stiffness: 200,
+  damping: 30,
 }
 
 export function SignInForm() {
@@ -97,109 +97,114 @@ export function SignInForm() {
   return (
     <form id="sign-in-form" onSubmit={form.handleSubmit(onSubmit)} noValidate>
       <FieldGroup>
-        <AnimatePresence initial={false} mode="popLayout" custom={direction}>
-          {step === 'email' ? (
-            <motion.div
-              key="email-step"
-              custom={direction}
-              variants={VARIANTS}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={TRANSITION}
-              className="space-y-4"
-            >
-              <SocialAuth />
-
-              <div className="flex items-center gap-2">
-                <Separator className="flex-1" />
-                <span className="text-xs font-semibold text-muted-foreground">
-                  OR
-                </span>
-                <Separator className="flex-1" />
-              </div>
-
-              <Controller
-                name="email"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="sign-in-email">Email</FieldLabel>
-                    <Input
-                      {...field}
-                      id="sign-in-email"
-                      type="email"
-                      placeholder="you@example.com"
-                      autoComplete="username"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Button type="button" onClick={handleContinue} className="w-full">
-                Continue with Email
-              </Button>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="password-step"
-              custom={direction}
-              variants={VARIANTS}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={TRANSITION}
-              className="space-y-4"
-            >
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Signing in as{' '}
-                  <span className="font-medium">{form.getValues('email')}</span>
-                </p>
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  className="text-xs font-semibold text-primary"
-                >
-                  Change
-                </button>
-              </div>
-
-              <Controller
-                name="password"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="sign-in-password">Password</FieldLabel>
-                    <Input
-                      {...field}
-                      id="sign-in-password"
-                      type="password"
-                      placeholder="Enter your password"
-                      autoComplete="current-password"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Button
-                type="submit"
-                disabled={form.formState.isSubmitting}
-                className="w-full"
+        <div className="relative overflow-hidden w-full p-1">
+          <AnimatePresence initial={false} custom={direction} mode="popLayout">
+            {step === 'email' ? (
+              <motion.div
+                key="email-step"
+                custom={direction}
+                variants={VARIANTS}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={TRANSITION}
+                className="space-y-2 w-full"
               >
-                {form.formState.isSubmitting ? 'Signing In...' : 'Sign In'}
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <SocialAuth />
+
+                <AuthSeparator />
+
+                <Controller
+                  name="email"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <Input
+                        {...field}
+                        id="sign-in-email"
+                        type="email"
+                        placeholder="Email Address"
+                        autoComplete="username"
+                        aria-invalid={fieldState.invalid}
+                        className="px-3 py-6 border-2"
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+
+                <Button
+                  type="button"
+                  onClick={handleContinue}
+                  className="cursor-pointer w-full py-6"
+                >
+                  Continue with Email
+                </Button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="password-step"
+                custom={direction}
+                variants={VARIANTS}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={TRANSITION}
+                className="space-y-4 w-full" // Ensure width full
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    Signing in as{' '}
+                    <span className="font-medium">
+                      {form.getValues('email')}
+                    </span>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    className="cursor-pointer text-xs font-semibold text-primary"
+                  >
+                    Change
+                  </button>
+                </div>
+
+                <Controller
+                  name="password"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor="sign-in-password">
+                        Password
+                      </FieldLabel>
+                      <Input
+                        {...field}
+                        id="sign-in-password"
+                        type="password"
+                        placeholder="Enter your password"
+                        autoComplete="current-password"
+                        aria-invalid={fieldState.invalid}
+                        className="px-3 py-6 border-2"
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                  className="cursor-pointer w-full py-6"
+                >
+                  {form.formState.isSubmitting ? 'Signing In...' : 'Sign In'}
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </FieldGroup>
     </form>
   )
