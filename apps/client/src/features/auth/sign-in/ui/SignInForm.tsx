@@ -18,6 +18,7 @@ import type { SignInData } from '../model/sign-in.reponse'
 import { isAxiosError } from 'axios'
 import { useUserStore } from '@/entities/user/model/user.store'
 import { AuthSeparator } from '../../ui/AuthSeparator'
+import Link from 'next/link'
 
 // Simplified variants: No manual position/zIndex needed with mode="popLayout"
 const VARIANTS = {
@@ -142,6 +143,12 @@ export function SignInForm() {
                 >
                   Continue with Email
                 </Button>
+                <p className="text-center">
+                  Don&apos;t have an account?{' '}
+                  <Link href="/sign-up" className="link">
+                    SignUp
+                  </Link>
+                </p>
               </motion.div>
             ) : (
               <motion.div
