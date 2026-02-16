@@ -71,7 +71,8 @@ import {
 } from '../application/usecases/authenticate-with-oauth.interface'
 import { AuthProvider } from '@/modules/user/domain'
 import { IAppConfig } from '@/shared/infrastructure'
-
+import { ResponseMessage } from '@/shared/presentation/decorators/response-message.decorator'
+import { ResponseMessage as Messages } from './enums/response-messages.enum'
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -96,7 +97,7 @@ export class AuthController {
   ) {}
 
   @Post('sign-in')
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   @ApiBody({ type: SignInRequestDto })
   @ApiCreatedResponse({
     description: 'Account signin successfull',
@@ -110,12 +111,13 @@ export class AuthController {
     description: 'Invalid input data',
     type: ApiResponseDto<null>,
   })
+  @ResponseMessage(Messages.SIGN_IN)
   async signIn(
     @Headers('user-agent') userAgent: string,
     @Ip() ipAddress: string,
     @Body() signInRequestDto: SignInRequestDto,
-    @Res() res: Response
-  ) {
+    @Res({ passthrough: true }) res: Response
+  ): Promise<null> {
     const { refreshToken } = await this._signInWithEmailUseCase.execute({
       email: signInRequestDto.email,
       password: signInRequestDto.password,
@@ -128,7 +130,7 @@ export class AuthController {
       maxAge: this._config.refreshTokenExpiresIn * 1000,
     })
 
-    return res.sendStatus(204)
+    return null
   }
 
   @Post('sign-up')
@@ -146,12 +148,14 @@ export class AuthController {
     description: 'Invalid input data',
     type: ApiResponseDto<null>,
   })
+  @ResponseMessage('this is a message from, decorator')
+  @ResponseMessage(Messages.SIGN_UP)
   async signUp(
     @Headers('user-agent') userAgent: string,
     @Ip() ipAddress: string,
     @Body() signUpRequestDto: SignUpRequestDto,
-    @Res() res: Response
-  ) {
+    @Res({ passthrough: true }) res: Response
+  ): Promise<null> {
     const { refreshToken } = await this._signUpWithEmailUseCase.execute({
       firstName: signUpRequestDto.firstName,
       lastName: signUpRequestDto.lastName,
@@ -166,10 +170,12 @@ export class AuthController {
       maxAge: this._config.refreshTokenExpiresIn * 1000,
     })
 
-    return res.sendStatus(204)
+    return null
   }
 
   @Get('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage(Messages.REFRESH_TOKEN)
   async refresh(
     @Headers('user-agent') userAgent: string,
     @Cookies('refresh_token') refreshToken: string,
@@ -194,15 +200,21 @@ export class AuthController {
   }
 
   @Post('reset-password/request')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage(Messages.OTP_SENT)
   async requestPasswordReset(
     @Body() requestPasswordResetDto: RequestPasswordResetRequestDto
-  ) {
+  ): Promise<null> {
     await this._passwordResetRequestUseCase.execute({
       email: requestPasswordResetDto.email,
     })
+
+    return null
   }
 
   @Post('reset-password/verify')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage(Messages.OTP_VERIFIED)
   async verifyPasswordReset(
     @Body() verifyPasswordResetDto: VerifyPasswordResetRequestDto
   ): Promise<VerifyPasswordResetResponseDto> {
@@ -215,16 +227,22 @@ export class AuthController {
   }
 
   @Post('/reset-password/confirm')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage(Messages.PASSWORD_RESET_SUCCESS)
   async confirmPasswordReset(
     @Body() confirmPasswordResetRequestDto: ConfirmPasswordResetRequestDto
-  ): Promise<void> {
+  ): Promise<null> {
     await this._passwordResetConfirmUseCase.execute({
       resetToken: confirmPasswordResetRequestDto.resetToken,
       newPassword: confirmPasswordResetRequestDto.newPassword,
     })
+
+    return null
   }
 
   @Get('oauth/:provider')
+  @HttpCode(HttpStatus.TEMPORARY_REDIRECT)
+  @ResponseMessage(Messages.OAUTH_LOGIN)
   authenticateWithOAuth(
     @Param('provider', new ParseEnumPipe(AuthProvider)) provider: AuthProvider,
     @Res() res: Response
@@ -234,6 +252,8 @@ export class AuthController {
   }
 
   @Get('oauth/:provider/callback')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage(Messages.OAUTH_VERIFIED)
   async authenticateWithOAuthCallback(
     @Headers('user-agent') userAgent: string,
     @Ip() ipAddress: string,
