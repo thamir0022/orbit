@@ -19,9 +19,12 @@ import { PasswordResetConfirmUseCase } from './application/usecases/password-res
 import { AUTHENTICATE_WITH_OAUTH } from './application/usecases/authenticate-with-oauth.interface'
 import { AuthenticateWithOAuthUseCase } from './application/usecases/authenticate-with-oauth.usecase'
 import { GoogleOAuthProvider } from './infrastructure/providers/google.provider'
+import { UserModule } from '../user/user.module'
+import { SESSION_MANAGER, TOKEN_GENERATOR } from './application'
 
 @Module({
   imports: [
+    UserModule,
     RedisModule,
     MongooseModule.forFeature([{ name: UserModel.name, schema: UserSchema }]),
   ],
@@ -40,5 +43,6 @@ import { GoogleOAuthProvider } from './infrastructure/providers/google.provider'
       useClass: AuthenticateWithOAuthUseCase,
     },
   ],
+  exports: [TOKEN_GENERATOR, SESSION_MANAGER],
 })
 export class AuthModule {}

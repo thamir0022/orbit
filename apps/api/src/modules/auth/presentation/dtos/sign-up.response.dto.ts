@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { type AuthenticatedUser } from '../../application/interfaces/auth.interface'
 
 /**
  * Sign Up Response DTO
@@ -7,18 +6,7 @@ import { type AuthenticatedUser } from '../../application/interfaces/auth.interf
  */
 export class SignUpResponseDto {
   @ApiProperty({
-    description: 'Authenticated User data',
+    description: 'Refresh token',
   })
-  user: AuthenticatedUser
-
-  @ApiProperty({
-    description: 'Tokens and its expiry dates',
-  })
-  tokens: {
-    accessToken: string
-    accessTokenExpiresIn: number
-  }
-
-  @ApiProperty({ description: 'User session ID' })
-  sessionId: string
+  refreshToken: string
 }

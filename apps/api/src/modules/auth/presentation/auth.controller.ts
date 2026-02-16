@@ -15,12 +15,7 @@ import {
   Query,
   Res,
 } from '@nestjs/common'
-import {
-  SignInRequestDto,
-  SignInResponseDto,
-  SignUpRequestDto,
-  SignUpResponseDto,
-} from './dtos'
+import { SignInRequestDto, SignUpRequestDto, SignUpResponseDto } from './dtos'
 import type { Response } from 'express'
 import {
   ApiBadRequestResponse,
@@ -101,7 +96,7 @@ export class AuthController {
   @ApiBody({ type: SignInRequestDto })
   @ApiCreatedResponse({
     description: 'Account signin successfull',
-    type: ApiResponseDto<SignInResponseDto>,
+    type: ApiResponseDto<null>,
   })
   @ApiNotFoundResponse({
     description: 'Account not found',

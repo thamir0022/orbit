@@ -10,6 +10,7 @@ export const userProviders: Provider[] = [
     provide: USER_REPOSITORY,
     useClass: UserRepository,
   },
+  // These two should be removed in future
   {
     provide: TOKEN_GENERATOR,
     useClass: JwtTokenGenerator,
