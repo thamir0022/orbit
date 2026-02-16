@@ -1,11 +1,6 @@
-import { Button } from '@/components/ui/button'
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/shared/ui/button'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/ui/field'
+import { Input } from '@/shared/ui/input'
 import { Step } from '../stepper'
 import { Controller } from 'react-hook-form'
 import { useProfile } from '../../model/useProfile'

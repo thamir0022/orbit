@@ -1,98 +1,132 @@
 'use client'
 
-import { Input } from '@/components/ui/input'
-import { Controller } from 'react-hook-form'
-import { useSignIn } from '../model/useSignIn'
-import { Button } from '@/components/ui/button'
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from '@/components/ui/field'
-import { AnimatePresence, Variants } from 'motion/react'
-import { motion } from 'motion/react'
-import { AuthFooter, AuthSeparator, SocialAuth } from '@/src/shared/ui'
+import * as React from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Controller, useForm } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { motion, AnimatePresence, type Transition } from 'motion/react'
+import { Button } from '@/shared/ui/button'
+import { Input } from '@/shared/ui/input'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/ui/field'
+import { SocialAuth } from '../../ui/SocialAuth'
+import { SignInFormData, signInSchema } from '../model/sign-in.schema'
+import { axiosInstance } from '@/shared/lib/axios.instance'
+import type { ApiResponse } from '@/shared/api/types/api.types'
+import type { SignInData } from '../model/sign-in.reponse'
+import { isAxiosError } from 'axios'
+import { useUserStore } from '@/entities/user/model/user.store'
+import { AuthSeparator } from '../../ui/AuthSeparator'
+import Link from 'next/link'
 
-const expandVariants: Variants = {
-  initial: { opacity: 0, height: 0, marginTop: 0 },
-  animate: { opacity: 1, height: 'auto', marginTop: -10 },
-  exit: { opacity: 0, height: 0, marginTop: 0 },
+// Simplified variants: No manual position/zIndex needed with mode="popLayout"
+const VARIANTS = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? '110%' : '-110%',
+    opacity: 0,
+    filter: 'blur(4px)',
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+    filter: 'blur(0px)',
+  },
+  exit: (direction: number) => ({
+    x: direction < 0 ? '110%' : '-110%',
+    opacity: 0,
+    filter: 'blur(4px)',
+  }),
+}
+
+const TRANSITION: Transition = {
+  type: 'spring',
+  stiffness: 200,
+  damping: 30,
 }
 
 export function SignInForm() {
-  const { form, submit, verifyEmail, isEmailVerified, isCheckingEmail } =
-    useSignIn()
+  const [step, setStep] = React.useState<'email' | 'password'>('email')
+  const [direction, setDirection] = React.useState(0)
+  const router = useRouter()
+  const { setUser, setAccessToken } = useUserStore()
+
+  const form = useForm<SignInFormData>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  })
+
+  async function handleContinue() {
+    const valid = await form.trigger('email')
+    if (valid) {
+      setDirection(1)
+      setStep('password')
+    }
+  }
+
+  function handleBack() {
+    setDirection(-1)
+    setStep('email')
+  }
+
+  async function onSubmit(data: SignInFormData) {
+    try {
+      const res = await axiosInstance.post<ApiResponse<SignInData>>(
+        '/auth/sign-in',
+        data
+      )
+      if (res.data.success) {
+        const { data } = res.data
+        setUser(data.user)
+        setAccessToken(data.tokens.accessToken)
+        toast.success(res.data.message)
+        router.push('/')
+      }
+    } catch (error: unknown) {
+      const errorMsg = isAxiosError<ApiResponse<null>>(error)
+        ? (error.response?.data?.message ?? error.message)
+        : error instanceof Error
+          ? error.message
+          : 'Something went wrong!'
+      toast.error(errorMsg)
+    }
+  }
 
   return (
-    <motion.div
-      style={{ position: 'relative', overflow: 'hidden' }}
-      animate={{ height: 'auto' }}
-      transition={{ type: 'spring', duration: 0.4 }}
-      className="flex flex-col gap-2 mx-auto"
-    >
-      <AnimatePresence>
-        {!isEmailVerified && (
-          <>
-            <SocialAuth />
-            <AuthSeparator />
-          </>
-        )}
-      </AnimatePresence>
-
-      <form
-        id="sign-in-form"
-        onSubmit={form.handleSubmit(submit)}
-        className="space-y-2"
-      >
-        <FieldGroup>
-          {/* Email */}
-          <Controller
-            name="email"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <Input
-                  {...field}
-                  id="email"
-                  aria-invalid={fieldState.invalid}
-                  type="email"
-                  className="px-3 py-6 border-2"
-                  placeholder="Email Address"
-                  autoComplete="email"
-                  readOnly={isEmailVerified}
-                />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
-
-          {/* Password */}
-          <AnimatePresence>
-            {isEmailVerified && (
+    <form id="sign-in-form" onSubmit={form.handleSubmit(onSubmit)} noValidate>
+      <FieldGroup>
+        <div className="relative overflow-hidden w-full p-1">
+          <AnimatePresence initial={false} custom={direction} mode="popLayout">
+            {step === 'email' ? (
               <motion.div
-                variants={expandVariants}
-                initial="initial"
-                animate="animate"
+                key="email-step"
+                custom={direction}
+                variants={VARIANTS}
+                initial="enter"
+                animate="center"
                 exit="exit"
-                transition={{ duration: 0.3, ease: 'easeOut' }}
+                transition={TRANSITION}
+                className="space-y-2 w-full"
               >
+                <SocialAuth />
+
+                <AuthSeparator />
+
                 <Controller
-                  name="password"
+                  name="email"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel>Password</FieldLabel>
                       <Input
                         {...field}
-                        id="password"
+                        id="sign-in-email"
+                        type="email"
+                        placeholder="Email Address"
+                        autoComplete="username"
                         aria-invalid={fieldState.invalid}
-                        type="password"
-                        className="px-3 py-6"
-                        placeholder="Enter your password"
-                        autoComplete="current-password"
+                        className="px-3 py-6 border-2"
                       />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
@@ -100,32 +134,90 @@ export function SignInForm() {
                     </Field>
                   )}
                 />
+
+                <Button
+                  type="button"
+                  onClick={handleContinue}
+                  className="cursor-pointer w-full py-6"
+                >
+                  Continue with Email
+                </Button>
+                <p className="text-center">
+                  Don&apos;t have an account?{' '}
+                  <Link href="/sign-up" className="link">
+                    SignUp
+                  </Link>
+                </p>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="password-step"
+                custom={direction}
+                variants={VARIANTS}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={TRANSITION}
+                className="space-y-4 w-full" // Ensure width full
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    Signing in as{' '}
+                    <span className="font-medium">
+                      {form.getValues('email')}
+                    </span>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    className="cursor-pointer text-xs font-semibold text-primary"
+                  >
+                    Change
+                  </button>
+                </div>
+
+                <Controller
+                  name="password"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor="sign-in-password">
+                        Password
+                      </FieldLabel>
+                      <Input
+                        {...field}
+                        id="sign-in-password"
+                        type="password"
+                        placeholder="Enter your password"
+                        autoComplete="current-password"
+                        aria-invalid={fieldState.invalid}
+                        className="px-3 py-6 border-2"
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                  className="cursor-pointer w-full py-6"
+                >
+                  {form.formState.isSubmitting ? 'Signing In...' : 'Sign In'}
+                </Button>
+                <p className="text-center">
+                  Forgot Password?{' '}
+                  <Link href="forgot-password" className="link">
+                    Reset here
+                  </Link>
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
-        </FieldGroup>
-
-        <Button
-          className="w-full py-6"
-          type={isEmailVerified ? 'submit' : 'button'}
-          onClick={!isEmailVerified ? verifyEmail : undefined}
-          disabled={isCheckingEmail || form.formState.isSubmitting}
-        >
-          {isCheckingEmail
-            ? 'Checking...'
-            : form.formState.isSubmitting
-              ? 'Signing in...'
-              : isEmailVerified
-                ? 'Sign In'
-                : 'Continue with Email'}
-        </Button>
-
-        <AuthFooter
-          text={isEmailVerified ? 'Forgot password?' : "Don't have an account?"}
-          linkText={isEmailVerified ? 'Reset here' : 'Sign Up'}
-          href={isEmailVerified ? '/forgot-password' : '/sign-up'}
-        />
-      </form>
-    </motion.div>
+        </div>
+      </FieldGroup>
+    </form>
   )
 }

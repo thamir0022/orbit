@@ -7,7 +7,7 @@ import {
   useRef,
 } from 'react'
 import { motion, AnimatePresence, Variants } from 'motion/react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/lib/utils'
 
 interface StepperProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode

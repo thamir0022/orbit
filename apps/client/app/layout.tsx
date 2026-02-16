@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './global.css'
-import { ThemeProvider } from '@/components/theme-provider'
-import { cn } from '@/lib/utils'
+import { ThemeProvider } from '@/shared/ui/theme-provider'
+import { cn } from '@/shared/lib/utils'
+import { Toaster } from '@/shared/ui/sonner'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -40,6 +41,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

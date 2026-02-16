@@ -219,3 +219,7 @@
     @apply bg-background text-foreground;
   }
 }
+
+@utility link {
+  @apply cursor-pointer font-semibold;
+}
