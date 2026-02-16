@@ -15,7 +15,6 @@ import { axiosInstance } from '@/shared/lib/axios.instance'
 import type { ApiResponse } from '@/shared/api/types/api.types'
 import type { SignInData } from '../model/sign-in.reponse'
 import { isAxiosError } from 'axios'
-import { useUserStore } from '@/entities/user/model/user.store'
 import { AuthSeparator } from '../../ui/AuthSeparator'
 import Link from 'next/link'
 
@@ -48,7 +47,6 @@ export function SignInForm() {
   const [step, setStep] = React.useState<'email' | 'password'>('email')
   const [direction, setDirection] = React.useState(0)
   const router = useRouter()
-  const { setUser, setAccessToken } = useUserStore()
 
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
@@ -78,9 +76,6 @@ export function SignInForm() {
         data
       )
       if (res.data.success) {
-        const { data } = res.data
-        setUser(data.user)
-        setAccessToken(data.tokens.accessToken)
         toast.success(res.data.message)
         router.push('/')
       }
