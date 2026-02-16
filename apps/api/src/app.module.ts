@@ -3,9 +3,10 @@ import { MongoDbModule } from '@/shared/infrastructure'
 import { RedisModule } from '@/shared/infrastructure'
 import { UserModule } from '@/modules/user/user.module'
 import { GlobalExceptionFilter } from '@/shared/presentation/filters/global-exception.filter'
-import { APP_FILTER } from '@nestjs/core'
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core'
 import { AuthModule } from './modules/auth/auth.module'
 import { AppConfigModule } from './modules/config/config.module'
+import { ResponseInterceptor } from './shared/presentation/intercepters/response.intercepter'
 
 @Module({
   imports: [
@@ -24,6 +25,10 @@ import { AppConfigModule } from './modules/config/config.module'
     {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
     },
   ],
 })
