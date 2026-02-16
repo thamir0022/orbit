@@ -9,7 +9,6 @@ import { motion, AnimatePresence, type Transition } from 'motion/react'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/ui/field'
-import { Separator } from '@/shared/ui/separator'
 import { SocialAuth } from '../../ui/SocialAuth'
 import { SignInFormData, signInSchema } from '../model/sign-in.schema'
 import { axiosInstance } from '@/shared/lib/axios.instance'
@@ -208,6 +207,12 @@ export function SignInForm() {
                 >
                   {form.formState.isSubmitting ? 'Signing In...' : 'Sign In'}
                 </Button>
+                <p className="text-center">
+                  Forgot Password?{' '}
+                  <Link href="forgot-password" className="link">
+                    Reset here
+                  </Link>
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
