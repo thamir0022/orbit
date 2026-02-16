@@ -5,10 +5,17 @@ import { IMongoConfig, IAppConfig } from '@/shared/infrastructure'
 import { IRedisConfig } from '@/shared/infrastructure/interfaces/redis.config.interface'
 import { IJwtConfig } from '@/modules/auth/infrastructure/interfaces/jwt.config.interface'
 import { IOAuthConfig } from '@/modules/auth/infrastructure/interfaces/oauth.config.interface'
+import { IMailConfig } from '@/modules/mail/infrastructure/config/mail.config.interface'
 
 @Injectable()
 export class AppConfigService
-  implements IAppConfig, IMongoConfig, IRedisConfig, IJwtConfig, IOAuthConfig
+  implements
+    IAppConfig,
+    IMongoConfig,
+    IRedisConfig,
+    IJwtConfig,
+    IOAuthConfig,
+    IMailConfig
 {
   constructor(
     private configService: ConfigService<EnvironmentVariables, true>
@@ -86,5 +93,29 @@ export class AppConfigService
 
   get frontEndUrl(): string {
     return this.configService.get('FRONTEND_URL')
+  }
+
+  get mailHost(): string {
+    return this.configService.get('MAIL_HOST')
+  }
+
+  get mailPort(): number {
+    return this.configService.get('MAIL_PORT')
+  }
+
+  get mailUser(): string {
+    return this.configService.get('MAIL_USER')
+  }
+
+  get mailPass(): string {
+    return this.configService.get('MAIL_PASS')
+  }
+
+  get mailFromName(): string {
+    return this.configService.get('MAIL_FROM_NAME')
+  }
+
+  get mailFromEmail(): string {
+    return this.configService.get('MAIL_FROM_EMAIL')
   }
 }

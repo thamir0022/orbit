@@ -113,4 +113,34 @@ export class EnvironmentVariables {
   @Transform(({ value }: { value: string }) => value?.trim())
   @IsUrl({ require_protocol: true, require_tld: false })
   FRONTEND_URL: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  MAIL_HOST: string
+
+  @IsDefined()
+  @Type(() => Number)
+  @IsNotEmpty()
+  MAIL_PORT: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  MAIL_USER: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  MAIL_PASS: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  MAIL_FROM_NAME: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  MAIL_FROM_EMAIL: string
 }
