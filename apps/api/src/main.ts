@@ -3,7 +3,6 @@ import { AppModule } from '@/app.module'
 import { Logger, ValidationPipe } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import cookieParser from 'cookie-parser'
-import { ResponseInterceptor } from './shared/presentation/intercepters/response.intercepter'
 import { APP_CONFIG, IAppConfig } from './shared/infrastructure'
 
 /**
@@ -39,9 +38,6 @@ async function bootstrap() {
   })
 
   app.use(cookieParser())
-
-  // Interceptor
-  app.useGlobalInterceptors(new ResponseInterceptor())
 
   // Swagger documentation
   const swaggerConfig = new DocumentBuilder()

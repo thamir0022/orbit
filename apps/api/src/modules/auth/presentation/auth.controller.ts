@@ -15,12 +15,7 @@ import {
   Query,
   Res,
 } from '@nestjs/common'
-import {
-  SignInRequestDto,
-  SignInResponseDto,
-  SignUpRequestDto,
-  SignUpResponseDto,
-} from './dtos'
+import { SignInRequestDto, SignUpRequestDto, SignUpResponseDto } from './dtos'
 import type { Response } from 'express'
 import {
   ApiBadRequestResponse,
@@ -70,7 +65,9 @@ import {
   type IAuthenticateWithOAuthUseCase,
 } from '../application/usecases/authenticate-with-oauth.interface'
 import { AuthProvider } from '@/modules/user/domain'
-
+import { IAppConfig } from '@/shared/infrastructure'
+import { ResponseMessage } from '@/shared/presentation/decorators/response-message.decorator'
+import { ResponseMessage as Messages } from './enums/response-messages.enum'
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -91,15 +88,15 @@ export class AuthController {
     @Inject(AUTHENTICATE_WITH_OAUTH)
     private readonly _authenticateWithOAuthUseCase: IAuthenticateWithOAuthUseCase,
     @Inject(JWT_CONFIG)
-    private readonly _config: IJwtConfig
+    private readonly _config: IJwtConfig & IAppConfig
   ) {}
 
   @Post('sign-in')
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   @ApiBody({ type: SignInRequestDto })
   @ApiCreatedResponse({
     description: 'Account signin successfull',
-    type: ApiResponseDto<SignInResponseDto>,
+    type: ApiResponseDto<null>,
   })
   @ApiNotFoundResponse({
     description: 'Account not found',
@@ -109,34 +106,26 @@ export class AuthController {
     description: 'Invalid input data',
     type: ApiResponseDto<null>,
   })
+  @ResponseMessage(Messages.SIGN_IN)
   async signIn(
     @Headers('user-agent') userAgent: string,
     @Ip() ipAddress: string,
     @Body() signInRequestDto: SignInRequestDto,
     @Res({ passthrough: true }) res: Response
-  ): Promise<SignInResponseDto> {
-    const { user, tokens, sessionId } =
-      await this._signInWithEmailUseCase.execute({
-        email: signInRequestDto.email,
-        password: signInRequestDto.password,
-        clientInfo: { ipAddress, userAgent },
-      })
+  ): Promise<null> {
+    const { refreshToken } = await this._signInWithEmailUseCase.execute({
+      email: signInRequestDto.email,
+      password: signInRequestDto.password,
+      clientInfo: { ipAddress, userAgent },
+    })
 
-    res.cookie('refresh_token', tokens.refreshToken, {
+    res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: this._config.isProduction,
       maxAge: this._config.refreshTokenExpiresIn * 1000,
-      path: '/api/v1/auth/refresh',
     })
 
-    return {
-      user,
-      sessionId,
-      tokens: {
-        accessToken: tokens.accessToken,
-        accessTokenExpiresIn: this._config.accessTokenExpiresIn,
-      },
-    }
+    return null
   }
 
   @Post('sign-up')
@@ -154,82 +143,73 @@ export class AuthController {
     description: 'Invalid input data',
     type: ApiResponseDto<null>,
   })
+  @ResponseMessage('this is a message from, decorator')
+  @ResponseMessage(Messages.SIGN_UP)
   async signUp(
     @Headers('user-agent') userAgent: string,
     @Ip() ipAddress: string,
     @Body() signUpRequestDto: SignUpRequestDto,
     @Res({ passthrough: true }) res: Response
-  ): Promise<SignUpResponseDto> {
-    const { user, tokens, sessionId } =
-      await this._signUpWithEmailUseCase.execute({
-        firstName: signUpRequestDto.firstName,
-        lastName: signUpRequestDto.lastName,
-        email: signUpRequestDto.email,
-        password: signUpRequestDto.password,
-        clientInfo: { ipAddress, userAgent },
-      })
+  ): Promise<null> {
+    const { refreshToken } = await this._signUpWithEmailUseCase.execute({
+      firstName: signUpRequestDto.firstName,
+      lastName: signUpRequestDto.lastName,
+      email: signUpRequestDto.email,
+      password: signUpRequestDto.password,
+      clientInfo: { ipAddress, userAgent },
+    })
 
-    res.cookie('refresh_token', tokens.refreshToken, {
+    res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: this._config.isProduction,
       maxAge: this._config.refreshTokenExpiresIn * 1000,
-      path: '/api/v1/auth/refresh',
     })
 
-    return {
-      user,
-      sessionId,
-      tokens: {
-        accessToken: tokens.accessToken,
-        accessTokenExpiresIn: this._config.accessTokenExpiresIn,
-      },
-    }
+    return null
   }
 
   @Get('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage(Messages.REFRESH_TOKEN)
   async refresh(
     @Headers('user-agent') userAgent: string,
     @Cookies('refresh_token') refreshToken: string,
     @Ip() ipAddress: string,
     @Res({ passthrough: true }) res: Response
   ): Promise<RefreshTokenResponseDto> {
-    const { user, tokens, sessionId } = await this._refreshTokenUseCase.execute(
-      {
-        refreshToken,
-        clientInfo: {
-          ipAddress,
-          userAgent,
-        },
-      }
-    )
+    const { tokens } = await this._refreshTokenUseCase.execute({
+      refreshToken,
+      clientInfo: {
+        ipAddress,
+        userAgent,
+      },
+    })
 
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
       secure: this._config.isProduction,
       maxAge: this._config.refreshTokenExpiresIn * 1000,
-      path: '/api/v1/auth/refresh',
     })
 
-    return {
-      user,
-      sessionId,
-      tokens: {
-        accessToken: tokens.accessToken,
-        accessTokenExpiresIn: this._config.accessTokenExpiresIn,
-      },
-    }
+    return { accessToken: tokens.accessToken }
   }
 
   @Post('reset-password/request')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage(Messages.OTP_SENT)
   async requestPasswordReset(
     @Body() requestPasswordResetDto: RequestPasswordResetRequestDto
-  ) {
+  ): Promise<null> {
     await this._passwordResetRequestUseCase.execute({
       email: requestPasswordResetDto.email,
     })
+
+    return null
   }
 
   @Post('reset-password/verify')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage(Messages.OTP_VERIFIED)
   async verifyPasswordReset(
     @Body() verifyPasswordResetDto: VerifyPasswordResetRequestDto
   ): Promise<VerifyPasswordResetResponseDto> {
@@ -242,25 +222,33 @@ export class AuthController {
   }
 
   @Post('/reset-password/confirm')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage(Messages.PASSWORD_RESET_SUCCESS)
   async confirmPasswordReset(
     @Body() confirmPasswordResetRequestDto: ConfirmPasswordResetRequestDto
-  ) {
+  ): Promise<null> {
     await this._passwordResetConfirmUseCase.execute({
       resetToken: confirmPasswordResetRequestDto.resetToken,
       newPassword: confirmPasswordResetRequestDto.newPassword,
     })
+
+    return null
   }
 
   @Get('oauth/:provider')
+  @HttpCode(HttpStatus.TEMPORARY_REDIRECT)
+  @ResponseMessage(Messages.OAUTH_LOGIN)
   authenticateWithOAuth(
     @Param('provider', new ParseEnumPipe(AuthProvider)) provider: AuthProvider,
     @Res() res: Response
   ) {
     const url = this._authenticateWithOAuthUseCase.getRedirectUrl(provider)
-    res.redirect(url)
+    return res.redirect(url)
   }
 
   @Get('oauth/:provider/callback')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage(Messages.OAUTH_VERIFIED)
   async authenticateWithOAuthCallback(
     @Headers('user-agent') userAgent: string,
     @Ip() ipAddress: string,
@@ -269,8 +257,8 @@ export class AuthController {
     @Query('code') code: string,
     @Query('error') error: string,
     @Query('error_description') errorDescription: string,
-    @Res({ passthrough: true }) res: Response
-  ) {
+    @Res() res: Response
+  ): Promise<void> {
     if (error) {
       this._logger.error(
         `Failed OAuth verification: ${error}. ${errorDescription ?? ''}`
@@ -281,30 +269,21 @@ export class AuthController {
     }
 
     if (!code) throw new BadRequestException('Authorization code is required')
-    const { user, tokens, sessionId } =
-      await this._authenticateWithOAuthUseCase.execute({
-        code,
-        provider,
-        clientInfo: {
-          userAgent,
-          ipAddress,
-        },
-      })
+    const { refreshToken } = await this._authenticateWithOAuthUseCase.execute({
+      code,
+      provider,
+      clientInfo: {
+        userAgent,
+        ipAddress,
+      },
+    })
 
-    res.cookie('refresh_token', tokens.refreshToken, {
+    res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: this._config.isProduction,
       maxAge: this._config.refreshTokenExpiresIn * 1000,
-      path: '/api/v1/auth/refresh',
     })
 
-    return {
-      user,
-      sessionId,
-      tokens: {
-        accessToken: tokens.accessToken,
-        accessTokenExpiresIn: this._config.accessTokenExpiresIn,
-      },
-    }
+    return res.redirect(`${this._config.frontEndUrl}`)
   }
 }

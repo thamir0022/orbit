@@ -19,7 +19,6 @@ import {
   type ITokenGenerator,
   TOKEN_GENERATOR,
 } from '../repositories/token-generator.interface'
-import { UserMapper } from '@/modules/user/application/mappers/user.mapper'
 import {
   AccountInactiveException,
   AccountLockedException,
@@ -97,15 +96,7 @@ export class SignInWithEmailUseCase implements ISignInWithEmailUseCase {
       userAgent: clientInfo.userAgent,
     })
 
-    // 10. Generate access token
-    const accessToken = this._tokenGenerator.generateAccessToken({
-      jti: UuidUtil.generate(),
-      sub: user.id.value,
-      sid: sessionId,
-      email: user.email.value,
-    })
-
-    // 11. Generate refresh token
+    // 10. Generate refresh token
     const refreshToken = this._tokenGenerator.generateRefreshToken({
       jti: refreshTokenId,
       sub: user.id.value,
@@ -114,14 +105,9 @@ export class SignInWithEmailUseCase implements ISignInWithEmailUseCase {
 
     this._logger.log(`User ${user.id.value} sign in successfully`)
 
-    // 12. Return the data
+    // 11. Return the refresh token
     return {
-      tokens: {
-        accessToken,
-        refreshToken,
-      },
-      sessionId,
-      user: UserMapper.toResponseDto(user),
+      refreshToken,
     }
   }
 }
