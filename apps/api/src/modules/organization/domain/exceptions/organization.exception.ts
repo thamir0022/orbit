@@ -1,7 +1,7 @@
 import { DomainException } from '@/shared/domain'
 import { HttpStatus } from '@nestjs/common'
 
-export class OrganizationAlreadyExists extends DomainException {
+export class OrganizationAlreadyExistsException extends DomainException {
   constructor(subdomain?: string) {
     super({
       code: 'ORGANIZATION_ALREADY_EXISTS',

@@ -5,7 +5,7 @@ import {
   type IOrganizationRepository,
   ORGANIZATION_REPOSITORY,
 } from '../repository/organization.repository.interface'
-import { OrganizationAlreadyExists } from '../../domain/exceptions/organization.exception'
+import { OrganizationAlreadyExistsException } from '../../domain/exceptions/organization.exception'
 import { Organization } from '../../domain'
 import { UserId } from '@/modules/user/domain'
 
@@ -22,7 +22,8 @@ export class CreateOrganizationUseCase implements ICreateOrganizationUseCase {
       command.subdomain
     )
 
-    if (existingOrg) throw new OrganizationAlreadyExists(command.subdomain)
+    if (existingOrg)
+      throw new OrganizationAlreadyExistsException(command.subdomain)
 
     const newOrg = Organization.create({
       name: command.name,
