@@ -8,7 +8,7 @@ import { ResponseMessage } from '@/shared/presentation/decorators/response-messa
 import { Messages } from '../enums/response-messages.enum'
 
 @Controller('/organization')
-export class OrganizationContoller {
+export class OrganizationController {
   constructor(
     @Inject(CREATE_ORGANIZATION)
     private readonly _createOrganizationUseCase: ICreateOrganizationUseCase
