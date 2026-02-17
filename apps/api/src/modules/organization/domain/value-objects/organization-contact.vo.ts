@@ -10,6 +10,15 @@ export interface OrganizationContactProps {
   github?: string
 }
 
+export interface RawOrganizationContactProps {
+  phone?: string
+  email?: string
+  website?: string
+  linkedin?: string
+  twitter?: string
+  github?: string
+}
+
 export class OrganizationContact extends ValueObject<OrganizationContactProps> {
   private constructor(props: OrganizationContactProps) {
     super(props)
@@ -67,6 +76,30 @@ export class OrganizationContact extends ValueObject<OrganizationContactProps> {
 
   get phone(): number | undefined {
     return this.phone
+  }
+
+  static fromPersistence(
+    raw?: RawOrganizationContactProps
+  ): OrganizationContact {
+    return new OrganizationContact({
+      email: raw?.email ? Email.create(raw?.email).value : undefined,
+      phone: raw?.phone,
+      linkedin: raw?.linkedin,
+      github: raw?.github,
+      twitter: raw?.twitter,
+      website: raw?.website,
+    })
+  }
+
+  toPersistence() {
+    return {
+      phone: this.props.phone,
+      email: this.props.email?.value || undefined,
+      website: this.props.website,
+      linkedin: this.props.linkedin,
+      twitter: this.props.twitter,
+      github: this.props.github,
+    }
   }
 
   private static validateUrl(value: string): boolean {

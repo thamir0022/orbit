@@ -26,4 +26,14 @@ export class OrganizationAddress extends ValueObject<OrganizationAddressProps> {
   static create(props: OrganizationAddressProps): OrganizationAddress {
     return new OrganizationAddress(props)
   }
+
+  toPersistence() {
+    return {
+      country: this.props.country,
+      state: this.props.state,
+      city: this.props.city,
+      addressLine1: this.props.addressLine1,
+      postalCode: this.props.postalCode,
+    }
+  }
 }

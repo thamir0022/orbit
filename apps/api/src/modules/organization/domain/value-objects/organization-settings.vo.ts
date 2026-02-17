@@ -37,6 +37,17 @@ export class OrganizationSettings extends ValueObject<OrganizationSettingsProps>
     })
   }
 
+  toPersistence() {
+    return {
+      defaultPointsPerMemberPerDay: this.props.defaultPointsPerMemberPerDay,
+      defaultHoursPerDay: this.props.defaultHoursPerDay,
+      defaultWorkingDaysPerWeek: this.props.defaultWorkingDaysPerWeek,
+      defaultWorkingDaysPerSprint: this.props.defaultWorkingDaysPerSprint,
+      logoUrl: this.props.logoUrl,
+      primaryColor: this.props.primaryColor,
+    }
+  }
+
   // Getters
   get defaultHoursPerDay(): number {
     return this.props.defaultHoursPerDay
