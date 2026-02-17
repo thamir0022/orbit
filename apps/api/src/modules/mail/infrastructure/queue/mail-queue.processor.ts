@@ -19,7 +19,7 @@ export class MailQueueProcessor extends WorkerHost {
   }
 
   // 2. Use 'unknown' instead of 'any' to force explicit casting/checking
-  async process(job: Job<unknown, unknown, string>): Promise<void> {
+  async process(job: Job<IForgotPasswordPayload>): Promise<void> {
     this.logger.log(`Processing job ${job.name} (ID: ${job.id})`)
 
     switch (job.name) {
@@ -27,7 +27,7 @@ export class MailQueueProcessor extends WorkerHost {
         // 3. Fix Lexical Declaration: Added { } block wrapper
 
         // 4. Fix Unsafe Assignment: Cast data to the Interface
-        const { to, otp } = job.data as IForgotPasswordPayload
+        const { to, otp } = job.data
 
         await this.mailSender.sendForgotPassword(to, otp)
         break

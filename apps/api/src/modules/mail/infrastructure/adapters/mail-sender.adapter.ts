@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common'
-import { createTransport, Transporter } from 'nodemailer'
+import nodemailer, { type Transporter } from 'nodemailer'
 import { getForgotPasswordTemplate } from '../templates/forgot-password.template'
 import { MAIL_CONFIG, type IMailConfig } from '../config/mail.config.interface'
 
@@ -13,7 +13,7 @@ export class MailSenderAdapter {
     private readonly _config: IMailConfig
   ) {
     // Mailtrap Configuration
-    this.transporter = createTransport({
+    this.transporter = nodemailer.createTransport({
       host: this._config.mailHost, // e.g., sandbox.smtp.mailtrap.io
       port: this._config.mailPort, // e.g., 2525
       auth: {
