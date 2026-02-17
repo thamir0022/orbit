@@ -1,4 +1,5 @@
 import { User, Email, UserId } from '@/modules/user/domain'
+import { IBaseRepository } from '@/shared/application'
 
 /**
  * User Repository Interface (Port)
@@ -13,12 +14,9 @@ import { User, Email, UserId } from '@/modules/user/domain'
  * - Application layer orchestrates use cases and defines what it needs
  */
 
-export interface IUserRepository {
-  findById(id: UserId): Promise<User | null>
+export interface IUserRepository extends IBaseRepository<User, UserId> {
   findByEmail(email: Email): Promise<User | null>
   existsByEmail(email: Email): Promise<boolean>
-  save(user: User): Promise<User>
-  delete(id: UserId): Promise<void>
 }
 
 export const USER_REPOSITORY = Symbol('IUserRepository')
