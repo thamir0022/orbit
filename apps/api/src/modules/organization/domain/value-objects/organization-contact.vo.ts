@@ -74,15 +74,22 @@ export class OrganizationContact extends ValueObject<OrganizationContactProps> {
     return this.props.email
   }
 
-  get phone(): number | undefined {
-    return this.phone
+  get phone(): string | undefined {
+    return this.props.phone
   }
 
   static fromPersistence(
     raw?: RawOrganizationContactProps
   ): OrganizationContact {
+    let email: Email | undefined
+    if (raw?.email) {
+      const emailResult = Email.create(raw.email)
+      if (emailResult.isSuccess) {
+        email = emailResult.value
+      }
+    }
     return new OrganizationContact({
-      email: raw?.email ? Email.create(raw?.email).value : undefined,
+      email,
       phone: raw?.phone,
       linkedin: raw?.linkedin,
       github: raw?.github,
