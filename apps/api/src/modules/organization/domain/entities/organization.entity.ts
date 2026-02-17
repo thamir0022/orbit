@@ -89,8 +89,8 @@ export class Organization extends AggregateRoot<OrganizationId> {
     this._verification = props.verification
 
     this._status = props.status
-    this._createdAt = props.createdAt || new Date()
-    this._updatedAt = props.updatedAt || new Date()
+    this._createdAt = props.createdAt ?? new Date()
+    this._updatedAt = props.updatedAt ?? new Date()
     this._deletedAt = props.deletedAt
   }
 
@@ -182,7 +182,7 @@ export class Organization extends AggregateRoot<OrganizationId> {
     return this._verification
   }
 
-  get status() {
+  get status(): OrganizationStatus {
     return this._status
   }
 
@@ -238,7 +238,6 @@ export class Organization extends AggregateRoot<OrganizationId> {
   }
 
   delete(): void {
-    if (this._status === OrganizationStatus.DELETED) return
     this._status = OrganizationStatus.DELETED
     this._deletedAt = new Date()
     this.touch()
