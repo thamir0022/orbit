@@ -14,7 +14,7 @@ export class OrganizationController {
     private readonly _createOrganizationUseCase: ICreateOrganizationUseCase
   ) {}
 
-  @Post('/create')
+  @Post()
   @ResponseMessage(Messages.ORGANIZATION_CREATED)
   async createOrganization(
     @Body() createOrganizationRequestDto: CreateOrganizationDto
