@@ -149,6 +149,14 @@ export class Organization extends AggregateRoot<OrganizationId> {
     return this._planId
   }
 
+  get subscriptionId(): string | undefined {
+    return this._subscriptionId
+  }
+
+  get trialEndsAt(): Date | undefined {
+    return this._trialEndsAt
+  }
+
   get companyType(): string | undefined {
     return this._companyType
   }
@@ -178,10 +186,28 @@ export class Organization extends AggregateRoot<OrganizationId> {
     return this._status
   }
 
+  get createdAt(): Date {
+    return this._createdAt
+  }
+
+  get updatedAt(): Date {
+    return this._updatedAt
+  }
+
+  get deletedAt(): Date | undefined {
+    return this._deletedAt
+  }
+
   // --- Domain Behaviors (Setters wrapped in Logic) ---
 
   private touch(): void {
     this._updatedAt = new Date()
+  }
+
+  /** Reconstitute organization from persistence
+   */
+  static reconstitute(props: OrganizationProps): Organization {
+    return new Organization(props)
   }
 
   updateSettings(props: Partial<OrganizationSettingsProps>): void {
