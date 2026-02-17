@@ -157,11 +157,11 @@ export class Organization extends AggregateRoot<OrganizationId> {
     return this._trialEndsAt
   }
 
-  get companyType(): string | undefined {
+  get companyType(): CompanyType | undefined {
     return this._companyType
   }
 
-  get companySize(): string | undefined {
+  get companySize(): CompanySize | undefined {
     return this._companySize
   }
 
