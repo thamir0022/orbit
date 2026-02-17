@@ -6,6 +6,7 @@ import {
   IsString,
   IsUUID,
   Matches,
+  MaxLength,
   MinLength,
 } from 'class-validator'
 import { CompanySize, CompanyType } from '../../domain/enums'
@@ -26,17 +27,18 @@ export class CreateOrganizationDto {
   })
   @IsString()
   @IsNotEmpty()
-  @Matches(/^[a-z0-9-]+$/, {
+  @MaxLength(63)
+  @Matches(/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/, {
     message:
       'Subdomain must contain only lowercase letters, numbers, and hyphens',
   })
   subdomain: string
 
   @ApiProperty({
-    description: 'The UUID of the user who owns this organization',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: 'The UUID V7 ID of the user who owns this organization',
+    example: '019bb645-034a-76df-89de-cec0b9023767',
   })
-  @IsUUID('7', { message: 'Owner ID must be an UUID' })
+  @IsUUID('7', { message: 'Owner ID must be an UU' })
   @IsNotEmpty()
   ownerId: string
 
