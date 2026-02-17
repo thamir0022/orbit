@@ -6,7 +6,7 @@ import {
   OrganizationModel,
   OrganizationSchema,
 } from './infrastructure/persistence/schema/organization.schema'
-import { OrganizationContoller } from './presentation/controllers/organization.controller'
+import { OrganizationController } from './presentation/controllers/organization.controller'
 import { organizationProviders } from './infrastructure/providers/organization.providers'
 
 @Module({
@@ -15,7 +15,7 @@ import { organizationProviders } from './infrastructure/providers/organization.p
       { name: OrganizationModel.name, schema: OrganizationSchema },
     ]),
   ],
-  controllers: [OrganizationContoller],
+  controllers: [OrganizationController],
   providers: [
     ...organizationProviders,
     { provide: CREATE_ORGANIZATION, useClass: CreateOrganizationUseCase },
