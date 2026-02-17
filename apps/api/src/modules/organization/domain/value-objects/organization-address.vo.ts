@@ -33,6 +33,7 @@ export class OrganizationAddress extends ValueObject<OrganizationAddressProps> {
       state: this.props.state,
       city: this.props.city,
       addressLine1: this.props.addressLine1,
+      addressLine2: this.props.addressLine2,
       postalCode: this.props.postalCode,
     }
   }
