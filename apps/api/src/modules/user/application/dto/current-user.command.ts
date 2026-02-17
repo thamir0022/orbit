@@ -1,6 +1,6 @@
 import { ClientInfo } from '@/modules/auth'
 
 export interface CurrentUserCommand {
-  refreshToken: string
+  refreshToken?: string
   clientInfo: ClientInfo
 }

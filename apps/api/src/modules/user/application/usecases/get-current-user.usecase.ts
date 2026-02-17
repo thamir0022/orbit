@@ -1,4 +1,4 @@
-import { Inject, UnauthorizedException } from '@nestjs/common'
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common'
 import { CurrentUserCommand } from '../dto/current-user.command'
 import { CurrentUserResult } from '../dto/current-user.result'
 import { IGetCurrentUserUseCase } from './get-current-user.interface'
@@ -16,6 +16,7 @@ import {
 import {
   AccountInactiveException,
   Email,
+  InvalidEmailException,
   UserNotFoundException,
   UserStatus,
 } from '../../domain'
@@ -26,6 +27,7 @@ import {
 import { UuidUtil } from '@/shared/utils'
 import { UserMapper } from '../mappers/user.mapper'
 
+@Injectable()
 export class GetCurrentUserUseCase implements IGetCurrentUserUseCase {
   constructor(
     @Inject(TOKEN_GENERATOR)
@@ -59,9 +61,14 @@ export class GetCurrentUserUseCase implements IGetCurrentUserUseCase {
       throw new RefreshTokenMismatchException()
     }
 
-    const userEmail = Email.create(session.email)
+    const userEmailResult = Email.create(session.email)
 
-    const user = await this._userRepository.findByEmail(userEmail.value)
+    if (userEmailResult.isFailure) {
+      await this._sessionManager.invalidateSession(tokenResult.sid)
+      throw new InvalidEmailException(userEmailResult.error)
+    }
+
+    const user = await this._userRepository.findByEmail(userEmailResult.value)
 
     if (!user) {
       await this._sessionManager.invalidateSession(session.sessionId)

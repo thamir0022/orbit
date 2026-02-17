@@ -1,6 +1,4 @@
 import { Provider } from '@nestjs/common'
-import { USER_REPOSITORY } from '@/modules/user/application'
-import { UserRepository } from '@/modules/user/infrastructure/persistence/repository/user.repository'
 import { BcryptPasswordHasher } from '../services/bcrypt-password-hasher.service'
 import { JwtTokenGenerator } from '../services/jwt-token-generator.service'
 import { RedisSessionManager } from '../services/redis-session-manager.service'
@@ -26,10 +24,6 @@ import { OAuthFactory } from '../factory/oauth.factory'
  */
 
 export const authProviders: Provider[] = [
-  {
-    provide: USER_REPOSITORY,
-    useClass: UserRepository,
-  },
   {
     provide: PASSWORD_HASHER,
     useClass: BcryptPasswordHasher,

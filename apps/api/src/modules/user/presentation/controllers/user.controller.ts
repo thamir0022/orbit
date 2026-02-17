@@ -16,7 +16,7 @@ export class UserController {
   async getCurrentUser(
     @Headers('user-agent') userAgent: string,
     @Ip() ipAddress: string,
-    @Cookies('refresh_token') refreshToken: string
+    @Cookies('refresh_token') refreshToken: string | undefined
   ) {
     const { accessToken, user } = await this._getCurrentUser.execute({
       refreshToken,

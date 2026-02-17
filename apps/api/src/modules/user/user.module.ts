@@ -10,6 +10,7 @@ import { userProviders } from './infrastructure/providers/user.provider'
 import { RedisModule } from '@/shared/infrastructure'
 import { GET_CURRENT_USER } from './application/usecases/get-current-user.interface'
 import { GetCurrentUserUseCase } from './application/usecases/get-current-user.usecase'
+import { USER_REPOSITORY } from './application'
 
 /**
  * User Module
@@ -26,5 +27,6 @@ import { GetCurrentUserUseCase } from './application/usecases/get-current-user.u
     ...userProviders,
     { provide: GET_CURRENT_USER, useClass: GetCurrentUserUseCase },
   ],
+  exports: [USER_REPOSITORY],
 })
 export class UserModule {}
