@@ -16,6 +16,10 @@ import {
   OTP_MANAGER,
   type IOtpManager,
 } from '../repositories/otp-manager.interface'
+import {
+  type IMailService,
+  MAIL_SERVICE,
+} from '@/modules/mail/domain/ports/mail-service.port'
 
 @Injectable()
 export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase {
@@ -23,7 +27,9 @@ export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase
     @Inject(USER_REPOSITORY)
     private readonly _userRepository: IUserRepository,
     @Inject(OTP_MANAGER)
-    private readonly _cacheManager: IOtpManager
+    private readonly _cacheManager: IOtpManager,
+    @Inject(MAIL_SERVICE)
+    private readonly _mailService: IMailService
   ) {}
   async execute(command: PasswordResetRequestCommand): Promise<void> {
     const { email } = command
@@ -48,5 +54,9 @@ export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase
     })
 
     // Send Email with OTP to client
+    await this._mailService.sendForgotPasswordEmail(
+      user.email.value,
+      generatedOtp.value
+    )
   }
 }

@@ -6,6 +6,7 @@ import { APP_CONFIG, MONGODB_CONFIG } from '@/shared/infrastructure'
 import { REDIS_CONFIG } from '@/shared/infrastructure/interfaces/redis.config.interface'
 import { JWT_CONFIG } from '../auth/infrastructure/interfaces/jwt.config.interface'
 import { OAUTH_CONFIG } from '../auth/infrastructure/interfaces/oauth.config.interface'
+import { MAIL_CONFIG } from '../mail/infrastructure/config/mail.config.interface'
 
 @Global()
 @Module({
@@ -24,6 +25,7 @@ import { OAUTH_CONFIG } from '../auth/infrastructure/interfaces/oauth.config.int
     { provide: REDIS_CONFIG, useExisting: AppConfigService },
     { provide: JWT_CONFIG, useExisting: AppConfigService },
     { provide: OAUTH_CONFIG, useExisting: AppConfigService },
+    { provide: MAIL_CONFIG, useExisting: AppConfigService },
   ],
   exports: [
     AppConfigService,
@@ -32,6 +34,7 @@ import { OAUTH_CONFIG } from '../auth/infrastructure/interfaces/oauth.config.int
     REDIS_CONFIG,
     JWT_CONFIG,
     OAUTH_CONFIG,
+    MAIL_CONFIG,
   ],
 })
 export class AppConfigModule {}

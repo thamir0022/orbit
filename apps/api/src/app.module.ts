@@ -6,6 +6,7 @@ import { GlobalExceptionFilter } from '@/shared/presentation/filters/global-exce
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core'
 import { AuthModule } from './modules/auth/auth.module'
 import { AppConfigModule } from './modules/config/config.module'
+import { MailModule } from './modules/mail/mail.module'
 import { ResponseInterceptor } from './shared/presentation/intercepters/response.intercepter'
 import { OrganizationModule } from './modules/organization/organization.module'
 
@@ -21,6 +22,7 @@ import { OrganizationModule } from './modules/organization/organization.module'
     // Features Module
     AuthModule,
     UserModule,
+    MailModule,
     OrganizationModule,
   ],
   providers: [
