@@ -15,7 +15,7 @@ interface StepperProps extends HTMLAttributes<HTMLDivElement> {
   stepContainerClassName?: string
 }
 
-export default function Stepper({
+export function Stepper({
   children,
   currentStep,
   stepContainerClassName = '',

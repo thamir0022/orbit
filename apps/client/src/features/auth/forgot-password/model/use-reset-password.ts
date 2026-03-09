@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { isAxiosError } from 'axios'
 
 import { axiosInstance } from '@/shared/lib/axios.instance'
-import type { ApiResponse } from '@/shared/api/types/api.types'
+import type { ApiResponse } from '@/shared/api/api.types'
 import {
   forgotPasswordSchema,
   type ForgotPasswordData,
