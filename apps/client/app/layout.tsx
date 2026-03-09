@@ -4,6 +4,7 @@ import './global.css'
 import { ThemeProvider } from '@/shared/ui/theme-provider'
 import { cn } from '@/shared/lib/utils'
 import { Toaster } from '@/shared/ui/sonner'
+import { TanStackProvider } from './providers/tanstack.provider'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -40,7 +41,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <TanStackProvider>{children}</TanStackProvider>
           <Toaster />
         </ThemeProvider>
       </body>
