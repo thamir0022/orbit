@@ -71,6 +71,7 @@ import {
   SignUpVerifyEmailWithOtpResponseDto,
   SignUpUserDetailsRequestDto,
   SignUpUserDetailsResponseDto,
+  SignUpCompleteResponseDto,
 } from '../application/dto'
 import {
   type IUserDetailsUseCase,
@@ -197,8 +198,8 @@ export class AuthController {
     @Headers('user-agent') userAgent: string,
     @Body() signUpCompleteRequestDto: SignUpCompleteRequestDto,
     @Res({ passthrough: true }) res: Response
-  ): Promise<{ organizationId: string }> {
-    const { refreshToken, expiresIn, organizationId } =
+  ): Promise<Omit<SignUpCompleteResponseDto, 'refreshToken' | 'expiresIn'>> {
+    const { refreshToken, expiresIn, organization } =
       await this._signUpComplete.execute({
         name: signUpCompleteRequestDto.name,
         subdomain: signUpCompleteRequestDto.subdomain,
@@ -214,7 +215,7 @@ export class AuthController {
       expires: expiresIn,
     })
 
-    return { organizationId }
+    return { organization }
   }
 
   @Get('refresh')
