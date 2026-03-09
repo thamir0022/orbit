@@ -109,6 +109,17 @@ export class OrganizationContact extends ValueObject<OrganizationContactProps> {
     }
   }
 
+  toPrimitives() {
+    return {
+      phone: this.props.phone,
+      email: this.props.email?.value || undefined,
+      website: this.props.website,
+      linkedin: this.props.linkedin,
+      twitter: this.props.twitter,
+      github: this.props.github,
+    }
+  }
+
   private static validateUrl(value: string): boolean {
     try {
       const url = new URL(value)

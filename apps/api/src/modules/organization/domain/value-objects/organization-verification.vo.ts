@@ -41,6 +41,13 @@ export class OrganizationVerification extends ValueObject<OrganizationVerificati
     }
   }
 
+  toPrimitives() {
+    return {
+      status: this.props.status,
+      verifiedAt: this.props.verifiedAt,
+    }
+  }
+
   isVerified(): boolean {
     return this.props.status === VerificationStatus.VERIFIED
   }

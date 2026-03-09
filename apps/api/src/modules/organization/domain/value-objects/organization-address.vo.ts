@@ -37,4 +37,15 @@ export class OrganizationAddress extends ValueObject<OrganizationAddressProps> {
       postalCode: this.props.postalCode,
     }
   }
+
+  toPrimitives() {
+    return {
+      country: this.props.country,
+      state: this.props.state,
+      city: this.props.city,
+      addressLine1: this.props.addressLine1,
+      addressLine2: this.props.addressLine2,
+      postalCode: this.props.postalCode,
+    }
+  }
 }
