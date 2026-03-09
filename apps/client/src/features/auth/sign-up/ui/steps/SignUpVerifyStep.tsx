@@ -18,6 +18,7 @@ import {
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
+  REGEXP_ONLY_DIGITS,
 } from '@/shared/ui/input-otp'
 
 export function SignUpVerifyStep() {
@@ -85,6 +86,7 @@ export function SignUpVerifyStep() {
                   value={field.value}
                   onChange={field.onChange}
                   containerClassName="justify-center"
+                  pattern={REGEXP_ONLY_DIGITS}
                 >
                   <InputOTPGroup>
                     <InputOTPSlot index={0} />
