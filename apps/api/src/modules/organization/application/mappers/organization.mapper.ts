@@ -12,6 +12,7 @@ import {
 } from '@/modules/organization/domain'
 import { UserId } from '@/modules/user/domain'
 import { type OrganizationDocument } from '../../infrastructure/persistence/schema/organization.schema'
+import { OrganizationDto } from '@/shared/domain/types'
 
 /**
  * Organization Mapper
@@ -21,7 +22,7 @@ export class OrganizationMapper {
   /**
    * Map domain entity to response DTO
    */
-  static toResponseDto(org: Organization) {
+  static toResponseDto(org: Organization): OrganizationDto {
     return {
       id: org.id.value,
       name: org.name,
@@ -30,11 +31,13 @@ export class OrganizationMapper {
       planId: org.planId,
       companySize: org.companySize,
       companyType: org.companyType,
-      settings: org.settings,
-      location: org.location,
-      contactInfo: org.contactInfo,
-      verification: org.verification,
+      settings: org.settings.toPrimitives(),
+      location: org.location.toPrimitives(),
+      contactInfo: org.contactInfo.toPrimitives(),
+      verification: org.verification.toPrimitives(),
       status: org.status,
+      createdAt: org.createdAt,
+      updatedAt: org.updatedAt,
     }
   }
 
