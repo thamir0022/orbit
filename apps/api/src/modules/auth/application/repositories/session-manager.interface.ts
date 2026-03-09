@@ -25,23 +25,53 @@ export interface Session extends SessionData {
 }
 
 export interface UpdateSession {
-  sessionId: string
-  updates: {
-    jti: string
-    ipAddress: string
-    userAgent: string
-  }
-  expiresAt: Date
+  jti: string
+  ipAddress: string
+}
+
+export enum SignUpStep {
+  EMAIL_VERIFIED = 'email_verified',
+  DETAILS_COMPLETED = 'details_completed',
+}
+
+export interface CreateSignUpSession {
+  email: string
+  isEmailVerified: boolean
+}
+
+export interface UpdateSignUpSessionData {
+  firstName?: string
+  lastName?: string
+  passwordHash?: string
+  currentStep: SignUpStep
+}
+
+export interface SignUpSessionData
+  extends CreateSignUpSession, Partial<UpdateSignUpSessionData> {
+  currentStep: SignUpStep
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface ISessionManager {
-  createSession(data: SessionData): Promise<string>
-  getSession(sessionId: string): Promise<Session | null>
-  invalidateSession(sessionId: string): Promise<void>
+  createAuthSession(data: SessionData): Promise<string>
+  getAuthSession(sessionId: string): Promise<Session | null>
+  invalidateAuthSession(sessionId: string): Promise<void>
   invalidateAllUserSessions(userId: string): Promise<void>
-  extendSession(props: UpdateSession): Promise<void>
+  extendAuthSession(
+    sessionId: string,
+    updates: UpdateSession,
+    expiresAt: Date
+  ): Promise<void>
   blacklistToken(jti: string, expiresAt: Date): Promise<void>
   isTokenBlacklisted(jti: string): Promise<boolean>
+  createSignUpSession(token: string, data: CreateSignUpSession): Promise<void>
+  updateSignUpSession(
+    token: string,
+    updates: UpdateSignUpSessionData
+  ): Promise<void>
+  getSignUpSession(token: string): Promise<SignUpSessionData | null | undefined>
+  deleteSignUpSession(token: string): Promise<void>
 }
 
 export const SESSION_MANAGER = Symbol('ISessionManager')

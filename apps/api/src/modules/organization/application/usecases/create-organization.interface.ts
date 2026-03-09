@@ -1,7 +1,7 @@
-import { CreateOrganizationCommand } from '../dto/create-organization.command'
+// import { CreateOrganizationCommand } from '../dto/create-organization.command'
 
-export interface ICreateOrganizationUseCase {
-  execute(command: CreateOrganizationCommand): Promise<void>
-}
+// export interface ICreateOrganizationUseCase {
+//   execute(command: CreateOrganizationCommand): Promise<void>
+// }
 
-export const CREATE_ORGANIZATION = Symbol('ICreateOrganizationUseCase')
+// export const CREATE_ORGANIZATION = Symbol('ICreateOrganizationUseCase')

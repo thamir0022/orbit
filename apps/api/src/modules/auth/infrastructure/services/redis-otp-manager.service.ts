@@ -1,18 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common'
-import {
-  IOtpManager,
-  OtpData,
-  OtpTokenData,
-} from '../../application/repositories/otp-manager.interface'
+import { IOtpManager } from '../../application/repositories/otp-manager.interface'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { type Cache } from 'cache-manager'
 import { type IRedisConfig, REDIS_CONFIG } from '@/shared/infrastructure'
 import { Email } from '@/modules/user/domain'
+import { Otp } from '../../domain/value-objects/otp.vo'
 
 @Injectable()
 export class RedisOtpManager implements IOtpManager {
-  private static readonly OTP_PREFIX = 'reset-otp:'
-  private static readonly OTP_RESET_TOKEN_PREFIX = 'reset-otp-token:'
+  private static readonly RESET_PASS_OTP_PREFIX = 'reset-otp:'
+  private static readonly RESET_PASS_TOKEN_PREFIX = 'reset-pass-token:'
+  private static readonly AUTH_OTP_PREFIX = 'auth-otp:'
 
   constructor(
     @Inject(CACHE_MANAGER)
@@ -24,10 +22,10 @@ export class RedisOtpManager implements IOtpManager {
   /**
    *
    * Set OTP
-   * @param otp
    * @param email
+   * @param otp
    */
-  async setOtp({ otp, email }: OtpData): Promise<void> {
+  async setPasswordResetOtp(email: Email, otp: Otp): Promise<void> {
     await this._cache.set(
       this.resetOtpKey(email.value),
       otp.value,
@@ -38,9 +36,9 @@ export class RedisOtpManager implements IOtpManager {
   /**
    * Get OTP
    * @param email
-   * @returns
+   * @returns otp
    */
-  async getOtp(email: Email): Promise<string | null | undefined> {
+  async getPasswordResetOtp(email: Email): Promise<string | null | undefined> {
     return await this._cache.get(this.resetOtpKey(email.value))
   }
 
@@ -48,17 +46,18 @@ export class RedisOtpManager implements IOtpManager {
    *
    * @param email
    */
-  async deleteOtp(email: Email): Promise<void> {
+  async deletePasswordResetOtp(email: Email): Promise<void> {
     await this._cache.del(this.resetOtpKey(email.value))
   }
 
   /**
    *
-   * @param OtpTokenData
+   * @param token
+   * @param email
    */
-  async setResetOtpToken({ email, resetToken }: OtpTokenData): Promise<void> {
+  async setPasswordResetToken(token: string, email: Email): Promise<void> {
     await this._cache.set(
-      this.resetTokenKey(resetToken),
+      this.resetTokenKey(token),
       email.value,
       this._config.otpResetTokenTTL
     )
@@ -69,23 +68,45 @@ export class RedisOtpManager implements IOtpManager {
    * @param token
    * @returns
    */
-  async getResetOtpToken(token: string): Promise<string | null | undefined> {
+  async getPasswordResetToken(
+    token: string
+  ): Promise<string | null | undefined> {
     return await this._cache.get(this.resetTokenKey(token))
+  }
+
+  async setEmailVerifyOtp(email: Email, otp: Otp): Promise<void> {
+    await this._cache.set(
+      this.authOtpKey(email.value),
+      otp.value,
+      this._config.otpTTL
+    )
+  }
+
+  async getEmailVerifyOtp(email: Email): Promise<string | null | undefined> {
+    return await this._cache.get(this.authOtpKey(email.value))
+  }
+
+  async deleteEmailVerifyOtp(email: Email): Promise<void> {
+    await this._cache.del(this.authOtpKey(email.value))
   }
 
   /**
    *
    * @param token
    */
-  async deteleResetOtpToken(token: string): Promise<void> {
+  async detelePasswordResetToken(token: string): Promise<void> {
     await this._cache.del(this.resetTokenKey(token))
   }
 
   private resetOtpKey(email: string): string {
-    return `${RedisOtpManager.OTP_PREFIX}${email}`
+    return `${RedisOtpManager.RESET_PASS_OTP_PREFIX}${email}`
   }
 
   private resetTokenKey(token: string): string {
-    return `${RedisOtpManager.OTP_RESET_TOKEN_PREFIX}${token}`
+    return `${RedisOtpManager.RESET_PASS_TOKEN_PREFIX}${token}`
+  }
+
+  private authOtpKey(email: string): string {
+    return `${RedisOtpManager.AUTH_OTP_PREFIX}${email}`
   }
 }

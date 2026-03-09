@@ -2,7 +2,11 @@ import { Processor, WorkerHost } from '@nestjs/bullmq'
 import { Job } from 'bullmq'
 import { Logger } from '@nestjs/common'
 import { MailSenderAdapter } from '../adapters/mail-sender.adapter'
-import { MAIL_QUEUE_NAME, JOB_FORGOT_PASSWORD } from './mail-queue.producer'
+import {
+  MAIL_QUEUE_NAME,
+  JOB_FORGOT_PASSWORD,
+  JOB_EMAIL_VERIFICATION,
+} from './mail-queue.producer'
 
 // 1. Interface for the payload
 interface IForgotPasswordPayload {
@@ -30,6 +34,16 @@ export class MailQueueProcessor extends WorkerHost {
         const { to, otp } = job.data
 
         await this.mailSender.sendForgotPassword(to, otp)
+        break
+      }
+
+      case JOB_EMAIL_VERIFICATION: {
+        // 3. Fix Lexical Declaration: Added { } block wrapper
+
+        // 4. Fix Unsafe Assignment: Cast data to the Interface
+        const { to, otp } = job.data
+
+        await this.mailSender.sendEmailVerification(to, otp)
         break
       }
 

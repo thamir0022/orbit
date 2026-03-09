@@ -10,6 +10,7 @@ import {
 } from '@/modules/user/infrastructure/persistence/schema/user.schema'
 import { UserMapper } from '@/modules/user/application/mappers/user.mapper'
 import { InjectModel } from '@nestjs/mongoose'
+import { ITransactionOptions } from '@/shared/application/repository/transaction-manager.interface'
 
 /**
  * MongoDB User Repository Implementation (Adapter)
@@ -28,7 +29,7 @@ export class UserRepository implements IUserRepository {
     private readonly userModel: Model<UserDocument>
   ) {}
 
-  async save(user: User): Promise<User> {
+  async save(user: User, options?: ITransactionOptions): Promise<void> {
     const persistenceData = UserMapper.toPersistence(user)
 
     const existingUser = await this.userModel.findOne({
@@ -36,18 +37,27 @@ export class UserRepository implements IUserRepository {
     })
 
     if (existingUser) {
+      const updateOperation: {
+        $set: Partial<UserDocument>
+        $unset?: { lockedUntil: 1 }
+      } = {
+        $set: persistenceData,
+      }
+
+      if (user.lockedUntil === undefined)
+        updateOperation.$unset = { lockedUntil: 1 }
+
       await this.userModel.updateOne(
         { id: user.userId.value },
-        { $set: persistenceData }
+        updateOperation,
+        { session: options?.session }
       )
       this.logger.debug(`Updated user: ${user.userId.value}`)
     } else {
       const newUser = new this.userModel(persistenceData)
-      await newUser.save()
+      await newUser.save({ session: options?.session })
       this.logger.debug(`Created user: ${user.userId.value}`)
     }
-
-    return user
   }
 
   async findById(id: UserId): Promise<User | null> {

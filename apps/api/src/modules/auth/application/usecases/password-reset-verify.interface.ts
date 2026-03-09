@@ -1,10 +1,12 @@
-import { PasswordResetVerifyCommand } from '../dto/password-reset-verify.command'
-import { PasswordResetVerifyResult } from '../dto/password-reset-verify.result'
+import {
+  PasswordResetVerifyRequestDto,
+  PasswordResetVerifyResponseDto,
+} from '../dto'
 
 export interface IPasswordResetVerifyUseCase {
   execute(
-    command: PasswordResetVerifyCommand
-  ): Promise<PasswordResetVerifyResult>
+    dto: PasswordResetVerifyRequestDto
+  ): Promise<PasswordResetVerifyResponseDto>
 }
 
 export const PASSWORD_RESET_VERIFY = Symbol('IPasswordResetVerifyUseCase')

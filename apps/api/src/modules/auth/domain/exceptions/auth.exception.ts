@@ -2,10 +2,10 @@ import { DomainException } from '@/shared/domain'
 import { HttpStatus } from '@nestjs/common'
 
 export class InvalidRefreshTokenException extends DomainException {
-  constructor() {
+  constructor(message?: string) {
     super({
       code: 'INVALID_REFRESH_TOKEN',
-      message: 'Refresh token is invalid or expired',
+      message: message ?? 'Refresh token is invalid or expired',
       statusCode: HttpStatus.UNAUTHORIZED,
     })
   }
@@ -41,6 +41,16 @@ export class RefreshTokenMismatchException extends DomainException {
   }
 }
 
+export class UserAgentMisMatchException extends DomainException {
+  constructor() {
+    super({
+      code: 'USER_AGENT_MISMATCH',
+      message: 'User agent mismatch',
+      statusCode: HttpStatus.UNAUTHORIZED,
+    })
+  }
+}
+
 export class InvalidOtpException extends DomainException {
   constructor() {
     super({
@@ -48,6 +58,38 @@ export class InvalidOtpException extends DomainException {
       message:
         'The verification code is invalid or has expired. Please request a new code.',
       statusCode: HttpStatus.BAD_REQUEST,
+    })
+  }
+}
+
+export class SignUpSessionNotFoundException extends DomainException {
+  constructor() {
+    super({
+      code: 'SESSION_NOT_FOUND',
+      message:
+        'Your verification session has expired. Please start the registration process again.',
+      statusCode: HttpStatus.NOT_FOUND,
+    })
+  }
+}
+
+export class InCompleteSignUpSessionException extends DomainException {
+  constructor() {
+    super({
+      code: 'INCOMPLETE_SESSION',
+      message:
+        'Your sign up process is incomplete, Please enter your personal details.',
+      statusCode: HttpStatus.NOT_FOUND,
+    })
+  }
+}
+
+export class AuthProviderMismatchException extends DomainException {
+  constructor(provider: string) {
+    super({
+      code: 'AUTH_PROVIDER_MISMATCH',
+      message: `This account was created with ${provider}. Please sign in with ${provider} or set a password first`,
+      statusCode: HttpStatus.NOT_FOUND,
     })
   }
 }

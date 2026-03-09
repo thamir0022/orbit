@@ -1,32 +1,24 @@
 import { Inject, Injectable, Logger } from '@nestjs/common'
-import { SignInCommand } from '../dto/sign-in.command'
-import { SignInResult } from '../dto/sign-in.result'
 import { ISignInWithEmailUseCase } from './sign-in-with-email.interface'
 import {
   USER_REPOSITORY,
   type IUserRepository,
 } from '@/modules/user/application'
 import {
-  PASSWORD_HASHER,
-  type IPasswordHasher,
-} from '../repositories/password-hasher.interface'
-import { UuidUtil } from '@/shared/utils'
-import {
-  type ISessionManager,
-  SESSION_MANAGER,
-} from '../repositories/session-manager.interface'
-import {
-  type ITokenGenerator,
-  TOKEN_GENERATOR,
-} from '../repositories/token-generator.interface'
-import {
   AccountInactiveException,
   AccountLockedException,
+  AuthProvider,
   Email,
   InvalidCredentialsException,
   UserStatus,
 } from '@/modules/user/domain'
 import { formatDistanceToNow } from 'date-fns'
+import {
+  AUTH_SERVICE,
+  type IAuthService,
+} from '../services/auth.service.interface'
+import { AuthProviderMismatchException } from '../../domain/exceptions/auth.exception'
+import { SignInRequestDto, SignInResponseDto } from '../dto'
 
 @Injectable()
 export class SignInWithEmailUseCase implements ISignInWithEmailUseCase {
@@ -35,19 +27,15 @@ export class SignInWithEmailUseCase implements ISignInWithEmailUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly _userRepository: IUserRepository,
-    @Inject(PASSWORD_HASHER)
-    private readonly _passwordHasher: IPasswordHasher,
-    @Inject(SESSION_MANAGER)
-    private readonly _sessionManager: ISessionManager,
-    @Inject(TOKEN_GENERATOR)
-    private readonly _tokenGenerator: ITokenGenerator
+    @Inject(AUTH_SERVICE)
+    private readonly _authService: IAuthService
   ) {}
 
   async execute({
     email,
     password,
     clientInfo,
-  }: SignInCommand): Promise<SignInResult> {
+  }: SignInRequestDto): Promise<SignInResponseDto> {
     this._logger.log(`Validating credentials for: ${email}`)
 
     // 1. Domain Validation
@@ -61,13 +49,17 @@ export class SignInWithEmailUseCase implements ISignInWithEmailUseCase {
     // 3. Business Rules Check
     if (user.isLocked())
       throw new AccountLockedException(formatDistanceToNow(user.lockedUntil!))
+
+    // 4. Check Account Status
     if (user.status !== UserStatus.ACTIVE)
       throw new AccountInactiveException(user.status)
 
-    if (!user.passwordHash) throw new InvalidCredentialsException()
+    // 5. Ensure Auth Provider Is Email
+    if (!user.passwordHash || user.authProvider !== AuthProvider.EMAIL)
+      throw new AuthProviderMismatchException(user.authProvider)
 
-    // 4. Password Check
-    const isValid = await this._passwordHasher.compare(
+    // 6. Password Check
+    const isValid = await this._authService.comparePassword(
       password,
       user.passwordHash.value
     )
@@ -78,36 +70,39 @@ export class SignInWithEmailUseCase implements ISignInWithEmailUseCase {
       throw new InvalidCredentialsException()
     }
 
-    // 5. Record successful login (Domain behavior)
+    // 7. Record successful login (Domain behavior)
     user.recordLogin()
 
-    // 6. Save the user
+    // 8. Save the user
     await this._userRepository.save(user)
 
-    // 7. Generate a refresh token ID
-    const refreshTokenId = UuidUtil.generate()
+    // 9. Generate a refresh token ID
+    const refreshTokenId = this._authService.createRefreshTokenId()
 
-    // 9. Create session
-    const sessionId = await this._sessionManager.createSession({
-      userId: user.id.value,
+    // 10. Create session
+    const sessionId = await this._authService.createAuthSession({
+      userId: user.id,
+      email: user.email,
       jti: refreshTokenId,
-      email: user.email.value,
       ipAddress: clientInfo.ipAddress,
       userAgent: clientInfo.userAgent,
     })
 
-    // 10. Generate refresh token
-    const refreshToken = this._tokenGenerator.generateRefreshToken({
+    // 11. Generate refresh token
+    const refreshToken = await this._authService.createRefreshToken({
       jti: refreshTokenId,
       sub: user.id.value,
       sid: sessionId,
     })
 
-    this._logger.log(`User ${user.id.value} sign in successfully`)
+    // 12. Calculate the refreshToken expiry
+    const expiresIn = this._authService.extractRefreshTokenExpiry(refreshToken)
 
-    // 11. Return the refresh token
+    this._logger.log(`User ${user.id.value} sign in successfully`)
+    // 13. Return the refresh token and expiry
     return {
       refreshToken,
+      expiresIn,
     }
   }
 }

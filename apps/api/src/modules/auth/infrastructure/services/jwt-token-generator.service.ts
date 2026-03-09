@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common'
-import * as jwt from 'jsonwebtoken'
 import type {
   AccessTokenPayload,
   AccessTokenResult,
@@ -7,7 +6,11 @@ import type {
   RefreshTokenPayload,
   RefreshTokenResult,
 } from '../../application'
-import { JWT_CONFIG, type IJwtConfig } from '../interfaces/jwt.config.interface'
+import {
+  JWT_ACCESS,
+  JWT_REFRESH,
+} from '../../application/constants/auth.constant'
+import { JwtService } from '@nestjs/jwt'
 
 /**
  * JWT Token Generator (Adapter)
@@ -18,45 +21,48 @@ import { JWT_CONFIG, type IJwtConfig } from '../interfaces/jwt.config.interface'
  */
 @Injectable()
 export class JwtTokenGenerator implements ITokenGenerator {
-  private readonly accessTokenSecret: string
-  private readonly refreshTokenSecret: string
-  private readonly accessTokenExpiresIn: number
-  private readonly refreshTokenExpiresIn: number
-
   constructor(
-    @Inject(JWT_CONFIG)
-    private readonly _config: IJwtConfig
-  ) {
-    this.accessTokenSecret = this._config.accessTokenSecret
-    this.refreshTokenSecret = this._config.refreshTokenSecret
+    @Inject(JWT_ACCESS)
+    private readonly jwtAccess: JwtService,
+    @Inject(JWT_REFRESH)
+    private readonly jwtRefresh: JwtService
+  ) {}
 
-    this.accessTokenExpiresIn = this._config.accessTokenExpiresIn
-    this.refreshTokenExpiresIn = this._config.refreshTokenExpiresIn
+  async generateAccessToken(payload: AccessTokenPayload): Promise<string> {
+    return await this.jwtAccess.signAsync(payload)
   }
 
-  generateAccessToken(payload: AccessTokenPayload): string {
-    return jwt.sign(payload, this.accessTokenSecret, {
-      expiresIn: this.accessTokenExpiresIn,
-    })
+  async generateRefreshToken(payload: RefreshTokenPayload): Promise<string> {
+    return await this.jwtRefresh.signAsync(payload)
   }
 
-  generateRefreshToken(payload: RefreshTokenPayload): string {
-    return jwt.sign(payload, this.refreshTokenSecret, {
-      expiresIn: this.refreshTokenExpiresIn,
-    })
-  }
-
-  verifyAccessToken(token: string): AccessTokenResult | null {
+  async verifyAccessToken(token: string): Promise<AccessTokenResult | null> {
     try {
-      return jwt.verify(token, this.accessTokenSecret) as AccessTokenResult
+      return await this.jwtAccess.verifyAsync<AccessTokenResult>(token)
     } catch {
       return null
     }
   }
 
-  verifyRefreshToken(token: string): RefreshTokenResult | null {
+  async verifyRefreshToken(token: string): Promise<RefreshTokenResult | null> {
     try {
-      return jwt.verify(token, this.refreshTokenSecret) as RefreshTokenResult
+      return await this.jwtRefresh.verifyAsync<RefreshTokenResult>(token)
+    } catch {
+      return null
+    }
+  }
+
+  decodeAccessToken(token: string): AccessTokenResult | null {
+    try {
+      return this.jwtAccess.decode<AccessTokenResult>(token)
+    } catch {
+      return null
+    }
+  }
+
+  decodeRefreshToken(token: string): RefreshTokenResult | null {
+    try {
+      return this.jwtRefresh.decode<RefreshTokenResult>(token)
     } catch {
       return null
     }

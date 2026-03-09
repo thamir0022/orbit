@@ -1,10 +1,8 @@
 import { AuthProvider } from '@/modules/user/domain'
-import { OAuthCommand } from '../dto/oauth.command'
-import { OAuthResult } from '../dto/oauth.result'
-
+import { OAuthRequestDto, OAuthResponseDto } from '../dto'
 export interface IAuthenticateWithOAuthUseCase {
   getRedirectUrl(provider: AuthProvider): string
-  execute(command: OAuthCommand): Promise<OAuthResult>
+  execute(dto: OAuthRequestDto): Promise<OAuthResponseDto>
 }
 
 export const AUTHENTICATE_WITH_OAUTH = Symbol('IAuthenticateWithOAuthUseCase')

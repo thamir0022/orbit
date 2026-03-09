@@ -51,7 +51,7 @@ export class UserModel {
   loginAttempts: number
 
   @Prop()
-  lockedUntil: Date
+  lockedUntil?: Date
 
   // OAuth
   @Prop({ default: 'email', index: true })

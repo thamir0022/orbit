@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common'
 import nodemailer, { type Transporter } from 'nodemailer'
 import { getForgotPasswordTemplate } from '../templates/forgot-password.template'
 import { MAIL_CONFIG, type IMailConfig } from '../config/mail.config.interface'
+import { getEmailVerificationTemplate } from '../templates/email-verification.template'
 
 @Injectable()
 export class MailSenderAdapter {
@@ -30,6 +31,19 @@ export class MailSenderAdapter {
       from: `"${this._config.mailFromName}" <${this._config.mailFromEmail}>`,
       to,
       subject: 'Reset your Orbit Password',
+      html,
+    })
+
+    this.logger.log(`Email actually sent via Mailtrap to ${to}`)
+  }
+
+  async sendEmailVerification(to: string, otp: string): Promise<void> {
+    const html = getEmailVerificationTemplate(otp)
+
+    await this.transporter.sendMail({
+      from: `"${this._config.mailFromName}" <${this._config.mailFromEmail}>`,
+      to,
+      subject: 'Verify your email',
       html,
     })
 

@@ -1,7 +1,7 @@
-import { PasswordResetRequestCommand } from '../dto/password-reset-request.command'
+import { PasswordResetRequestDto } from '../dto'
 
 export interface IPasswordResetRequestUseCase {
-  execute(command: PasswordResetRequestCommand): Promise<void>
+  execute(dto: PasswordResetRequestDto): Promise<void>
 }
 
 export const PASSWORD_RESET_REQUEST = Symbol('IPasswordResetRequestUseCase')

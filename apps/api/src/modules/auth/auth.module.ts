@@ -6,8 +6,6 @@ import { UserModel, UserSchema } from '../user/infrastructure'
 import { AuthController } from './presentation/auth.controller'
 import { SIGN_IN_WITH_EMAIL } from './application/usecases/sign-in-with-email.interface'
 import { SignInWithEmailUseCase } from './application/usecases/sign-in-with-email.usecase'
-import { SIGN_UP_WITH_EMAIL } from './application/usecases/sign-up-with-email.interface'
-import { SignUpWithEmailUseCase } from './application/usecases/sign-up-with-email.usecase'
 import { REFRESH_TOKEN } from './application/usecases/refresh-token.interface'
 import { RefreshTokenUseCase } from './application/usecases/refresh-token.usecase'
 import { PASSWORD_RESET_REQUEST } from './application/usecases/password-reset-request.interface'
@@ -20,20 +18,59 @@ import { AUTHENTICATE_WITH_OAUTH } from './application/usecases/authenticate-wit
 import { AuthenticateWithOAuthUseCase } from './application/usecases/authenticate-with-oauth.usecase'
 import { GoogleOAuthProvider } from './infrastructure/providers/google.provider'
 import { UserModule } from '../user/user.module'
-import { SESSION_MANAGER, TOKEN_GENERATOR } from './application'
+import { SIGN_UP_INITIATE } from './application/usecases/sign-up-initiate-with-email.interface'
+import { SignUpInitiateWithEmailUseCase } from './application/usecases/sign-up-initiate-with-email.usecase'
+import { SIGN_UP_VERIFY_EMAIL } from './application/usecases/sign-up-verify-email-with-otp.interface'
+import { SignUpVerifyEmailUseCase } from './application/usecases/sign-up-verify-email-with-otp.usecase'
+import { SIGN_UP_USER_DETAILS } from './application/usecases/sign-up-user-details.interface'
+import { UserDetailsUseCase } from './application/usecases/sign-up-user-details.usecase'
+import { SIGN_UP_COMPLETE } from './application/usecases/sign-up-complete.interface'
+import { SignUpCompleteUseCase } from './application/usecases/sign-up-complete.usecase'
+import { OrganizationModule } from '../organization/organization.module'
+import { AUTH_SERVICE } from './application/services/auth.service.interface'
+import { AuthService } from './application/services/auth.service'
+import { JwtModule, JwtService } from '@nestjs/jwt'
+import {
+  IJwtConfig,
+  JWT_CONFIG,
+} from './infrastructure/interfaces/jwt.config.interface'
+import { JWT_ACCESS, JWT_REFRESH } from './application/constants/auth.constant'
 
 @Module({
   imports: [
     UserModule,
+    OrganizationModule,
     RedisModule,
     MongooseModule.forFeature([{ name: UserModel.name, schema: UserSchema }]),
+    JwtModule.register({}),
   ],
   controllers: [AuthController],
   providers: [
     ...authProviders,
+    {
+      provide: JWT_ACCESS,
+      inject: [JWT_CONFIG],
+      useFactory: (config: IJwtConfig) =>
+        new JwtService({
+          secret: config.accessTokenSecret,
+          signOptions: { expiresIn: config.accessTokenExpiresIn },
+        }),
+    },
+    {
+      provide: JWT_REFRESH,
+      inject: [JWT_CONFIG],
+      useFactory: (config: IJwtConfig) =>
+        new JwtService({
+          secret: config.refreshTokenSecret,
+          signOptions: { expiresIn: config.refreshTokenExpiresIn },
+        }),
+    },
     GoogleOAuthProvider,
+    { provide: SIGN_UP_INITIATE, useClass: SignUpInitiateWithEmailUseCase },
+    { provide: SIGN_UP_VERIFY_EMAIL, useClass: SignUpVerifyEmailUseCase },
+    { provide: SIGN_UP_USER_DETAILS, useClass: UserDetailsUseCase },
+    { provide: SIGN_UP_COMPLETE, useClass: SignUpCompleteUseCase },
     { provide: SIGN_IN_WITH_EMAIL, useClass: SignInWithEmailUseCase },
-    { provide: SIGN_UP_WITH_EMAIL, useClass: SignUpWithEmailUseCase },
     { provide: REFRESH_TOKEN, useClass: RefreshTokenUseCase },
     { provide: PASSWORD_RESET_REQUEST, useClass: PasswordResetRequestUseCase },
     { provide: PASSWORD_RESET_VERIFY, useClass: PasswordResetVerifyUseCase },
@@ -42,7 +79,7 @@ import { SESSION_MANAGER, TOKEN_GENERATOR } from './application'
       provide: AUTHENTICATE_WITH_OAUTH,
       useClass: AuthenticateWithOAuthUseCase,
     },
+    { provide: AUTH_SERVICE, useClass: AuthService },
   ],
-  exports: [TOKEN_GENERATOR, SESSION_MANAGER],
 })
 export class AuthModule {}

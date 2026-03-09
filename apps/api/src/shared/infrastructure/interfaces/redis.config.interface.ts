@@ -3,6 +3,7 @@ export interface IRedisConfig {
   sessionTTL: number
   otpTTL: number
   otpResetTokenTTL: number
+  signUpSessionTTL: number
 }
 
 export const REDIS_CONFIG = Symbol('IRedisConfig')

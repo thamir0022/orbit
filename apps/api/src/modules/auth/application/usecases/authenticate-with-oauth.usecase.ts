@@ -9,22 +9,16 @@ import {
   type IUserRepository,
 } from '@/modules/user/application'
 import {
-  TOKEN_GENERATOR,
-  type ITokenGenerator,
-} from '../repositories/token-generator.interface'
-import {
   AuthProvider,
   Email,
   InvalidEmailException,
   User,
 } from '@/modules/user/domain'
-import { OAuthCommand } from '../dto/oauth.command'
-import { OAuthResult } from '../dto/oauth.result'
-import { UuidUtil } from '@/shared/utils'
 import {
-  type ISessionManager,
-  SESSION_MANAGER,
-} from '../repositories/session-manager.interface'
+  AUTH_SERVICE,
+  type IAuthService,
+} from '../services/auth.service.interface'
+import { OAuthRequestDto, OAuthResponseDto } from '../dto'
 
 @Injectable()
 export class AuthenticateWithOAuthUseCase implements IAuthenticateWithOAuthUseCase {
@@ -33,10 +27,8 @@ export class AuthenticateWithOAuthUseCase implements IAuthenticateWithOAuthUseCa
     private readonly _oauthFactory: IOAuthFactory,
     @Inject(USER_REPOSITORY)
     private readonly _userRepository: IUserRepository,
-    @Inject(TOKEN_GENERATOR)
-    private readonly _tokenGenerator: ITokenGenerator,
-    @Inject(SESSION_MANAGER)
-    private readonly _sessionManager: ISessionManager
+    @Inject(AUTH_SERVICE)
+    private readonly _authService: IAuthService
   ) {}
 
   getRedirectUrl(provider: AuthProvider): string {
@@ -44,11 +36,10 @@ export class AuthenticateWithOAuthUseCase implements IAuthenticateWithOAuthUseCa
     return oauthProvider.getAuthUrl()
   }
 
-  async execute(command: OAuthCommand): Promise<OAuthResult> {
-    const { provider, code, clientInfo } = command
-    const oauthProvider = this._oauthFactory.getProvider(provider)
+  async execute(dto: OAuthRequestDto): Promise<OAuthResponseDto> {
+    const oauthProvider = this._oauthFactory.getProvider(dto.provider)
 
-    const oauthUser = await oauthProvider.validateAuthCode(code)
+    const oauthUser = await oauthProvider.validateAuthCode(dto.code)
 
     const oauthUserEmail = Email.create(oauthUser.email)
 
@@ -59,7 +50,7 @@ export class AuthenticateWithOAuthUseCase implements IAuthenticateWithOAuthUseCa
 
     if (user && user.authProvider !== AuthProvider.GOOGLE)
       throw new BadRequestException(
-        `Your account is already linked with ${user.authProvider}, Please sign in with that.`
+        `Your account is already linked with ${user.authProvider}, Please sign in with ${user.authProvider}.`
       )
 
     if (!user) {
@@ -77,26 +68,29 @@ export class AuthenticateWithOAuthUseCase implements IAuthenticateWithOAuthUseCa
     }
 
     // Generate a refresh token ID
-    const refreshTokenId = UuidUtil.generate()
+    const refreshTokenId = this._authService.createRefreshTokenId()
 
     // Create session
-    const sessionId = await this._sessionManager.createSession({
-      userId: user.id.value,
+    const sessionId = await this._authService.createAuthSession({
+      userId: user.id,
       jti: refreshTokenId,
-      email: user.email.value,
-      ipAddress: clientInfo.ipAddress,
-      userAgent: clientInfo.userAgent,
+      email: user.email,
+      ipAddress: dto.clientInfo.ipAddress,
+      userAgent: dto.clientInfo.userAgent,
     })
 
     // Generate refresh token
-    const refreshToken = this._tokenGenerator.generateRefreshToken({
+    const refreshToken = await this._authService.createRefreshToken({
       jti: refreshTokenId,
       sub: user.id.value,
       sid: sessionId,
     })
 
+    const expiresIn = this._authService.extractRefreshTokenExpiry(refreshToken)
+
     return {
       refreshToken,
+      expiresIn,
     }
   }
 }

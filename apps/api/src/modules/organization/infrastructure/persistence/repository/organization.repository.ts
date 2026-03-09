@@ -28,7 +28,7 @@ export class OrganizationRepository implements IOrganizationRepository {
     return OrganizationMapper.toDomain(document)
   }
 
-  async save(org: Organization): Promise<Organization> {
+  async save(org: Organization): Promise<void> {
     const persistenceData = OrganizationMapper.toPersistence(org)
 
     const existingOrg = await this._organizationModel.findOne({
@@ -46,8 +46,6 @@ export class OrganizationRepository implements IOrganizationRepository {
       await newOrg.save()
       this.logger.debug(`Created organization: ${org.id.value}`)
     }
-
-    return org
   }
 
   async findBySubdomain(subdomain: string): Promise<Organization | null> {

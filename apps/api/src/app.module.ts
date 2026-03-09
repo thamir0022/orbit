@@ -9,6 +9,7 @@ import { AppConfigModule } from './modules/config/config.module'
 import { MailModule } from './modules/mail/mail.module'
 import { ResponseInterceptor } from './shared/presentation/intercepters/response.intercepter'
 import { OrganizationModule } from './modules/organization/organization.module'
+import { SharedModule } from './shared/shared.module'
 
 @Module({
   imports: [
@@ -18,6 +19,9 @@ import { OrganizationModule } from './modules/organization/organization.module'
     // Infrastructure
     MongoDbModule,
     RedisModule,
+
+    // Shared
+    SharedModule,
 
     // Features Module
     AuthModule,

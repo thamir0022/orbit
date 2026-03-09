@@ -17,7 +17,7 @@ export class User extends AggregateRoot<UserId> {
   private _mfaEnabled: boolean
   private _mfaBackupCodes: string[]
   private _loginAttempts?: number
-  private _lockedUntil?: Date | undefined
+  private _lockedUntil?: Date
   private _authProvider: AuthProvider
   private _oauthProviderId?: string
   private _status: UserStatus

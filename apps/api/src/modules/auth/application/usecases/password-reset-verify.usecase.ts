@@ -1,59 +1,57 @@
+import { Inject, Injectable } from '@nestjs/common'
 import { Email, InvalidEmailException } from '@/modules/user/domain'
-import { PasswordResetVerifyCommand } from '../dto/password-reset-verify.command'
-import { PasswordResetVerifyResult } from '../dto/password-reset-verify.result'
 import { IPasswordResetVerifyUseCase } from './password-reset-verify.interface'
 import { Otp } from '../../domain/value-objects/otp.vo'
 import { InvalidOtpException } from '../../domain/exceptions/auth.exception'
-import { Inject, Injectable } from '@nestjs/common'
 import {
-  type IOtpManager,
-  OTP_MANAGER,
-} from '../repositories/otp-manager.interface'
-import { UuidUtil } from '@/shared/utils'
+  PasswordResetVerifyRequestDto,
+  PasswordResetVerifyResponseDto,
+} from '../dto'
+import {
+  AUTH_SERVICE,
+  type IAuthService,
+} from '../services/auth.service.interface'
 
 @Injectable()
 export class PasswordResetVerifyUseCase implements IPasswordResetVerifyUseCase {
   constructor(
-    @Inject(OTP_MANAGER)
-    private readonly _cacheManager: IOtpManager
+    @Inject(AUTH_SERVICE)
+    private readonly _authService: IAuthService
   ) {}
 
   async execute(
-    command: PasswordResetVerifyCommand
-  ): Promise<PasswordResetVerifyResult> {
-    const { email, otp } = command
-
-    const emailResult = Email.create(email)
+    dto: PasswordResetVerifyRequestDto
+  ): Promise<PasswordResetVerifyResponseDto> {
+    const emailResult = Email.create(dto.email)
 
     if (emailResult.isFailure)
       throw new InvalidEmailException(emailResult.error)
 
-    const otpResult = Otp.create(otp)
+    const otpResult = Otp.create(dto.otp)
 
     if (otpResult.isFailure) throw new InvalidOtpException()
 
-    const storedOtp = await this._cacheManager.getOtp(emailResult.value)
+    const storedOtp = await this._authService.getPasswordResetOtp(
+      emailResult.value
+    )
 
     if (!storedOtp) throw new InvalidOtpException()
 
     const storedOtpResult = Otp.create(storedOtp)
 
     if (storedOtpResult.isFailure) {
-      await this._cacheManager.deleteOtp(emailResult.value)
+      await this._authService.deletePasswordResetOtp(emailResult.value)
       throw new InvalidOtpException()
     }
 
     if (!otpResult.value.equals(storedOtpResult.value))
       throw new InvalidOtpException()
 
-    await this._cacheManager.deleteOtp(emailResult.value)
+    await this._authService.deletePasswordResetOtp(emailResult.value)
 
-    const resetToken = UuidUtil.generate()
+    const resetToken = this._authService.generatePasswordResetToken()
 
-    await this._cacheManager.setResetOtpToken({
-      email: emailResult.value,
-      resetToken,
-    })
+    await this._authService.setPasswordResetToken(resetToken, emailResult.value)
 
     return { resetToken }
   }

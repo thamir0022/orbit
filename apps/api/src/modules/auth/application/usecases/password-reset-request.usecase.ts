@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { PasswordResetRequestCommand } from '../dto/password-reset-request.command'
 import { IPasswordResetRequestUseCase } from './password-reset-request.interface'
 import {
   type IUserRepository,
@@ -11,30 +10,22 @@ import {
   InvalidEmailException,
   UserStatus,
 } from '@/modules/user/domain'
-import { Otp } from '../../domain/value-objects/otp.vo'
+import { PasswordResetRequestDto } from '../dto'
 import {
-  OTP_MANAGER,
-  type IOtpManager,
-} from '../repositories/otp-manager.interface'
-import {
-  type IMailService,
-  MAIL_SERVICE,
-} from '@/modules/mail/domain/ports/mail-service.port'
+  AUTH_SERVICE,
+  type IAuthService,
+} from '../services/auth.service.interface'
 
 @Injectable()
 export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly _userRepository: IUserRepository,
-    @Inject(OTP_MANAGER)
-    private readonly _cacheManager: IOtpManager,
-    @Inject(MAIL_SERVICE)
-    private readonly _mailService: IMailService
+    @Inject(AUTH_SERVICE)
+    private readonly _authService: IAuthService
   ) {}
-  async execute(command: PasswordResetRequestCommand): Promise<void> {
-    const { email } = command
-
-    const emailResult = Email.create(email)
+  async execute(dto: PasswordResetRequestDto): Promise<void> {
+    const emailResult = Email.create(dto.email)
 
     if (emailResult.isFailure)
       throw new InvalidEmailException(emailResult.error)
@@ -46,17 +37,14 @@ export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase
     if (user.status !== UserStatus.ACTIVE)
       throw new AccountInactiveException(user.status)
 
-    const generatedOtp = Otp.generate()
+    const generatedOtp = this._authService.generateOtp()
 
-    await this._cacheManager.setOtp({
-      email: emailResult.value,
-      otp: generatedOtp,
-    })
+    await this._authService.setPasswordResetOtp(emailResult.value, generatedOtp)
 
     // Send Email with OTP to client
-    await this._mailService.sendForgotPasswordEmail(
-      user.email.value,
-      generatedOtp.value
+    await this._authService.sendForgotPasswordEmail(
+      emailResult.value,
+      generatedOtp
     )
   }
 }

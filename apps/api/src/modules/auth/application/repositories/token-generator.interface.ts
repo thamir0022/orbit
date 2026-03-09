@@ -34,10 +34,12 @@ export type AccessTokenResult = WithJwtMeta<AccessTokenPayload>
 export type RefreshTokenResult = WithJwtMeta<RefreshTokenPayload>
 
 export interface ITokenGenerator {
-  generateAccessToken(payload: AccessTokenPayload): string
-  generateRefreshToken(payload: RefreshTokenPayload): string
-  verifyAccessToken(token: string): AccessTokenResult | null
-  verifyRefreshToken(token: string): RefreshTokenResult | null
+  generateAccessToken(payload: AccessTokenPayload): Promise<string>
+  generateRefreshToken(payload: RefreshTokenPayload): Promise<string>
+  verifyAccessToken(token: string): Promise<AccessTokenResult | null>
+  verifyRefreshToken(token: string): Promise<RefreshTokenResult | null>
+  decodeAccessToken(token: string): AccessTokenResult | null
+  decodeRefreshToken(token: string): RefreshTokenResult | null
 }
 
 export const TOKEN_GENERATOR = Symbol('ITokenGenerator')

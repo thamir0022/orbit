@@ -1,8 +1,7 @@
-import { RefreshTokenCommand } from '../dto/refresh-token.command'
-import { RefreshTokenResult } from '../dto/refresh-token.result'
+import { RefreshTokenRequestDto, RefreshTokenResponseDto } from '../dto'
 
 export interface IRefreshTokenUseCase {
-  execute(command: RefreshTokenCommand): Promise<RefreshTokenResult>
+  execute(command: RefreshTokenRequestDto): Promise<RefreshTokenResponseDto>
 }
 
 export const REFRESH_TOKEN = Symbol('IRefreshTokenUseCase')

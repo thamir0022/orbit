@@ -1,10 +1,5 @@
 import { AuthProvider, UserStatus } from '@/modules/user/domain'
 
-export interface Tokens {
-  accessToken: string
-  refreshToken: string
-}
-
 export interface ClientInfo {
   ipAddress: string
   userAgent: string

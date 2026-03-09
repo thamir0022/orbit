@@ -1,11 +1,15 @@
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { type Cache } from 'cache-manager'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import type {
-  ISessionManager,
-  Session,
-  SessionData,
-  UpdateSession,
+import {
+  SignUpStep,
+  type CreateSignUpSession,
+  type ISessionManager,
+  type Session,
+  type SessionData,
+  type SignUpSessionData,
+  type UpdateSession,
+  type UpdateSignUpSessionData,
 } from '../../application'
 import { UuidUtil } from '@/shared/utils'
 import {
@@ -21,6 +25,7 @@ export class RedisSessionManager implements ISessionManager {
   private static readonly SESSION_PREFIX = 'session:'
   private static readonly USER_SESSIONS_PREFIX = 'user-sessions:'
   private static readonly BLACKLIST_PREFIX = 'blacklist:'
+  private static readonly SIGNUP_SESSION = 'signup-session:'
 
   constructor(
     @Inject(CACHE_MANAGER)
@@ -33,7 +38,7 @@ export class RedisSessionManager implements ISessionManager {
   /* Session Management (Refresh Tokens)                                        */
   /* -------------------------------------------------------------------------- */
 
-  async createSession(data: SessionData): Promise<string> {
+  async createAuthSession(data: SessionData): Promise<string> {
     const sessionId = UuidUtil.generate()
     const now = Date.now()
 
@@ -59,12 +64,12 @@ export class RedisSessionManager implements ISessionManager {
     return sessionId
   }
 
-  async getSession(sessionId: string): Promise<Session | null> {
+  async getAuthSession(sessionId: string): Promise<Session | null> {
     return (await this.cache.get<Session>(this.sessionKey(sessionId))) || null
   }
 
-  async invalidateSession(sessionId: string): Promise<void> {
-    const session = await this.getSession(sessionId)
+  async invalidateAuthSession(sessionId: string): Promise<void> {
+    const session = await this.getAuthSession(sessionId)
     if (!session) return
 
     await Promise.all([
@@ -86,12 +91,12 @@ export class RedisSessionManager implements ISessionManager {
     ])
   }
 
-  async extendSession({
-    sessionId,
-    updates,
-    expiresAt,
-  }: UpdateSession): Promise<void> {
-    const session = await this.getSession(sessionId)
+  async extendAuthSession(
+    sessionId: string,
+    updates: UpdateSession,
+    expiresAt: Date
+  ): Promise<void> {
+    const session = await this.getAuthSession(sessionId)
     if (!session) return
 
     // Calculate remaining time
@@ -129,6 +134,61 @@ export class RedisSessionManager implements ISessionManager {
   async isTokenBlacklisted(jti: string): Promise<boolean> {
     const entry = await this.cache.get(this.blacklistKey(jti))
     return !!entry
+  }
+
+  async createSignUpSession(
+    token: string,
+    data: CreateSignUpSession
+  ): Promise<void> {
+    const existingSession = await this.getSignUpSession(token)
+
+    if (existingSession) throw new Error('Session already exist for this token') // TODO: Throw specific exception
+    const newSessionData: SignUpSessionData = {
+      firstName: undefined,
+      lastName: undefined,
+      passwordHash: undefined,
+
+      email: data.email,
+      isEmailVerified: data.isEmailVerified,
+      currentStep: SignUpStep.EMAIL_VERIFIED,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+
+    const ttl = this.getSignUpSessionTTL()
+
+    await this.cache.set(this.signUpSessionKey(token), newSessionData, ttl)
+  }
+
+  async getSignUpSession(
+    token: string
+  ): Promise<SignUpSessionData | null | undefined> {
+    return await this.cache.get(this.signUpSessionKey(token))
+  }
+
+  async updateSignUpSession(
+    token: string,
+    updates: UpdateSignUpSessionData
+  ): Promise<void> {
+    const existingSession = await this.getSignUpSession(token)
+
+    if (!existingSession) throw new Error('Session expired or invalid') // TODO: Throw specific exception
+
+    const updatedSession: SignUpSessionData = {
+      ...existingSession,
+      ...updates,
+      email: existingSession.email,
+      createdAt: existingSession.createdAt,
+      updatedAt: new Date(),
+    }
+
+    const ttl = this.getSignUpSessionTTL()
+
+    await this.cache.set(this.signUpSessionKey(token), updatedSession, ttl)
+  }
+
+  async deleteSignUpSession(token: string): Promise<void> {
+    await this.cache.del(this.signUpSessionKey(token))
   }
 
   /* -------------------------------------------------------------------------- */
@@ -200,5 +260,12 @@ export class RedisSessionManager implements ISessionManager {
   }
   private blacklistKey(jti: string): string {
     return `${RedisSessionManager.BLACKLIST_PREFIX}${jti}`
+  }
+  private signUpSessionKey(token: string) {
+    return `${RedisSessionManager.SIGNUP_SESSION}${token}`
+  }
+
+  private getSignUpSessionTTL(): number {
+    return this._config.signUpSessionTTL
   }
 }

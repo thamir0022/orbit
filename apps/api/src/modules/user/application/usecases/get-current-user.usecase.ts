@@ -43,44 +43,45 @@ export class GetCurrentUserUseCase implements IGetCurrentUserUseCase {
   }: CurrentUserCommand): Promise<CurrentUserResult> {
     if (!refreshToken) throw new UnauthorizedException()
 
-    const tokenResult = this._tokenGenerator.verifyRefreshToken(refreshToken)
+    const tokenResult =
+      await this._tokenGenerator.verifyRefreshToken(refreshToken)
 
     if (!tokenResult) throw new InvalidRefreshTokenException()
 
-    const session = await this._sessionManager.getSession(tokenResult.sid)
+    const session = await this._sessionManager.getAuthSession(tokenResult.sid)
 
     if (!session) throw new SessionNotFoundException(tokenResult.sid)
 
     if (session.jti !== tokenResult.jti) {
-      await this._sessionManager.invalidateSession(session.sessionId)
+      await this._sessionManager.invalidateAuthSession(session.sessionId)
       throw new RefreshTokenMismatchException()
     }
 
     if (session.userAgent !== clientInfo.userAgent) {
-      await this._sessionManager.invalidateSession(session.sessionId)
+      await this._sessionManager.invalidateAuthSession(session.sessionId)
       throw new RefreshTokenMismatchException()
     }
 
     const userEmailResult = Email.create(session.email)
 
     if (userEmailResult.isFailure) {
-      await this._sessionManager.invalidateSession(tokenResult.sid)
+      await this._sessionManager.invalidateAuthSession(tokenResult.sid)
       throw new InvalidEmailException(userEmailResult.error)
     }
 
     const user = await this._userRepository.findByEmail(userEmailResult.value)
 
     if (!user) {
-      await this._sessionManager.invalidateSession(session.sessionId)
+      await this._sessionManager.invalidateAuthSession(session.sessionId)
       throw new UserNotFoundException(session.userId)
     }
 
     if (user.status !== UserStatus.ACTIVE) {
-      await this._sessionManager.invalidateSession(session.sessionId)
+      await this._sessionManager.invalidateAuthSession(session.sessionId)
       throw new AccountInactiveException(user.status)
     }
 
-    const accessToken = this._tokenGenerator.generateAccessToken({
+    const accessToken = await this._tokenGenerator.generateAccessToken({
       jti: UuidUtil.generate(),
       sid: session.sessionId,
       sub: user.id.value,
