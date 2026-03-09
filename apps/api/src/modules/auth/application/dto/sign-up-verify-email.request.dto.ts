@@ -6,5 +6,5 @@ export class SignUpVerifyEmailWithOtpRequestDto {
 
   @Length(6, 6, { message: 'OTP must be exactly 6 digits' })
   @Matches(/^\d+$/, { message: 'OTP must contain only numbers' })
-  otp!: string
+  code!: string
 }

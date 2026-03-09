@@ -173,7 +173,7 @@ export class AuthController {
   ): Promise<SignUpVerifyEmailWithOtpResponseDto> {
     return await this._signUpVerifyEmailWithOtpUseCase.execute({
       email: signUpVerifyEmailDto.email,
-      otp: signUpVerifyEmailDto.otp,
+      code: signUpVerifyEmailDto.code,
     })
   }
 

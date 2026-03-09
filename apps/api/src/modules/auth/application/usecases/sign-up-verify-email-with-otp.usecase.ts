@@ -26,7 +26,7 @@ export class SignUpVerifyEmailUseCase implements ISignUpVerifyEmailWithOtpUseCas
     if (emailResult.isFailure)
       throw new InvalidEmailException(emailResult.error)
 
-    const otpResult = Otp.create(dto.otp)
+    const otpResult = Otp.create(dto.code)
 
     if (otpResult.isFailure) throw new InvalidOtpException()
 
