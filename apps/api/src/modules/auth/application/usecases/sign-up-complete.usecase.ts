@@ -150,6 +150,10 @@ export class SignUpCompleteUseCase implements ISignUpCompleteUseCase {
 
     const expiresIn = this._authService.extractRefreshTokenExpiry(refreshToken)
 
-    return { refreshToken, expiresIn }
+    return {
+      organizationId: newOrganization.id.value,
+      refreshToken,
+      expiresIn,
+    }
   }
 }

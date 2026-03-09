@@ -173,7 +173,7 @@ export class AuthController {
   ): Promise<SignUpVerifyEmailWithOtpResponseDto> {
     return await this._signUpVerifyEmailWithOtpUseCase.execute({
       email: signUpVerifyEmailDto.email,
-      otp: signUpVerifyEmailDto.otp,
+      code: signUpVerifyEmailDto.code,
     })
   }
 
@@ -197,15 +197,16 @@ export class AuthController {
     @Headers('user-agent') userAgent: string,
     @Body() signUpCompleteRequestDto: SignUpCompleteRequestDto,
     @Res({ passthrough: true }) res: Response
-  ): Promise<null> {
-    const { refreshToken, expiresIn } = await this._signUpComplete.execute({
-      name: signUpCompleteRequestDto.name,
-      subdomain: signUpCompleteRequestDto.subdomain,
-      companySize: signUpCompleteRequestDto.companySize,
-      companyType: signUpCompleteRequestDto.companyType,
-      registrationToken: signUpCompleteRequestDto.registrationToken,
-      clientInfo: { ipAddress, userAgent },
-    })
+  ): Promise<{ organizationId: string }> {
+    const { refreshToken, expiresIn, organizationId } =
+      await this._signUpComplete.execute({
+        name: signUpCompleteRequestDto.name,
+        subdomain: signUpCompleteRequestDto.subdomain,
+        companySize: signUpCompleteRequestDto.companySize,
+        companyType: signUpCompleteRequestDto.companyType,
+        registrationToken: signUpCompleteRequestDto.registrationToken,
+        clientInfo: { ipAddress, userAgent },
+      })
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
@@ -213,7 +214,7 @@ export class AuthController {
       expires: expiresIn,
     })
 
-    return null
+    return { organizationId }
   }
 
   @Get('refresh')
