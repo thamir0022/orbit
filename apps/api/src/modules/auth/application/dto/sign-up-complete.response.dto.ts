@@ -1,7 +1,5 @@
-import { OrganizationDto } from '@/shared/domain/types/organization.dto'
-
 export interface SignUpCompleteResponseDto {
-  organization: OrganizationDto
+  redirectUrl: string
   refreshToken: string
   expiresIn: Date
 }

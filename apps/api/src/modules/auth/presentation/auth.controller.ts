@@ -199,7 +199,7 @@ export class AuthController {
     @Body() signUpCompleteRequestDto: SignUpCompleteRequestDto,
     @Res({ passthrough: true }) res: Response
   ): Promise<Omit<SignUpCompleteResponseDto, 'refreshToken' | 'expiresIn'>> {
-    const { refreshToken, expiresIn, organization } =
+    const { refreshToken, expiresIn, redirectUrl } =
       await this._signUpComplete.execute({
         name: signUpCompleteRequestDto.name,
         subdomain: signUpCompleteRequestDto.subdomain,
@@ -215,7 +215,7 @@ export class AuthController {
       expires: expiresIn,
     })
 
-    return { organization }
+    return { redirectUrl }
   }
 
   @Get('refresh')

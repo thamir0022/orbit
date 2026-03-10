@@ -33,7 +33,6 @@ import {
   TRANSACTION_MANAGER,
 } from '@/shared/application'
 import { OrganizationAlreadyExistsException } from '@/modules/organization/domain/exceptions/organization.exception'
-import { OrganizationMapper } from '@/modules/organization/application/mappers/organization.mapper'
 
 @Injectable()
 export class SignUpCompleteUseCase implements ISignUpCompleteUseCase {
@@ -152,7 +151,9 @@ export class SignUpCompleteUseCase implements ISignUpCompleteUseCase {
     const expiresIn = this._authService.extractRefreshTokenExpiry(refreshToken)
 
     return {
-      organization: OrganizationMapper.toResponseDto(newOrganization),
+      redirectUrl: this._authService.createRedirectUrl(
+        newOrganization.subdomain
+      ),
       refreshToken,
       expiresIn,
     }

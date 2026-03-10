@@ -87,6 +87,7 @@ export interface IAuthService {
   deleteSignUpSession(token: string): Promise<void>
   sendEmailVerificationEmail(data: EmailVerifyMailData): Promise<void>
   sendForgotPasswordEmail(email: Email, otp: Otp): Promise<void>
+  createRedirectUrl(subdomain: string): string
 }
 
 export const AUTH_SERVICE = Symbol('IAuthService')
