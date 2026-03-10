@@ -150,6 +150,7 @@ export class AuthController {
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
+      sameSite: 'lax',
       secure: this._config.isProduction,
       expires: expiresIn,
     })
@@ -199,7 +200,7 @@ export class AuthController {
     @Body() signUpCompleteRequestDto: SignUpCompleteRequestDto,
     @Res({ passthrough: true }) res: Response
   ): Promise<Omit<SignUpCompleteResponseDto, 'refreshToken' | 'expiresIn'>> {
-    const { refreshToken, expiresIn, organization } =
+    const { refreshToken, expiresIn, redirectUrl } =
       await this._signUpComplete.execute({
         name: signUpCompleteRequestDto.name,
         subdomain: signUpCompleteRequestDto.subdomain,
@@ -211,11 +212,12 @@ export class AuthController {
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
+      sameSite: 'lax',
       secure: this._config.isProduction,
       expires: expiresIn,
     })
 
-    return { organization }
+    return { redirectUrl }
   }
 
   @Get('refresh')
@@ -244,6 +246,7 @@ export class AuthController {
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
+      sameSite: 'lax',
       secure: this._config.isProduction,
       expires: refreshTokenExpiresAt,
     })
@@ -336,6 +339,7 @@ export class AuthController {
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
+      sameSite: 'lax',
       secure: this._config.isProduction,
       expires: expiresIn,
     })

@@ -254,6 +254,10 @@ export class AuthService implements IAuthService {
     await this._sessionManager.deleteSignUpSession(token)
   }
 
+  createRedirectUrl(subdomain: string): string {
+    return `http://${subdomain}.localhost:3000/dashboard` // TODO: Make it dynamic, handle dev and prod envs
+  }
+
   private calculateAuthSessionExpiry() {
     return addSeconds(new Date(), this._jwtConfig.refreshTokenExpiresIn)
   }
