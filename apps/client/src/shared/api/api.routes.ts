@@ -5,6 +5,7 @@ export const API_ROUTES = {
     SIGN_UP_VERIFY: '/auth/sign-up/verify',
     SIGN_UP_DETAILS: '/auth/sign-up/details',
     SIGN_UP_COMPLETE: '/auth/sign-up/complete',
+    REFRESH_TOKEN: '/auth/refresh',
   },
   USERS: {
     ME: '/users/me',

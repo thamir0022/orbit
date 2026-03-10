@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/shared/lib/axios.instance'
+import { axiosInstance } from '@/shared/lib/axios'
 import type { SignInFormData } from '../model/sign-in.schema'
 import type { SignInResponse } from './types'
 import { API_ROUTES } from '@/shared/api/api.routes'

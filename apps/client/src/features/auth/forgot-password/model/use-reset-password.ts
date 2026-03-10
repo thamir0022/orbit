@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { isAxiosError } from 'axios'
 
-import { axiosInstance } from '@/shared/lib/axios.instance'
+import { axiosInstance } from '@/shared/lib/axios'
 import type { ApiResponse } from '@/shared/api/api.types'
 import {
   forgotPasswordSchema,

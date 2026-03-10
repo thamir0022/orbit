@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { isAxiosError } from 'axios'
 import { toast } from 'sonner'
-import { axiosInstance } from '@/shared/lib/axios.instance'
+import { axiosInstance } from '@/shared/lib/axios'
 import type { ApiResponse } from '@/shared/api/api.types'
 import type { EmailStepData } from '../model/sign-up-initiate.schema'
 import { API_ROUTES } from '@/shared/api/api.routes'

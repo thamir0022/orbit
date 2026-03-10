@@ -14,7 +14,10 @@ export interface ApiError {
   success: false
   statusCode: HttpStatusCode
   message: string
-  error?: Record<string, string> | null
+  error?: {
+    code: string
+    message: string
+  }
   timestamp: string
   path: string
   method: string
