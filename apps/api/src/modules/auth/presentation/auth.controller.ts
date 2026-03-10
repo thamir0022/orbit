@@ -150,6 +150,7 @@ export class AuthController {
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
+      sameSite: 'lax',
       secure: this._config.isProduction,
       expires: expiresIn,
     })
@@ -211,6 +212,7 @@ export class AuthController {
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
+      sameSite: 'lax',
       secure: this._config.isProduction,
       expires: expiresIn,
     })
@@ -244,6 +246,7 @@ export class AuthController {
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
+      sameSite: 'lax',
       secure: this._config.isProduction,
       expires: refreshTokenExpiresAt,
     })
@@ -336,6 +339,7 @@ export class AuthController {
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
+      sameSite: 'lax',
       secure: this._config.isProduction,
       expires: expiresIn,
     })
