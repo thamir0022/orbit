@@ -3,22 +3,18 @@
 import * as React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
-import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
 import { motion, AnimatePresence, type Transition } from 'motion/react'
+import Link from 'next/link'
+
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/ui/field'
-import { SocialAuth } from '../../ui/SocialAuth'
-import { SignInFormData, signInSchema } from '../model/sign-in.schema'
-import { axiosInstance } from '@/shared/lib/axios.instance'
-import type { ApiResponse } from '@/shared/api/types/api.types'
-import type { SignInData } from '../model/sign-in.reponse'
-import { isAxiosError } from 'axios'
+import { SocialAuth } from '../../ui/SocialAuth' // Or '@/features/auth/ui/SocialAuth'
 import { AuthSeparator } from '../../ui/AuthSeparator'
-import Link from 'next/link'
 
-// Simplified variants: No manual position/zIndex needed with mode="popLayout"
+import { SignInFormData, signInSchema } from '../model/sign-in.schema'
+import { useSignInMutation } from '../api/use-sign-in.mutation'
+
 const VARIANTS = {
   enter: (direction: number) => ({
     x: direction > 0 ? '110%' : '-110%',
@@ -46,14 +42,13 @@ const TRANSITION: Transition = {
 export function SignInForm() {
   const [step, setStep] = React.useState<'email' | 'password'>('email')
   const [direction, setDirection] = React.useState(0)
-  const router = useRouter()
+
+  // 1. Initialize TanStack Query mutation
+  const { mutate: signIn, isPending } = useSignInMutation()
 
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    defaultValues: { email: '', password: '' },
   })
 
   async function handleContinue() {
@@ -69,24 +64,9 @@ export function SignInForm() {
     setStep('email')
   }
 
-  async function onSubmit(data: SignInFormData) {
-    try {
-      const res = await axiosInstance.post<ApiResponse<SignInData>>(
-        '/auth/sign-in',
-        data
-      )
-      if (res.data.success) {
-        toast.success(res.data.message)
-        router.push('/')
-      }
-    } catch (error: unknown) {
-      const errorMsg = isAxiosError<ApiResponse<null>>(error)
-        ? (error.response?.data?.message ?? error.message)
-        : error instanceof Error
-          ? error.message
-          : 'Something went wrong!'
-      toast.error(errorMsg)
-    }
+  // 2. Submit handler just delegates to the mutation
+  function onSubmit(data: SignInFormData) {
+    signIn(data)
   }
 
   return (
@@ -106,7 +86,6 @@ export function SignInForm() {
                 className="space-y-2 w-full"
               >
                 <SocialAuth />
-
                 <AuthSeparator />
 
                 <Controller
@@ -153,7 +132,7 @@ export function SignInForm() {
                 animate="center"
                 exit="exit"
                 transition={TRANSITION}
-                className="space-y-4 w-full" // Ensure width full
+                className="space-y-4 w-full"
               >
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">
@@ -197,14 +176,14 @@ export function SignInForm() {
 
                 <Button
                   type="submit"
-                  disabled={form.formState.isSubmitting}
+                  disabled={isPending}
                   className="cursor-pointer w-full py-6"
                 >
-                  {form.formState.isSubmitting ? 'Signing In...' : 'Sign In'}
+                  {isPending ? 'Signing In...' : 'Sign In'}
                 </Button>
                 <p className="text-center">
                   Forgot Password?{' '}
-                  <Link href="forgot-password" className="link">
+                  <Link href="/forgot-password" className="link">
                     Reset here
                   </Link>
                 </p>

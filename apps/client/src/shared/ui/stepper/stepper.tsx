@@ -15,7 +15,7 @@ interface StepperProps extends HTMLAttributes<HTMLDivElement> {
   stepContainerClassName?: string
 }
 
-export default function Stepper({
+export function Stepper({
   children,
   currentStep,
   stepContainerClassName = '',
@@ -45,7 +45,7 @@ export default function Stepper({
   return (
     <div
       className={cn(
-        'flex min-h-full flex-1 flex-col items-center justify-center sm:aspect-4/3 md:aspect-2/1',
+        'flex min-h-full flex-1 flex-col items-center justify-center ',
         className
       )}
       {...rest}

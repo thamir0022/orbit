@@ -1,21 +1,21 @@
 'use client'
 
-import Stepper from './stepper'
-import { useSignUpStepper } from '../model/useSignUpStepper'
-import { EmailStep } from './steps/EmailStep'
-import { OtpVerificationStep } from './steps/OtpVerificationStep'
-import { ProfileSetupStep } from './steps/ProfileSetupStep'
-import { OrganizationSetupStep } from './steps/OrganizationSetupStep'
+import { Stepper } from '@/shared/ui/stepper' // Adjusted to match standard FSD shared path
+import { useSignUpStore } from '../model/sign-up.store'
+import { SignUpInitiateStep } from './steps/SignUpInitiateStep'
+import { SignUpVerifyStep } from './steps/SignUpVerifyStep'
+import { SignUpDetailsStep } from './steps/SignUpDetailsStep'
+import { SignUpCompleteStep } from './steps/SignUpComplete'
 
 export function SignUpStepper() {
-  const { currentStep, setCurrentStep } = useSignUpStepper()
+  const currentStep = useSignUpStore((state) => state.currentStep)
 
   return (
     <Stepper currentStep={currentStep}>
-      <EmailStep setCurrentStep={setCurrentStep} />
-      <OtpVerificationStep setCurrentStep={setCurrentStep} />
-      <ProfileSetupStep setCurrentStep={setCurrentStep} />
-      <OrganizationSetupStep />
+      <SignUpInitiateStep />
+      <SignUpVerifyStep />
+      <SignUpDetailsStep />
+      <SignUpCompleteStep />
     </Stepper>
   )
 }
