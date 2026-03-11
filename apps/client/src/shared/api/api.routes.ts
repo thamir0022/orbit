@@ -12,7 +12,7 @@ export const API_ROUTES = {
     UPDATE_PROFILE: '/users/profile',
   },
   ORGANIZATIONS: {
-    CURRENT: '/',
+    CURRENT: '/current',
   },
 } as const
 
