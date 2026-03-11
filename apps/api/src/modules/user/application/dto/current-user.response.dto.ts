@@ -1,6 +1,5 @@
 import { AuthenticatedUser } from '@/modules/auth'
 
-export interface CurrentUserResult {
+export interface CurrentUserResponseDto {
   user: AuthenticatedUser
-  accessToken: string
 }

@@ -35,6 +35,8 @@ import {
   JWT_CONFIG,
 } from './infrastructure/interfaces/jwt.config.interface'
 import { JWT_ACCESS, JWT_REFRESH } from './application/constants/auth.constant'
+import { APP_GUARD } from '@nestjs/core'
+import { JwtAuthGuard } from './presentation/guards'
 
 @Module({
   imports: [
@@ -80,6 +82,7 @@ import { JWT_ACCESS, JWT_REFRESH } from './application/constants/auth.constant'
       useClass: AuthenticateWithOAuthUseCase,
     },
     { provide: AUTH_SERVICE, useClass: AuthService },
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
   ],
 })
 export class AuthModule {}

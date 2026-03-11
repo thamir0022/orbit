@@ -89,8 +89,10 @@ import {
   type ISignUpVerifyEmailWithOtpUseCase,
   SIGN_UP_VERIFY_EMAIL,
 } from '../application/usecases/sign-up-verify-email-with-otp.interface'
+import { Public } from '@/shared/presentation/decorators/public.decorator'
 
 @ApiTags('Auth')
+@Public()
 @Controller('auth')
 export class AuthController {
   private readonly _logger = new Logger(AuthController.name)

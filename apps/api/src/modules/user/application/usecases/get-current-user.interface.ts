@@ -1,8 +1,6 @@
-import { CurrentUserCommand } from '../dto/current-user.command'
-import { CurrentUserResult } from '../dto/current-user.result'
-
+import { CurrentUserRequestDto, CurrentUserResponseDto } from '../dto'
 export interface IGetCurrentUserUseCase {
-  execute(command: CurrentUserCommand): Promise<CurrentUserResult>
+  execute(dto: CurrentUserRequestDto): Promise<CurrentUserResponseDto>
 }
 
 export const GET_CURRENT_USER = Symbol('IGetCurrentUserUseCase')
