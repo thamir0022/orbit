@@ -11,6 +11,9 @@ export const API_ROUTES = {
     ME: '/users/me',
     UPDATE_PROFILE: '/users/profile',
   },
+  ORGANIZATIONS: {
+    CURRENT: '/',
+  },
 } as const
 
 // Export types for your routes
