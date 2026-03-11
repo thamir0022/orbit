@@ -1,3 +1,3 @@
 export enum Messages {
-  ORGANIZATION_CREATED = 'Organization created successfully',
+  GET_ORGANIZATION_SUCCESS = 'Organization retrieved successfully',
 }

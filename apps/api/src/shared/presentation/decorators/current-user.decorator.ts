@@ -7,8 +7,9 @@ interface AuthenticatedRequest extends Request {
 }
 
 export const CurrentUser = createParamDecorator(
-  (_: unknown, ctx: ExecutionContext): AuthenticatedUser => {
+  (data: keyof AuthenticatedUser | undefined, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest<AuthenticatedRequest>()
-    return request.user
+    const user = request.user
+    return data ? user?.[data] : user
   }
 )
