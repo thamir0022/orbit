@@ -43,7 +43,7 @@ export function SessionGuard({ children }: SessionGuardProps) {
       // Hard redirect to your main domain's login page
       // e.g., https://orbit.com/sign-in
       const protocol = window.location.protocol
-      window.location.assign(`${protocol}//${rootDomain}/sign-in`)
+      // window.location.assign(`${protocol}//${rootDomain}/sign-in`)
     }
   }, [isError, signOut])
 

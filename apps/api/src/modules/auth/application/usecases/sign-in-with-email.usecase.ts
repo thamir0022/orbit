@@ -98,9 +98,12 @@ export class SignInWithEmailUseCase implements ISignInWithEmailUseCase {
     // 12. Calculate the refreshToken expiry
     const expiresIn = this._authService.extractRefreshTokenExpiry(refreshToken)
 
+    const redirectUrl = this._authService.createRedirectUrl('brototype')
+
     this._logger.log(`User ${user.id.value} sign in successfully`)
     // 13. Return the refresh token and expiry
     return {
+      redirectUrl,
       refreshToken,
       expiresIn,
     }

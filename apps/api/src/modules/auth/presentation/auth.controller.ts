@@ -72,6 +72,7 @@ import {
   SignUpUserDetailsRequestDto,
   SignUpUserDetailsResponseDto,
   SignUpCompleteResponseDto,
+  SignInResponseDto,
 } from '../application/dto'
 import {
   type IUserDetailsUseCase,
@@ -142,8 +143,8 @@ export class AuthController {
     @Ip() ipAddress: string,
     @Body() signInRequestDto: SignInRequestDto,
     @Res({ passthrough: true }) res: Response
-  ): Promise<null> {
-    const { refreshToken, expiresIn } =
+  ): Promise<Omit<SignInResponseDto, 'refreshToken' | 'expiresIn'>> {
+    const { refreshToken, expiresIn, redirectUrl } =
       await this._signInWithEmailUseCase.execute({
         email: signInRequestDto.email,
         password: signInRequestDto.password,
@@ -157,7 +158,7 @@ export class AuthController {
       expires: expiresIn,
     })
 
-    return null
+    return { redirectUrl }
   }
 
   @Post('/sign-up/initiate')
