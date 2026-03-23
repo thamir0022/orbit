@@ -42,6 +42,7 @@ import {
   type IJwtConfig,
   JWT_CONFIG,
 } from '../../infrastructure/interfaces/jwt.config.interface'
+import { REDIS_CONFIG, type IRedisConfig } from '@/shared/infrastructure'
 
 export class AuthService implements IAuthService {
   constructor(
@@ -56,7 +57,9 @@ export class AuthService implements IAuthService {
     @Inject(MAIL_SERVICE)
     private readonly _mailService: IMailService,
     @Inject(JWT_CONFIG)
-    private readonly _jwtConfig: IJwtConfig
+    private readonly _jwtConfig: IJwtConfig,
+    @Inject(REDIS_CONFIG)
+    private readonly _redisConfig: IRedisConfig
   ) {}
 
   async createAuthSession(payload: CreateAuthSessionPayload): Promise<string> {
@@ -202,6 +205,42 @@ export class AuthService implements IAuthService {
 
   async deletePasswordResetToken(token: string): Promise<void> {
     await this._otpManager.detelePasswordResetToken(token)
+  }
+
+  async getPasswordResetAttempts(
+    email: Email
+  ): Promise<number | null | undefined> {
+    return await this._otpManager.getPasswordResetAttempts(email.value)
+  }
+
+  async setPasswordResetAttempts(
+    email: Email,
+    attempts: number
+  ): Promise<void> {
+    await this._otpManager.setPasswordResetAttempts(email.value, attempts)
+  }
+
+  async deletePasswordResetAttempt(email: Email): Promise<void> {
+    await this._otpManager.deletePasswordResetAttempt(email.value)
+  }
+
+  async getPasswordResetCooldown(
+    email: Email
+  ): Promise<string | null | undefined> {
+    return await this._otpManager.getPasswordResetCooldown(email.value)
+  }
+
+  async setPasswordResetCooldown(email: Email): Promise<void> {
+    await this._otpManager.setPasswordResetCooldown(email.value)
+  }
+
+  async deletePasswordResetCooldown(email: Email): Promise<void> {
+    await this._otpManager.deletePasswordResetCooldown(email.value)
+  }
+
+  hasExceededOtpAttempts(attempts: number | null | undefined): boolean {
+    const safeAttempts = attempts ?? 0
+    return safeAttempts >= this._redisConfig.maxOtpPerDay
   }
 
   async sendEmailVerificationEmail(data: EmailVerifyMailData): Promise<void> {

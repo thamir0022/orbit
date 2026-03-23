@@ -10,6 +10,8 @@ import { Otp } from '../../domain/value-objects/otp.vo'
 export class RedisOtpManager implements IOtpManager {
   private static readonly RESET_PASS_OTP_PREFIX = 'reset-otp:'
   private static readonly RESET_PASS_TOKEN_PREFIX = 'reset-pass-token:'
+  private static readonly RESET_PASS_COOLDOWN_PREFIX = 'reset-pass-cooldown:'
+  private static readonly RESET_PASS_ATTEMPTS_PREFIX = 'reset-pass-attempts:'
   private static readonly AUTH_OTP_PREFIX = 'auth-otp:'
 
   constructor(
@@ -90,6 +92,45 @@ export class RedisOtpManager implements IOtpManager {
     await this._cache.del(this.authOtpKey(email.value))
   }
 
+  async getPasswordResetCooldown(
+    email: string
+  ): Promise<string | null | undefined> {
+    return await this._cache.get(this.resetCooldownKey(email))
+  }
+
+  async setPasswordResetCooldown(email: string): Promise<void> {
+    await this._cache.set(
+      this.resetCooldownKey(email),
+      email,
+      this._config.otpResendCooldownTTL
+    )
+  }
+
+  async deletePasswordResetCooldown(email: string): Promise<void> {
+    await this._cache.del(this.resetCooldownKey(email))
+  }
+
+  async getPasswordResetAttempts(
+    email: string
+  ): Promise<number | null | undefined> {
+    return await this._cache.get(this.resetAttemptsKey(email))
+  }
+
+  async setPasswordResetAttempts(
+    email: string,
+    attempts: number
+  ): Promise<void> {
+    await this._cache.set(
+      this.resetAttemptsKey(email),
+      attempts,
+      this._config.otpResendAttemptsTTL
+    )
+  }
+
+  async deletePasswordResetAttempt(email: string): Promise<void> {
+    await this._cache.del(this.resetAttemptsKey(email))
+  }
+
   /**
    *
    * @param token
@@ -108,5 +149,13 @@ export class RedisOtpManager implements IOtpManager {
 
   private authOtpKey(email: string): string {
     return `${RedisOtpManager.AUTH_OTP_PREFIX}${email}`
+  }
+
+  private resetCooldownKey(email: string): string {
+    return `${RedisOtpManager.RESET_PASS_COOLDOWN_PREFIX}${email}`
+  }
+
+  private resetAttemptsKey(email: string): string {
+    return `${RedisOtpManager.RESET_PASS_ATTEMPTS_PREFIX}${email}`
   }
 }

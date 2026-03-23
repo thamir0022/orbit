@@ -11,6 +11,12 @@ export interface IOtpManager {
   setPasswordResetToken(token: string, email: Email): Promise<void>
   getPasswordResetToken(token: string): Promise<string | null | undefined>
   detelePasswordResetToken(token: string): Promise<void>
+  getPasswordResetCooldown(email: string): Promise<string | null | undefined>
+  setPasswordResetCooldown(email: string): Promise<void>
+  deletePasswordResetCooldown(email: string): Promise<void>
+  setPasswordResetAttempts(email: string, attempts: number): Promise<void>
+  getPasswordResetAttempts(email: string): Promise<number | null | undefined>
+  deletePasswordResetAttempt(email: string): Promise<void>
 }
 
 export const OTP_MANAGER = Symbol('IOtpManager')

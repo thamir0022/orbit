@@ -11,6 +11,7 @@ export enum AuthResponseMessage {
   PASSWORD_RESET_REQUEST_SUCCESS = 'We’ve sent a password reset code to your email.',
   PASSWORD_RESET_VERIFY_SUCCESS = 'Verification successful. You can now reset your password.',
   PASSWORD_RESET_CONFIRM_SUCCESS = 'Your password has been updated successfully.',
+  PASSWORD_RESET_OTP_RESEND_SUCCESS = 'We’ve sent a new password reset code to your email.',
 
   // OAuth
   OAUTH_REDIRECT_INITIATED = 'Redirecting you to the authentication provider...',
