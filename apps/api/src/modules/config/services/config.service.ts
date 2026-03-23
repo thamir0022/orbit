@@ -61,6 +61,18 @@ export class AppConfigService
     return this.configService.get('SIGNUP_SESSION_TTL')
   }
 
+  get otpResendCooldownTTL(): number {
+    return this.configService.get('OTP_RESET_RESEND_COOLDOWN_TTL')
+  }
+
+  get otpResendAttemptsTTL(): number {
+    return this.configService.get('OTP_RESET_RESEND_ATTEMPTS_TTL')
+  }
+
+  get maxOtpPerDay(): number {
+    return this.configService.get('MAX_RESET_PASSWORD_OTP_PER_DAY')
+  }
+
   get accessTokenExpiresIn(): number {
     return this.configService.get('JWT_ACCESS_TOKEN_EXPIRES_IN')
   }

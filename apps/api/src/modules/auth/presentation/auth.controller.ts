@@ -73,6 +73,7 @@ import {
   SignUpUserDetailsResponseDto,
   SignUpCompleteResponseDto,
   SignInResponseDto,
+  PasswordResetResendOtpRequestDto,
 } from '../application/dto'
 import {
   type IUserDetailsUseCase,
@@ -91,6 +92,10 @@ import {
   SIGN_UP_VERIFY_EMAIL,
 } from '../application/usecases/sign-up-verify-email-with-otp.interface'
 import { Public } from '@/shared/presentation/decorators/public.decorator'
+import {
+  PASSWORD_RESET_RESEND_OTP,
+  type IPasswordResetResendOtpUseCase,
+} from '../application/usecases/password-reset-resend-otp.interface'
 
 @ApiTags('Auth')
 @Public()
@@ -116,6 +121,8 @@ export class AuthController {
     private readonly _passwordResetVerifyUseCase: IPasswordResetVerifyUseCase,
     @Inject(PASSWORD_RESET_CONFIRM)
     private readonly _passwordResetConfirmUseCase: IPasswordResetConfirmUseCase,
+    @Inject(PASSWORD_RESET_RESEND_OTP)
+    private readonly _passwordResetResendOtp: IPasswordResetResendOtpUseCase,
     @Inject(AUTHENTICATE_WITH_OAUTH)
     private readonly _authenticateWithOAuthUseCase: IAuthenticateWithOAuthUseCase,
     @Inject(JWT_CONFIG)
@@ -291,6 +298,19 @@ export class AuthController {
     await this._passwordResetConfirmUseCase.execute({
       resetToken: passwordResetConfirmRequestDto.resetToken,
       newPassword: passwordResetConfirmRequestDto.newPassword,
+    })
+
+    return null
+  }
+
+  @Post('reset-password/resend')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage(AuthResponseMessage.PASSWORD_RESET_OTP_RESEND_SUCCESS)
+  async resendPasswordResetOtp(
+    @Body() passwordResetResendOtpDto: PasswordResetResendOtpRequestDto
+  ): Promise<null> {
+    await this._passwordResetResendOtp.execute({
+      email: passwordResetResendOtpDto.email,
     })
 
     return null

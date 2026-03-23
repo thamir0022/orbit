@@ -62,6 +62,26 @@ export class InvalidOtpException extends DomainException {
   }
 }
 
+export class OtpAlreadySendException extends DomainException {
+  constructor() {
+    super({
+      code: 'OTP_ALREADY_SEND',
+      message: 'OTP already send, Please check your inbox.',
+      statusCode: HttpStatus.TOO_MANY_REQUESTS,
+    })
+  }
+}
+export class MaxOtpRequestsExceededException extends DomainException {
+  constructor() {
+    super({
+      code: 'MAX_OTP_REQUESTS_REACHED',
+      message:
+        'Maxmum OTP request reached for today, Please try again tomorrow',
+      statusCode: HttpStatus.BAD_REQUEST,
+    })
+  }
+}
+
 export class SignUpSessionNotFoundException extends DomainException {
   constructor() {
     super({

@@ -37,6 +37,8 @@ import {
 import { JWT_ACCESS, JWT_REFRESH } from './application/constants/auth.constant'
 import { APP_GUARD } from '@nestjs/core'
 import { JwtAuthGuard } from './presentation/guards'
+import { PASSWORD_RESET_RESEND_OTP } from './application/usecases/password-reset-resend-otp.interface'
+import { PasswordResetResendOtpUseCase } from './application/usecases/password-reset-resend-otp.usecase'
 
 @Module({
   imports: [
@@ -77,6 +79,10 @@ import { JwtAuthGuard } from './presentation/guards'
     { provide: PASSWORD_RESET_REQUEST, useClass: PasswordResetRequestUseCase },
     { provide: PASSWORD_RESET_VERIFY, useClass: PasswordResetVerifyUseCase },
     { provide: PASSWORD_RESET_CONFIRM, useClass: PasswordResetConfirmUseCase },
+    {
+      provide: PASSWORD_RESET_RESEND_OTP,
+      useClass: PasswordResetResendOtpUseCase,
+    },
     {
       provide: AUTHENTICATE_WITH_OAUTH,
       useClass: AuthenticateWithOAuthUseCase,

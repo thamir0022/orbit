@@ -72,6 +72,13 @@ export interface IAuthService {
   setPasswordResetOtp(email: Email, otp: Otp): Promise<void>
   getPasswordResetOtp(email: Email): Promise<string | null | undefined>
   deletePasswordResetOtp(email: Email): Promise<void>
+  getPasswordResetCooldown(email: Email): Promise<string | null | undefined>
+  setPasswordResetCooldown(email: Email): Promise<void>
+  deletePasswordResetCooldown(email: Email): Promise<void>
+  setPasswordResetAttempts(email: Email, attempts: number): Promise<void>
+  getPasswordResetAttempts(email: Email): Promise<number | null | undefined>
+  deletePasswordResetAttempt(email: Email): Promise<void>
+  hasExceededOtpAttempts(attempts: number | undefined | null): boolean
   createRegistrationToken(): string
   createRefreshTokenId(): string
   createAccessTokenId(): string
