@@ -16,6 +16,7 @@ import {
 } from '../../model/sign-up-initiate.schema'
 import { useSignUpStore } from '../../model/sign-up.store'
 import { useSignUpMutation } from '../../api/sign-up-initiate.mutation'
+import OrbitLogo from '@/shared/ui/orbit-logo'
 
 export function SignUpInitiateStep() {
   // 1. Pull what we need from our global step store
@@ -45,6 +46,9 @@ export function SignUpInitiateStep() {
 
   return (
     <Step className="flex flex-col gap-2 mx-auto">
+      <div className="flex items-center justify-center my-3">
+        <OrbitLogo variant="brand_name" />
+      </div>
       <SocialAuth />
 
       <AuthSeparator />
@@ -80,12 +84,16 @@ export function SignUpInitiateStep() {
         <Button
           className="w-full py-6 cursor-pointer"
           type="submit"
-          disabled={isPending}
+          isLoading={isPending}
         >
-          {isPending ? 'Sending code...' : 'Continue with Email'}
+          Continue with Email
         </Button>
 
-        <AuthFooter />
+        <AuthFooter
+          text="Already have an account?"
+          linkText="Sign In"
+          href="/sign-in"
+        />
       </form>
     </Step>
   )

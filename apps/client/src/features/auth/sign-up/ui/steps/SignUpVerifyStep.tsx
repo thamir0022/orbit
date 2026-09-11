@@ -111,9 +111,9 @@ export function SignUpVerifyStep() {
             type="submit"
             form="verify-otp-form"
             className="w-full py-6 cursor-pointer max-sm:font-bold font-medium"
-            disabled={isPending}
+            isLoading={isPending}
           >
-            {isPending ? 'Verifying...' : 'Verify Email'}
+            Verify OTP
           </Button>
         </FieldGroup>
       </form>

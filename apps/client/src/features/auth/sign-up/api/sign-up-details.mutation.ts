@@ -26,7 +26,7 @@ export function useSignUpDetailsMutation(onSuccessCallback?: () => void) {
     mutationFn: signUpDetailsApi,
     onSuccess: (data) => {
       if (data.success) {
-        toast.success(data.message || 'Profile created!')
+        toast.success(data.message)
         onSuccessCallback?.()
       }
     },

@@ -1,26 +1,23 @@
-import { HttpStatusCode } from 'axios'
-
-export interface ApiSuccess<T> {
-  success: true
-  statusCode: HttpStatusCode
-  message?: string
-  data: T
+interface BaseResponse {
+  statusCode: number
+  message: string
   timestamp: string
   path: string
   method: string
 }
 
-export interface ApiError {
+export interface ApiSuccess<T> extends BaseResponse {
+  success: true
+  data: T
+}
+
+export interface ApiError extends BaseResponse {
   success: false
-  statusCode: HttpStatusCode
-  message: string
-  error?: {
+  error: {
     code: string
     message: string
   }
-  timestamp: string
-  path: string
-  method: string
 }
 
-export type ApiResponse<T> = ApiSuccess<T> | ApiError
+// The discriminated union
+export type ApiResponse<T = null> = ApiSuccess<T> | ApiError

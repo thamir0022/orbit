@@ -36,3 +36,8 @@ export interface User {
   createdAt: Date
   updatedAt: Date
 }
+
+
+export type GetCurrentUserData = {
+  user: User
+}

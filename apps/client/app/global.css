@@ -1,6 +1,11 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+@source "../src/shared";
+@source "../src/entities";
+@source "../src/features";
+@source "../src/widgets";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -79,6 +84,17 @@
   --color-sidebar-border: var(--sidebar-border);
 
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --animate-pulse: pulse var(--duration) ease-out infinite;
+  @keyframes pulse {
+    0%,
+    100% {
+      boxshadow: 0 0 0 0 var(--pulse-color);
+    }
+    50% {
+      boxshadow: 0 0 0 8px var(--pulse-color);
+    }
+  }
 }
 
 :root {
@@ -221,5 +237,5 @@
 }
 
 @utility link {
-  @apply cursor-pointer font-semibold;
+  @apply cursor-pointer font-semibold hover:underline transition-all;
 }

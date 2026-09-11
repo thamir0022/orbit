@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const signUpInitiateSchema = z.object({
-  email: z.string().min(1, 'Email is required').email('Invalid email address'),
+  email: z.email('Invalid email address').trim().lowercase(),
 })
 
 export type EmailStepData = z.infer<typeof signUpInitiateSchema>
