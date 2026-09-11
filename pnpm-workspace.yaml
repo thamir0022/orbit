@@ -1,2 +1,7 @@
+# Include every workspace package so pnpm links them correctly during install.
 packages:
-  - apps/*
+  - "apps/*"
+  - "packages/*"
+
+# pnpm v10 compatibility
+injectWorkspacePackages: true

@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "style": "radix-nova",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "src/styles/global.css",
+    "baseColor": "neutral",
+    "cssVariables": true
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@orbit/ui/components",
+    "utils": "@orbit/ui/lib/utils",
+    "hooks": "@orbit/ui/hooks",
+    "lib": "@orbit/ui/lib",
+    "ui": "@orbit/ui/components"
+  }
+}

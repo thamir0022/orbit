@@ -1,0 +1,163 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: dev
+
+    init: true #Fix Node.js PID 1 problem
+
+    container_name: orbit-api-dev
+
+    working_dir: /workspace/apps/api
+
+    command: pnpm dev
+
+    env_file:
+      - ./apps/api/.env.local
+
+    ports:
+      - "5000:5000"
+
+    # ------------ Modern Docker approach for reliable Hot Reloading ------------#
+
+    # New Modern approach for sync+restart but with this mode not all files are correctly syncing
+
+    develop:
+      watch:
+        # ONLY sync changes made directly inside the API directory
+        - action: sync+restart
+          path: ./apps/api
+          target: /workspace/apps/api
+          ignore:
+            - node_modules/
+            - dist/
+
+    # (Optional) If you have a shared package the API uses (e.g., packages/database)
+    # Uncomment and adjust this to sync shared library changes too!
+    # - action: sync+restart
+    #   path: ./packages/database
+    #   target: /workspace/packages/database
+    #   ignore:
+    #     - node_modules/
+    #     - dist/
+
+    # Automatically rebuild the image if monorepo dependencies change
+        - action: rebuild
+          path: ./pnpm-lock.yaml
+
+    # # Automatically restart the container if environment variables change
+        - action: restart
+          path: ./apps/api/.env.local
+
+    volumes:
+      # Persist pnpm store
+      - pnpm-store:/pnpm/store
+
+      # Persist workspace dependencies
+      - workspace-node-modules:/workspace/node_modules
+
+      # Persist package dependencies
+      - api-node-modules:/workspace/apps/api/node_modules
+
+    #------------------------------------------------------------------------------------#
+
+    depends_on:
+      redis:
+        condition: service_healthy
+
+      mongodb:
+        condition: service_healthy
+
+    stdin_open: true
+    tty: true
+
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: orbit-redis-dev
+
+    command: ["redis-server", "--appendonly", "yes"]
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - redis-data:/data
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7.0
+    container_name: orbit-mongodb-dev
+    ports:
+      - "27018:27017"
+
+    # 1. Start mongod with the replSet flag and a keyFile for authentication
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo "OrbitLocalDevSecretKey1234567890" > /tmp/replica.key
+        chmod 400 /tmp/replica.key
+        chown 999:999 /tmp/replica.key
+        exec docker-entrypoint.sh mongod --replSet rs0 --bind_ip_all --keyFile /tmp/replica.key --quiet
+
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+
+    volumes:
+      - mongodb-data:/data/db
+
+    # 2. Simplify the Healthcheck (just check if the process is up, not the replica set)
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    restart: unless-stopped
+
+  # 3. The Setup Container: Initializes the replica set safely
+  mongo-init:
+    image: mongo:7.0
+    container_name: orbit-mongodb-init
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+    # Connect, initiate, and WAIT for the election to finish
+    command: >
+      mongosh --host mongodb:27017 --username admin --password password --authenticationDatabase admin --eval '
+      try {
+        rs.status();
+      } catch (err) {
+        rs.initiate({
+          _id: "rs0",
+          members: [
+            { _id: 0, host: "mongodb:27017" }
+          ]
+        });
+      }
+      print("Waiting for MongoDB election to finish...");
+      while (rs.status().myState !== 1) {
+        sleep(1000);
+      }
+      print("Node is now PRIMARY! Safe to start the API.");
+      '
+
+volumes:
+  pnpm-store:
+  workspace-node-modules:
+  api-node-modules:
+  redis-data:
+  mongodb-data:
