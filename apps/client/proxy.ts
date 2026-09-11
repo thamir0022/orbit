@@ -1,78 +1,45 @@
-import { rootDomain } from '@/shared/lib/utils'
-import { type NextRequest, NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 
-function extractSubdomain(request: NextRequest): string | null {
-  const url = request.url
-  const host = request.headers.get('host') || ''
-  const hostname = host.split(':')[0]
+const GUEST_ONLY_ROUTES = ['/sign-in', '/sign-up', '/password-reset'] as const
+const PUBLIC_ROUTES = ['/invite'] as const
+const AUTH_REDIRECT_URL = '/workspaces'
 
-  // Local development environment
-  if (url.includes('localhost') || url.includes('127.0.0.1')) {
-    // Try to extract subdomain from the full URL
-    const fullUrlMatch = url.match(/http:\/\/([^.]+)\.localhost/)
-    if (fullUrlMatch && fullUrlMatch[1]) {
-      return fullUrlMatch[1]
-    }
-
-    // Fallback to host header approach
-    if (hostname.includes('.localhost')) {
-      return hostname.split('.')[0]
-    }
-
-    return null
-  }
-
-  // Production environment
-  const rootDomainFormatted = rootDomain.split(':')[0]
-
-  // Handle preview deployment URLs (tenant---branch-name.vercel.app)
-  if (hostname.includes('---') && hostname.endsWith('.vercel.app')) {
-    const parts = hostname.split('---')
-    return parts.length > 0 ? parts[0] : null
-  }
-
-  // Regular subdomain detection
-  const isSubdomain =
-    hostname !== rootDomainFormatted &&
-    hostname !== `www.${rootDomainFormatted}` &&
-    hostname.endsWith(`.${rootDomainFormatted}`)
-
-  return isSubdomain ? hostname.replace(`.${rootDomainFormatted}`, '') : null
+function isMatchedPath(pathname: string, routes: readonly string[]) {
+  return routes.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  )
 }
 
-export async function proxy(request: NextRequest) {
-  const { pathname, searchParams } = request.nextUrl
-  const subdomain = extractSubdomain(request)
+export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  const refreshToken = request.cookies.get('refresh_token')?.value
 
-  if (subdomain) {
-    // Block access to admin page from subdomains
-    // if (pathname.startsWith('/admin')) {
-    //   return NextResponse.redirect(new URL('/', request.url))
-    // }
+  const isAuthenticated = Boolean(refreshToken)
 
-    // Extract search parameters to preserve query strings (e.g., ?sort=asc)
-    const search = searchParams.toString()
-    const query = search ? `?${search}` : ''
+  if (isMatchedPath(pathname, PUBLIC_ROUTES)) return NextResponse.next()
 
-    // The Fix: Rewrite ALL subdomain paths to the /[tenant] folder
-    // Example: orbit.localhost:3000/dashboard -> /orbit/dashboard -> maps to app/[tenant]/dashboard
-    return NextResponse.rewrite(
-      new URL(`/${subdomain}${pathname}${query}`, request.url)
-    )
+  const isGuestOnlyRoute = isMatchedPath(pathname, GUEST_ONLY_ROUTES)
+
+  // Authenticated users should not access guest-only routes
+  if (isGuestOnlyRoute) {
+    if (isAuthenticated) {
+      return NextResponse.redirect(new URL(AUTH_REDIRECT_URL, request.url))
+    }
+
+    return NextResponse.next()
   }
 
-  // On the root domain, allow normal access
+  // Unauthenticated users should not access protected routes
+  if (!isAuthenticated) {
+    const signInUrl = new URL('/sign-in', request.url)
+    signInUrl.searchParams.set('redirecturl', pathname)
+
+    return NextResponse.redirect(signInUrl)
+  }
+
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all paths except for:
-     * 1. /api routes
-     * 2. /_next (Next.js internals)
-     * 3. all root files inside /public (e.g. /favicon.ico)
-     */
-    '/((?!api|_next|[\\w-]+\\.\\w+).*)',
-  ],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|onboarding).*)'],
 }

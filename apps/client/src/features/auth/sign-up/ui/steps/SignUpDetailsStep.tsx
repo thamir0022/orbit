@@ -14,6 +14,7 @@ import {
   type ProfileStepData,
 } from '../../model/sign-up-details.schema'
 import { useSignUpDetailsMutation } from '../../api/sign-up-details.mutation'
+import PasswordField from '@/shared/ui/PasswordField'
 
 export function SignUpDetailsStep() {
   // 1. Pull the navigation action from the store
@@ -48,7 +49,9 @@ export function SignUpDetailsStep() {
 
   return (
     <Step>
-      <h2 className="text-center mb-5 sub-heading">Create Your Profile</h2>
+      <h2 className="text-center mb-5 text-xl font-semibold">
+        Create Your Profile
+      </h2>
       <form
         id="create-account-form"
         onSubmit={form.handleSubmit(onSubmit)}
@@ -103,14 +106,9 @@ export function SignUpDetailsStep() {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="password">Password</FieldLabel>
-                <Input
+                <PasswordField
                   {...field}
-                  id="password"
                   aria-invalid={fieldState.invalid}
-                  type="password"
-                  placeholder="Password"
-                  className="py-6 px-3"
                   autoComplete="new-password"
                 />
                 {fieldState.invalid && (
@@ -125,16 +123,11 @@ export function SignUpDetailsStep() {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="confirmPassword">
-                  Confirm Password
-                </FieldLabel>
-                <Input
+                <PasswordField
                   {...field}
-                  id="confirmPassword"
+                  label="Confirm Password"
                   aria-invalid={fieldState.invalid}
-                  type="password"
                   placeholder="Confirm Password"
-                  className="py-6 px-3"
                   autoComplete="new-password"
                 />
                 {fieldState.invalid && (
@@ -148,9 +141,9 @@ export function SignUpDetailsStep() {
             type="submit"
             form="create-account-form"
             className="w-full py-6 cursor-pointer max-sm:font-bold font-medium"
-            disabled={isPending}
+            isLoading={isPending}
           >
-            {isPending ? 'Saving...' : 'Continue'}
+            Create Account
           </Button>
         </FieldGroup>
       </form>
