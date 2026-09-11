@@ -1,5 +1,6 @@
-import { User, Email, UserId } from '@/modules/user/domain'
+import { User, Email, UserId, UserStatus } from '@/modules/user/domain'
 import { IBaseRepository } from '@/shared/application'
+import { PaginatedResult } from '@/shared/application/repository/paginated-result'
 
 /**
  * User Repository Interface (Port)
@@ -14,7 +15,15 @@ import { IBaseRepository } from '@/shared/application'
  * - Application layer orchestrates use cases and defines what it needs
  */
 
+export type FindUsersQuery = {
+  readonly page: number
+  readonly limit: number
+  readonly search?: string
+  readonly status?: UserStatus
+}
+
 export interface IUserRepository extends IBaseRepository<User, UserId> {
+  findAll(options: FindUsersQuery): Promise<PaginatedResult<User[] | []>>
   findByEmail(email: Email): Promise<User | null>
   existsByEmail(email: Email): Promise<boolean>
 }

@@ -1,6 +1,6 @@
 import { type UserPreferencesData } from '@/modules/user/domain'
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
-import type { HydratedDocument, Types } from 'mongoose'
+import { HydratedDocument, Types, Schema as MongooseSchema } from 'mongoose'
 
 export type UserDocument = HydratedDocument<UserModel>
 
@@ -9,83 +9,85 @@ export type UserDocument = HydratedDocument<UserModel>
   timestamps: true,
 })
 export class UserModel {
-  _id: Types.ObjectId
+  _id!: Types.ObjectId
 
-  @Prop({ required: true, unique: true, index: true })
-  id: string // UUID v7
+  @Prop({
+    required: true,
+    unique: true,
+    type: MongooseSchema.Types.UUID,
+    index: true,
+  })
+  id!: string // UUID v7
 
   @Prop({ required: true })
-  firstName: string
+  firstName!: string
 
   @Prop({ required: true })
-  lastName: string
+  lastName!: string
 
-  @Prop()
-  displayName: string
-
-  @Prop()
-  roleId: string
+  @Prop({ required: true })
+  displayName!: string
 
   @Prop({ required: true, unique: true, lowercase: true, index: true })
-  email: string
+  email!: string
 
   @Prop()
-  passwordHash: string
+  passwordHash!: string
 
   @Prop()
-  avatarUrl: string
+  avatarUrl!: string
 
   // Authentication
   @Prop({ required: true, default: false })
-  emailVerified: boolean
+  emailVerified!: boolean
 
   // MFA
   @Prop({ required: true, default: false })
-  mfaEnabled: boolean
+  mfaEnabled!: boolean
 
   @Prop({ type: [String], default: [] })
-  mfaBackupCodes: string[]
+  mfaBackupCodes!: string[]
 
   // Rate Limiting
   @Prop({ default: 0 })
-  loginAttempts: number
+  loginAttempts!: number
 
   @Prop()
   lockedUntil?: Date
 
   // OAuth
   @Prop({ default: 'email', index: true })
-  authProvider: string
+  authProvider!: string
 
   @Prop({ sparse: true })
-  oauthProviderId: string
+  oauthProviderId!: string
 
   // Status
   @Prop({ required: true, default: 'active', index: true })
-  status: string
+  status!: string
 
   @Prop()
-  lastLoginAt: Date
+  lastLoginAt!: Date
 
   @Prop()
-  lastActiveAt: Date
+  lastActiveAt!: Date
 
   // Preferences
   @Prop({ type: Object })
-  preferences: UserPreferencesData
+  preferences!: UserPreferencesData
 
   @Prop({ default: 'UTC' })
-  timezone: string
+  timezone!: string
 
   @Prop({ default: 'en-IN' })
-  locale: string
+  locale!: string
 
   // Timestamps (managed by Mongoose)
-  createdAt: Date
-  updatedAt: Date
+  createdAt!: Date
+  updatedAt!: Date
 
   @Prop()
-  deletedAt: Date
+  deletedAt!: Date
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserModel)

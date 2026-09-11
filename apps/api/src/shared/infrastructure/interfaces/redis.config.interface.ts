@@ -2,6 +2,7 @@ export interface IRedisConfig {
   redisUri: string
   sessionTTL: number
   otpTTL: number
+  permissionTTL: number
   otpResetTokenTTL: number
   signUpSessionTTL: number
   otpResendCooldownTTL: number

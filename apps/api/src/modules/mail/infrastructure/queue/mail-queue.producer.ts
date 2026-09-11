@@ -1,11 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectQueue } from '@nestjs/bullmq'
 import { Queue } from 'bullmq'
-import { IMailService } from '../../domain/ports/mail-service.port'
+import {
+  IMailService,
+  WorkspaceInvitationEmailPayload,
+} from '../../domain/ports/mail-service.port'
 
 export const MAIL_QUEUE_NAME = 'mail-queue'
-export const JOB_FORGOT_PASSWORD = 'forgot-password'
+export const JOB_FORGOT_PASSWORD = 'reset-password'
 export const JOB_EMAIL_VERIFICATION = 'email-verification'
+export const WORKSPACE_INVITATION = 'workspace-invitation'
 
 @Injectable()
 export class MailQueueProducer implements IMailService {
@@ -23,16 +27,9 @@ export class MailQueueProducer implements IMailService {
       await this.mailQueue.add(
         JOB_FORGOT_PASSWORD,
         { to, otp },
-        {
-          attempts: 3,
-          backoff: {
-            type: 'exponential',
-            delay: 1000,
-          },
-          removeOnComplete: true, // Keep Redis clean
-        }
+        this.defaultJobOptions
       )
-      this.logger.log(`Queued forgot-password email for ${to}`)
+      this.logger.log(`Queued reset-password email for ${to}`)
     } catch (error) {
       this.logger.error(
         `Failed to queue email for ${to}`,
@@ -47,14 +44,7 @@ export class MailQueueProducer implements IMailService {
       await this.mailQueue.add(
         JOB_EMAIL_VERIFICATION,
         { to, otp },
-        {
-          attempts: 3,
-          backoff: {
-            type: 'exponential',
-            delay: 1000,
-          },
-          removeOnComplete: true, // Keep Redis clean
-        }
+        this.defaultJobOptions
       )
       this.logger.log(`Queued email verification email for ${to}`)
     } catch (error) {
@@ -63,5 +53,37 @@ export class MailQueueProducer implements IMailService {
         error instanceof Error ? error?.stack : ''
       )
     }
+  }
+
+  async sendWorkspaceInvitationEmail(
+    to: string,
+    payload: WorkspaceInvitationEmailPayload
+  ): Promise<void> {
+    try {
+      await this.mailQueue.add(
+        WORKSPACE_INVITATION,
+        {
+          to,
+          ...payload,
+        },
+        this.defaultJobOptions
+      )
+
+      this.logger.log(`Queued workspace invitation email for ${to}`)
+    } catch (error) {
+      this.logger.error(
+        `Failed to queue workspace invitation email for ${to}`,
+        error instanceof Error ? error.stack : ''
+      )
+    }
+  }
+
+  private readonly defaultJobOptions = {
+    attempts: 3,
+    backoff: {
+      type: 'exponential' as const,
+      delay: 1000,
+    },
+    removeOnComplete: true,
   }
 }

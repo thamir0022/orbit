@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectConnection } from '@nestjs/mongoose'
 import { Connection, ClientSession } from 'mongoose'
-import { ITransactionManager } from '../../application/repository/transaction-manager.interface'
+import { ITransactionManager } from '../../application/ports/transaction-manager.interface'
 
 @Injectable()
 export class TransactionManager implements ITransactionManager {

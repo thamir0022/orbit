@@ -8,9 +8,11 @@ export interface UserProps {
   lastName: string
   displayName: string
   email: Email
-  passwordHash?: Password
-  roleId?: string // UPDATE THIS WITH
-  avatarUrl?: string
+
+  passwordHash: Password | undefined
+
+  avatarUrl: string | undefined
+
   emailVerified: boolean
 
   // MFA
@@ -18,25 +20,26 @@ export interface UserProps {
   mfaBackupCodes: string[]
 
   // Rate limiting
-  loginAttempts?: number
-  lockedUntil?: Date
+  loginAttempts: number | undefined
+  lockedUntil: Date | undefined
 
   // OAuth
   authProvider: AuthProvider
-  oauthProviderId?: string
+  oauthProviderId: string | undefined
 
   // User status
   status: UserStatus
-  lastLoginAt?: Date
-  lastActiveAt?: Date
+
+  lastLoginAt: Date | undefined
+  lastActiveAt: Date | undefined
 
   // Preferences
   preferences: UserPreferences
 
-  // Timestramps
+  // Timestamps
   createdAt: Date
   updatedAt: Date
-  deletedAt?: Date
+  deletedAt: Date | undefined
 }
 
 export interface CreateUserProps {

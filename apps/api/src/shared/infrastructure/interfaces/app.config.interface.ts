@@ -1,7 +1,8 @@
 export interface IAppConfig {
   nodeEnv: string
+  isProduction: boolean
   port: number
-  corsOrigins: string
+  corsOrigins: string[]
   frontEndUrl: string
 }
 

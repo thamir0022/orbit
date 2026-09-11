@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common'
-import type { Model } from 'mongoose'
-import type { IUserRepository } from '@/modules/user/application/repository/user.repository.interface'
+import { Model, UpdateQuery, QueryFilter } from 'mongoose'
+import type {
+  FindUsersQuery,
+  IUserRepository,
+} from '@/modules/user/application/repository/user.repository.interface'
 import { UserStatus, type User } from '@/modules/user/domain'
 import type { Email } from '@/modules/user/domain'
 import type { UserId } from '@/modules/user/domain'
@@ -10,7 +13,8 @@ import {
 } from '@/modules/user/infrastructure/persistence/schema/user.schema'
 import { UserMapper } from '@/modules/user/application/mappers/user.mapper'
 import { InjectModel } from '@nestjs/mongoose'
-import { ITransactionOptions } from '@/shared/application/repository/transaction-manager.interface'
+import { ITransactionOptions } from '@/shared/application/ports/transaction-manager.interface'
+import { PaginatedResult } from '@/shared/application'
 
 /**
  * MongoDB User Repository Implementation (Adapter)
@@ -31,33 +35,44 @@ export class UserRepository implements IUserRepository {
 
   async save(user: User, options?: ITransactionOptions): Promise<void> {
     const persistenceData = UserMapper.toPersistence(user)
+    const querySession = options?.session
 
-    const existingUser = await this.userModel.findOne({
+    const existingUserQuery = this.userModel.findOne({
       id: user.userId.value,
     })
 
+    if (querySession) {
+      existingUserQuery.session(querySession)
+    }
+
+    const existingUser = await existingUserQuery
+
+    const updateOperation: UpdateQuery<UserDocument> = {
+      $set: persistenceData,
+    }
+
+    if (user.lockedUntil === undefined) {
+      updateOperation.$unset = { lockedUntil: 1 }
+    }
+
     if (existingUser) {
-      const updateOperation: {
-        $set: Partial<UserDocument>
-        $unset?: { lockedUntil: 1 }
-      } = {
-        $set: persistenceData,
+      const updateQuery = this.userModel.updateOne(
+        { id: user.userId.value },
+        updateOperation
+      )
+
+      if (querySession) {
+        updateQuery.session(querySession)
       }
 
-      if (user.lockedUntil === undefined)
-        updateOperation.$unset = { lockedUntil: 1 }
-
-      await this.userModel.updateOne(
-        { id: user.userId.value },
-        updateOperation,
-        { session: options?.session }
-      )
+      await updateQuery
       this.logger.debug(`Updated user: ${user.userId.value}`)
-    } else {
-      const newUser = new this.userModel(persistenceData)
-      await newUser.save({ session: options?.session })
-      this.logger.debug(`Created user: ${user.userId.value}`)
+      return
     }
+
+    const newUser = new this.userModel(persistenceData)
+    await newUser.save(querySession ? { session: querySession } : undefined)
+    this.logger.debug(`Created user: ${user.userId.value}`)
   }
 
   async findById(id: UserId): Promise<User | null> {
@@ -71,6 +86,71 @@ export class UserRepository implements IUserRepository {
     }
 
     return UserMapper.toDomain(document)
+  }
+
+  async findAll({
+    limit,
+    page,
+    search,
+    status,
+  }: FindUsersQuery): Promise<PaginatedResult<User[] | []>> {
+    const skip = (page - 1) * limit
+
+    const filter: QueryFilter<UserDocument> = {}
+
+    if (status) filter.status = status
+
+    if (search?.trim()) {
+      const keyword = search.trim()
+
+      filter.$or = [
+        {
+          firstName: {
+            $regex: keyword,
+            $options: 'i',
+          },
+        },
+        {
+          lastName: {
+            $regex: keyword,
+            $options: 'i',
+          },
+        },
+        {
+          displayName: {
+            $regex: keyword,
+            $options: 'i',
+          },
+        },
+        {
+          email: {
+            $regex: keyword,
+            $options: 'i',
+          },
+        },
+      ]
+    }
+
+    const [data, total] = await Promise.all([
+      this.userModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean()
+        .exec(),
+      this.userModel.countDocuments(),
+    ])
+
+    return {
+      data: data.map((doc) => UserMapper.toDomain(doc)),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    }
   }
 
   async findByEmail(email: Email): Promise<User | null> {

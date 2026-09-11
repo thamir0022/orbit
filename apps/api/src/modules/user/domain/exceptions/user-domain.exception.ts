@@ -2,11 +2,11 @@ import { DomainException } from '@/shared/domain'
 import { HttpStatus } from '@nestjs/common'
 import { Email, UserStatus } from '@/modules/user/domain'
 
-export class UserAlreadyExistsException extends DomainException {
+export class AccountAlreadyExistsException extends DomainException {
   constructor(email: Email) {
     super({
-      code: 'USER_ALREADY_EXISTS',
-      message: `User with email ${email.value} already exists`,
+      code: 'ACCOUNT_ALREADY_EXISTS',
+      message: `Account with email ${email.value} already exists`,
       statusCode: HttpStatus.CONFLICT,
     })
   }
@@ -24,13 +24,11 @@ export class InvalidPasswordException extends DomainException {
   }
 }
 
-export class UserNotFoundException extends DomainException {
-  constructor(identifier?: string) {
+export class AccountNotFoundException extends DomainException {
+  constructor() {
     super({
-      code: 'USER_NOT_FOUND',
-      message: identifier
-        ? `User with identifier ${identifier} not found!`
-        : 'User not found!',
+      code: 'ACCOUNT_NOT_FOUND',
+      message: 'Account not found!',
       statusCode: HttpStatus.NOT_FOUND,
     })
   }

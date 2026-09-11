@@ -1,0 +1,183 @@
+import {
+  IsEnum,
+  IsInt,
+  IsString,
+  IsUrl,
+  Max,
+  Min,
+  IsDefined,
+  IsNotEmpty,
+} from 'class-validator'
+import { Transform, Type } from 'class-transformer'
+
+export enum Environment {
+  DEVELOPMENT = 'development',
+  PRODUCTION = 'production',
+  TEST = 'test',
+}
+
+export class EnvironmentVariables {
+  @IsEnum(Environment)
+  NODE_ENV: Environment = Environment.DEVELOPMENT
+
+  @IsDefined()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(65535)
+  PORT!: number
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  CORS_ORIGINS!: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  MONGODB_URI!: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  MONGODB_DB_NAME!: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  REDIS_URI!: string
+
+  @IsDefined()
+  @Type(() => Number)
+  @IsInt()
+  @Min(60 * 60 * 24 * 1000) // 1 day (ms)
+  @Max(60 * 60 * 24 * 30 * 1000) // 30 days (ms)
+  SESSION_TTL!: number
+
+  @IsDefined()
+  @Type(() => Number)
+  @IsInt()
+  @Min(60 * 1000) // 1 min (ms)
+  @Max(60 * 10 * 1000) // 10 mins (ms)
+  OTP_TTL!: number
+
+  @IsDefined()
+  @Type(() => Number)
+  @IsInt()
+  @Min(60 * 5 * 1000) // 5 mins (ms)
+  @Max(60 * 30 * 1000) // 30 mins (ms)
+  OTP_RESET_TOKEN_TTL!: number
+
+  @IsDefined()
+  @Type(() => Number)
+  @IsInt()
+  @Min(60 * 5 * 1000) // 5 mins (ms)
+  @Max(60 * 60 * 1000) // 1 hr (ms)
+  SIGNUP_SESSION_TTL!: number
+
+  @IsDefined()
+  @Type(() => Number)
+  @IsInt()
+  @Min(30 * 1000) // 30 sec (ms)
+  @Max(5 * 60 * 1000) // 5 min (ms)
+  OTP_RESET_RESEND_COOLDOWN_TTL!: number
+
+  @IsDefined()
+  @Type(() => Number)
+  @IsInt()
+  @Min(12 * 60 * 60 * 1000) // 12 hr (ms)
+  @Max(2 * 24 * 60 * 60 * 1000) // 2 days (ms)
+  OTP_RESET_RESEND_ATTEMPTS_TTL!: number
+
+  @IsDefined()
+  @Type(() => Number)
+  @IsInt()
+  @Min(5 * 60 * 1000) // 5 min (ms)
+  @Max(1 * 24 * 60 * 60 * 1000) // 1 days (ms)
+  PERMISSION_CACHE_TTL!: number
+
+  @IsDefined()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(20)
+  MAX_RESET_PASSWORD_OTP_PER_DAY!: number
+
+  // JWT
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  IDENTITY_TOKEN_SECRET!: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  TENENT_TOKEN_SECRET!: string
+
+  @IsDefined()
+  @IsString()
+  TENENT_TOKEN_EXPIRES_IN!: string
+
+  @IsDefined()
+  @IsString()
+  IDENTITY_TOKEN_EXPIRES_IN!: string
+
+  @IsDefined()
+  @IsString()
+  JWT_ISSUER!: string
+
+  @IsDefined()
+  @IsNotEmpty()
+  JWT_AUDIENCE!: string
+
+  // Google OAuth
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  GOOGLE_CLIENT_ID!: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  GOOGLE_CLIENT_SECRET!: string
+
+  @IsDefined()
+  @Transform(({ value }: { value: string }) => value?.trim())
+  @IsUrl({ require_protocol: true, require_tld: false })
+  GOOGLE_CALLBACK_URL!: string
+
+  @IsDefined()
+  @Transform(({ value }: { value: string }) => value?.trim())
+  @IsUrl({ require_protocol: true, require_tld: false })
+  FRONTEND_URL!: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  MAIL_HOST!: string
+
+  @IsDefined()
+  @Type(() => Number)
+  @IsNotEmpty()
+  MAIL_PORT!: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  MAIL_USER!: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  MAIL_PASS!: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  MAIL_FROM_NAME!: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  MAIL_FROM_EMAIL!: string
+}

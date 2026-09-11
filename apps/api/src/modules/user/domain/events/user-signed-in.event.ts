@@ -3,8 +3,8 @@ import { DomainEvent } from '@/shared/domain'
 export interface UserSignedInEventProps {
   userId: string
   email: string
-  ipAddress?: string
-  userAgent?: string
+  ipAddress: string
+  userAgent: string
   timestamp: Date
 }
 

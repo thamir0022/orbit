@@ -4,31 +4,31 @@ import { UserId } from '@/modules/user/domain'
 import { AuthProvider, UserStatus } from '@/modules/user/domain'
 import { AggregateRoot } from '@/shared/domain'
 import { UserCreatedEvent } from '@/modules/user/domain'
+import { UpdateProfileProps } from '../interfaces/update-profile.interface'
 
 export class User extends AggregateRoot<UserId> {
   private _firstName: string
   private _lastName: string
   private _displayName: string
   private _email: Email
-  private _passwordHash?: Password
-  private _roleId?: string
-  private _avatarUrl?: string
+  private _passwordHash: Password | undefined
+  private _avatarUrl: string | undefined
   private _emailVerified: boolean
   private _mfaEnabled: boolean
   private _mfaBackupCodes: string[]
-  private _loginAttempts?: number
-  private _lockedUntil?: Date
+  private _loginAttempts: number | undefined
+  private _lockedUntil: Date | undefined
   private _authProvider: AuthProvider
-  private _oauthProviderId?: string
+  private _oauthProviderId: string | undefined
   private _status: UserStatus
-  private _lastLoginAt?: Date
-  private _lastActiveAt?: Date
+  private _lastLoginAt: Date | undefined
+  private _lastActiveAt: Date | undefined
   private _preferences: UserPreferences
-  private _timezone: string
-  private _locale: string
+  private _timezone: string | undefined
+  private _locale: string | undefined
   private readonly _createdAt: Date
   private _updatedAt: Date
-  private _deletedAt?: Date
+  private _deletedAt: Date | undefined
   private constructor(props: UserProps) {
     super(props.id)
     this._firstName = props.firstName
@@ -36,7 +36,6 @@ export class User extends AggregateRoot<UserId> {
     this._displayName = `${props.firstName} ${props.lastName}`
     this._email = props.email
     this._passwordHash = props.passwordHash
-    this._roleId = props.roleId
     this._avatarUrl = props.avatarUrl
     this._emailVerified = props.emailVerified
     this._mfaEnabled = props.mfaEnabled
@@ -127,16 +126,12 @@ export class User extends AggregateRoot<UserId> {
     return this._preferences
   }
 
-  get timezone(): string {
+  get timezone(): string | undefined {
     return this._timezone
   }
 
-  get locale(): string {
+  get locale(): string | undefined {
     return this._locale
-  }
-
-  get roleId() {
-    return this._roleId
   }
 
   get createdAt() {
@@ -151,10 +146,39 @@ export class User extends AggregateRoot<UserId> {
     return this._deletedAt
   }
 
+  updateProfile(updates: UpdateProfileProps) {
+    this._firstName = updates.firstName ?? this._firstName
+    this._lastName = updates.lastName ?? this._lastName
+    this._displayName = updates.displayName ?? this._displayName
+  }
+
   // Setters
-  set passwordHash(hash: Password) {
-    this._passwordHash = hash
-    this.touch()
+  set email(email: Email) {
+    this._email = email
+  }
+
+  set passwordHash(passwordHash: Password) {
+    this._passwordHash = passwordHash
+  }
+
+  set avatarUrl(avartarUrl: string) {
+    this._avatarUrl = avartarUrl
+  }
+
+  set status(status: UserStatus) {
+    this._status = status
+  }
+
+  set preferences(preferences: UserPreferences) {
+    this._preferences = preferences
+  }
+
+  set timezone(timeZone: string) {
+    this._timezone = timeZone
+  }
+
+  set locale(locale: string) {
+    this._locale = locale
   }
 
   static create(props: CreateUserProps): User {
@@ -176,6 +200,11 @@ export class User extends AggregateRoot<UserId> {
       oauthProviderId: props.oauthProviderId,
       status: UserStatus.ACTIVE,
       preferences: UserPreferences.createDefault(),
+      loginAttempts: undefined,
+      lockedUntil: undefined,
+      lastLoginAt: undefined,
+      lastActiveAt: undefined,
+      deletedAt: undefined,
       createdAt: now,
       updatedAt: now,
     })

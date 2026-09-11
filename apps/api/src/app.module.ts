@@ -4,12 +4,16 @@ import { RedisModule } from '@/shared/infrastructure'
 import { UserModule } from '@/modules/user/user.module'
 import { GlobalExceptionFilter } from '@/shared/presentation/filters/global-exception.filter'
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core'
-import { AuthModule } from './modules/auth/auth.module'
-import { AppConfigModule } from './modules/config/config.module'
+import { AuthenticationModule } from './modules/authentication/authentication.module'
+import { AppConfigModule } from './shared/infrastructure/config/config.module'
 import { MailModule } from './modules/mail/mail.module'
 import { ResponseInterceptor } from './shared/presentation/intercepters/response.intercepter'
-import { OrganizationModule } from './modules/organization/organization.module'
+import { WorkspaceModule } from './modules/workspace/workspace.module'
 import { SharedModule } from './shared/shared.module'
+import { SecurityModule } from './shared/infrastructure/security/security.module'
+import { AuthorizationModule } from './modules/authorization/authorization.module'
+import { PlatformAdminModule } from './modules/platform-admin/platform-admin.module'
+import { ProjectModule } from './modules/project/project.module'
 
 @Module({
   imports: [
@@ -19,15 +23,19 @@ import { SharedModule } from './shared/shared.module'
     // Infrastructure
     MongoDbModule,
     RedisModule,
+    SecurityModule,
 
     // Shared
     SharedModule,
 
     // Features Module
-    AuthModule,
+    AuthenticationModule,
+    AuthorizationModule,
     UserModule,
     MailModule,
-    OrganizationModule,
+    WorkspaceModule,
+    PlatformAdminModule,
+    ProjectModule,
   ],
   providers: [
     {

@@ -1,0 +1,6 @@
+export * from './workspace-id.vo'
+export * from './workspace-settings.vo'
+export * from './workspace-verification.vo'
+export * from './workspace-contact.vo'
+export * from './workspace-address.vo'
+export * from './workspace-invitation-id.vo'

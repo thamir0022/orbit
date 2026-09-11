@@ -1,8 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import nodemailer, { type Transporter } from 'nodemailer'
-import { getForgotPasswordTemplate } from '../templates/forgot-password.template'
+import { getForgotPasswordTemplate } from '../templates/reset-password.template'
 import { MAIL_CONFIG, type IMailConfig } from '../config/mail.config.interface'
 import { getEmailVerificationTemplate } from '../templates/email-verification.template'
+import { WorkspaceInvitationEmailPayload } from '../../domain/ports/mail-service.port'
+import { getWorkspaceInvitationTemplate } from '../templates/workspace-invitation.template'
 
 @Injectable()
 export class MailSenderAdapter {
@@ -48,5 +50,25 @@ export class MailSenderAdapter {
     })
 
     this.logger.log(`Email actually sent via Mailtrap to ${to}`)
+  }
+
+  async sendWorkspaceInvitation(
+    to: string,
+    payload: WorkspaceInvitationEmailPayload
+  ): Promise<void> {
+    const html = getWorkspaceInvitationTemplate({
+      workspaceName: payload.workspaceName,
+      roleName: payload.roleName,
+      inviterName: payload.inviterName,
+      invitationUrl: payload.invitationUrl,
+      expiresInDays: payload.expiresInDays,
+    })
+
+    await this.transporter.sendMail({
+      from: `"${this._config.mailFromName}" <${this._config.mailFromEmail}>`,
+      to,
+      subject: `You've been invited to join ${payload.workspaceName}`,
+      html,
+    })
   }
 }
