@@ -4,6 +4,12 @@
   "private": true,
   "packageManager": "pnpm@10.29.2",
   "scripts": {
+    "api:dev": "docker compose up --watch",
+    "client:dev": "pnpm --filter client dev",
+    "admin:dev": "pnpm --filter admin dev",
+    "permission:sync": "docker compose exec api pnpm cli:permission-sync",
+    "role:sync": "docker compose exec api pnpm cli:role-sync",
+    "admin:create": "docker compose exec api pnpm cli:admin-create",
     "prepare": "husky",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -24,7 +30,7 @@
   },
   "devDependencies": {
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.7",
-    "prettier": "^3.0.0"
+    "lint-staged": "^17.0.5",
+    "prettier": "^3.8.3"
   }
 }
