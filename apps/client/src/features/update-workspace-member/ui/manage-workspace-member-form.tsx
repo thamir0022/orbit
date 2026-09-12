@@ -64,7 +64,7 @@ export function ManageWorkspaceMemberForm({
   errorMessage = null,
   onSubmit,
   onCancel,
-  modalClose
+  modalClose,
 }: ManageWorkspaceMemberFormProps) {
   const form = useForm<UpdateWorkspaceMemberFormValues>({
     resolver: zodResolver(updateWorkspaceMemberSchema),
@@ -113,7 +113,10 @@ export function ManageWorkspaceMemberForm({
               </Badge>
               <Badge variant="outline">{member.status}</Badge>
             </div>
-            <RemoveWorkspaceMemberButton onSuccess={modalClose} member={member} />
+            <RemoveWorkspaceMemberButton
+              onSuccess={modalClose}
+              member={member}
+            />
           </div>
         </CardContent>
       </Card>

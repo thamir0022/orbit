@@ -40,7 +40,10 @@ export function WorkspaceRolesDataTable<TData, TValue>({
                 <TableHead key={header.id} className="h-12">
                   {header.isPlaceholder
                     ? null
-                    : flexRender(header.column.columnDef.header, header.getContext())}
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                 </TableHead>
               ))}
             </TableRow>
@@ -48,17 +51,20 @@ export function WorkspaceRolesDataTable<TData, TValue>({
         </TableHeader>
 
         <TableBody>
-          {table.getRowModel().rows.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="py-4 align-top">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : null}
+          {table.getRowModel().rows.length
+            ? table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} className="py-4 align-top">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            : null}
         </TableBody>
       </Table>
     </div>

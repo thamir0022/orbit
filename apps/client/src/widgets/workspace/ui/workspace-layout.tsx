@@ -34,7 +34,7 @@ export const WorkSpaceLayout = ({
     }
   }, [data, workspace?.id, setWorkspace])
 
-  console.log({data, isPending, isError});
+  console.log({ data, isPending, isError })
 
   // 3. Security/Fallback routing
   useEffect(() => {
@@ -56,5 +56,5 @@ export const WorkSpaceLayout = ({
 
   if (!workspace) return null
 
-  return <div className='min-h-full'>{children}</div>
+  return <div className="min-h-full">{children}</div>
 }

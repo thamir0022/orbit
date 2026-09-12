@@ -102,7 +102,9 @@ export function MembersPagination({
                 if (page < totalPages) onPageChange(page + 1)
               }}
               aria-disabled={page >= totalPages}
-              className={page >= totalPages ? 'pointer-events-none opacity-50' : ''}
+              className={
+                page >= totalPages ? 'pointer-events-none opacity-50' : ''
+              }
             />
           </PaginationItem>
         </PaginationContent>

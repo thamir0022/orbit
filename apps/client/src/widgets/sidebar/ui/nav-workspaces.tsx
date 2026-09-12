@@ -20,7 +20,7 @@ const NavWorkspaces = () => {
   const workspace = useWorkspace()
   const { data, isPending } = useUserWorkspaces()
 
-  console.log('DATA : ', data);
+  console.log('DATA : ', data)
 
   return (
     <SidebarMenu>

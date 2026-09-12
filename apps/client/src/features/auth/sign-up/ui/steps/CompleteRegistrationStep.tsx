@@ -19,7 +19,7 @@ import { useCompleteRegistrationMutation } from '../../api/complete-registration
 
 export function CompleteRegistrationStep() {
   // 1. Pull the navigation action from the store
-  const {registrationToken, invitationToken} = useSignUpStore()
+  const { registrationToken, invitationToken } = useSignUpStore()
 
   // 2. Initialize the form with Zod validation
   const form = useForm<ProfileStepData>({
@@ -42,7 +42,7 @@ export function CompleteRegistrationStep() {
       lastName: data.lastName,
       password: data.password,
       registrationToken,
-      invitationToken
+      invitationToken,
     })
   }
 

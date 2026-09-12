@@ -1,1 +1,1 @@
-  export * from './ui/invitation'
+export * from './ui/invitation'

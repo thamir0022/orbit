@@ -53,9 +53,7 @@ export class ApiError extends Error {
   static fromResponse(response: ApiFailure): ApiError {
     return new ApiError({
       type:
-        response.statusCode >= 500
-          ? ApiErrorType.SERVER
-          : ApiErrorType.CLIENT,
+        response.statusCode >= 500 ? ApiErrorType.SERVER : ApiErrorType.CLIENT,
 
       message: response.message,
 

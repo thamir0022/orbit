@@ -15,7 +15,7 @@ import { useErrorDialogStore } from "./error-dialog.store";
 export function ErrorDialog() {
   const { open, title, message, close } = useErrorDialogStore();
 
-  console.log('ERROR DIALOG', open, title, message);
+  console.log("ERROR DIALOG", open, title, message);
 
   return (
     <AlertDialog open={open}>

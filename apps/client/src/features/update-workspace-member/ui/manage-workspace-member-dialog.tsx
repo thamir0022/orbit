@@ -39,9 +39,7 @@ export function ManageWorkspaceMemberDialog({
       })
 
       onClose()
-    } catch(error: unknown) {
-      
-    }
+    } catch (error: unknown) {}
   }
 
   return (

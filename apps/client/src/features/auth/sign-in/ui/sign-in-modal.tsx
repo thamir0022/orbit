@@ -45,8 +45,8 @@ export function SignInModal() {
   return (
     <Dialog open onOpenChange={() => router.back()}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader className='flex items-center'>
-          <OrbitLogo variant='brand_name'/>
+        <DialogHeader className="flex items-center">
+          <OrbitLogo variant="brand_name" />
           <DialogTitle>Sign In To Your Account</DialogTitle>
         </DialogHeader>
 

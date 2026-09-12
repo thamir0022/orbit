@@ -126,7 +126,7 @@ export function CreateProjectDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92vh] max-w-4xl overflow-hidden p-0">
         <DialogHeader className="border-b px-6 py-5">
-          <DialogTitle className='text-center'>Create project</DialogTitle>
+          <DialogTitle className="text-center">Create project</DialogTitle>
           <DialogDescription>
             Add a new workspace project in a clean, structured form.
           </DialogDescription>

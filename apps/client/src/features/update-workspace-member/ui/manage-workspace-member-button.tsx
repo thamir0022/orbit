@@ -30,7 +30,7 @@ export function ManageWorkspaceMemberButton({
           size="sm"
           disabled={rolesLoading || roles.length === 0}
         >
-          <LuUserRoundCog/>
+          <LuUserRoundCog />
           Manage
         </Button>
       </DialogTrigger>

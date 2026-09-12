@@ -1,8 +1,5 @@
 export type WorkspaceInvitationStatus =
-  | 'PENDING'
-  | 'ACCEPTED'
-  | 'DECLINED'
-  | 'EXPIRED'
+  'PENDING' | 'ACCEPTED' | 'DECLINED' | 'EXPIRED'
 
 export interface WorkspaceInvitation {
   id: string

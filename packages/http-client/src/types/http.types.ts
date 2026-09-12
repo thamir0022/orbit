@@ -10,12 +10,7 @@ export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
  * Primitive query parameter values.
  */
 export type HttpQueryValue =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined
-  | Date;
+  string | number | boolean | null | undefined | Date;
 
 /**
  * Query string parameters.

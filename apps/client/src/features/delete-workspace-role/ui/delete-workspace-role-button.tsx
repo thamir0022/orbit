@@ -40,7 +40,7 @@ export function DeleteWorkspaceRoleButton({
 
       setOpen(false)
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
   }
 

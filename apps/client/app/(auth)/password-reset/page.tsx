@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Reset Your Password | Orbit',
-  description: 'Reset your Orbit password'
+  description: 'Reset your Orbit password',
 }
 
 export default function ResetPassword() {

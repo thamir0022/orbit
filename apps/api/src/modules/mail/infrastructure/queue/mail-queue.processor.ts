@@ -31,9 +31,7 @@ interface WorkspaceInvitationPayload {
 }
 
 type MailJobPayload =
-  | ForgotPasswordPayload
-  | EmailVerificationPayload
-  | WorkspaceInvitationPayload
+  ForgotPasswordPayload | EmailVerificationPayload | WorkspaceInvitationPayload
 
 @Processor(MAIL_QUEUE_NAME)
 export class MailQueueProcessor extends WorkerHost {

@@ -62,7 +62,7 @@ export default function RootLayout({
               </SidebarInset>
             </SidebarProvider>
           </TooltipProvider>
-          <ErrorDialog/>
+          <ErrorDialog />
         </QueryProvider>
       </body>
     </html>

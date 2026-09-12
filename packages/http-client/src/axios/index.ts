@@ -1,2 +1,2 @@
 export * from "./axios";
-export * from './plugins'
+export * from "./plugins";

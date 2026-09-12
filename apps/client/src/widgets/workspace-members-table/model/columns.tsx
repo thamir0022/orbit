@@ -29,13 +29,15 @@ export function getWorkspaceMembersColumns({
         const member = row.original
 
         return (
-          <div className='flex gap-2'>
+          <div className="flex gap-2">
             <Avatar>
-              <AvatarImage/>
+              <AvatarImage />
               <AvatarFallback>{member.displayName[0]}</AvatarFallback>
             </Avatar>
             <div className="flex min-w-0 flex-col">
-              <span className="truncate font-medium text-left">{member.displayName}</span>
+              <span className="truncate font-medium text-left">
+                {member.displayName}
+              </span>
               <span className="truncate text-sm text-left">{member.email}</span>
             </div>
           </div>

@@ -1,5 +1,5 @@
-import type { AxiosError } from 'axios'
-import { AxiosInterceptor } from '../types/axios.types'
+import type { AxiosError } from "axios";
+import { AxiosInterceptor } from "../types/axios.types";
 
 export interface RetryInterceptorOptions {
   /**
@@ -7,14 +7,14 @@ export interface RetryInterceptorOptions {
    *
    * @default 1
    */
-  retries?: number
+  retries?: number;
 
   /**
    * Delay between retries.
    *
    * @default 500
    */
-  retryDelay?: number
+  retryDelay?: number;
 }
 
 export function retryInterceptor({
@@ -26,28 +26,26 @@ export function retryInterceptor({
       (response) => response,
 
       async (error: AxiosError) => {
-        const config = error.config as AxiosError['config'] & {
-          __retryCount?: number
-        }
+        const config = error.config as AxiosError["config"] & {
+          __retryCount?: number;
+        };
 
         if (!config) {
-          return Promise.reject(error)
+          return Promise.reject(error);
         }
 
-        config.__retryCount ??= 0
+        config.__retryCount ??= 0;
 
         if (config.__retryCount >= retries) {
-          return Promise.reject(error)
+          return Promise.reject(error);
         }
 
-        config.__retryCount++
+        config.__retryCount++;
 
-        await new Promise((resolve) =>
-          setTimeout(resolve, retryDelay)
-        )
+        await new Promise((resolve) => setTimeout(resolve, retryDelay));
 
-        return client(config)
-      }
-    )
-  }
+        return client(config);
+      },
+    );
+  };
 }

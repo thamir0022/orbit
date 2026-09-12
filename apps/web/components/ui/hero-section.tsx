@@ -111,7 +111,11 @@ export default function HeroSection() {
               Get Started Now
             </span>
           </button> */}
-          <Link href={'http://localhost:3000/sign-up'} target="_blank" className="text-xl bg-white p-5">
+          <Link
+            href={"http://localhost:3000/sign-up"}
+            target="_blank"
+            className="text-xl bg-white p-5"
+          >
             Get Started Now
           </Link>
         </motion.div>

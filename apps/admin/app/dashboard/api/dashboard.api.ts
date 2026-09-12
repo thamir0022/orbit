@@ -60,9 +60,10 @@ export interface UsersPayload {
 
 export const getAllWorkspacesApi = async (): Promise<WorkspacesPayload> => {
   try {
-    const response = await axiosInstance.get<ApiResponse<WorkspacesPayload>>(
-      "/workspaces/all",
-    );
+    const response =
+      await axiosInstance.get<ApiResponse<WorkspacesPayload>>(
+        "/workspaces/all",
+      );
     return response.data.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) throw error.response?.data ?? error;

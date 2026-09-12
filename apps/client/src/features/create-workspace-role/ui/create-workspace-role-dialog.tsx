@@ -48,7 +48,7 @@ export function CreateWorkspaceRoleDialog({
         input: values,
       })
 
-      console.log('RES', res);
+      console.log('RES', res)
 
       setOpen(false)
       onCreated?.()

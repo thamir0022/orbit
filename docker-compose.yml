@@ -33,20 +33,20 @@ services:
             - node_modules/
             - dist/
 
-    # (Optional) If you have a shared package the API uses (e.g., packages/database)
-    # Uncomment and adjust this to sync shared library changes too!
-    # - action: sync+restart
-    #   path: ./packages/database
-    #   target: /workspace/packages/database
-    #   ignore:
-    #     - node_modules/
-    #     - dist/
+        # (Optional) If you have a shared package the API uses (e.g., packages/database)
+        # Uncomment and adjust this to sync shared library changes too!
+        # - action: sync+restart
+        #   path: ./packages/database
+        #   target: /workspace/packages/database
+        #   ignore:
+        #     - node_modules/
+        #     - dist/
 
-    # Automatically rebuild the image if monorepo dependencies change
+        # Automatically rebuild the image if monorepo dependencies change
         - action: rebuild
           path: ./pnpm-lock.yaml
 
-    # # Automatically restart the container if environment variables change
+        # # Automatically restart the container if environment variables change
         - action: restart
           path: ./apps/api/.env.local
 

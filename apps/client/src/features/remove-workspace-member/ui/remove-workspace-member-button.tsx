@@ -23,7 +23,7 @@ type RemoveWorkspaceMemberButtonProps = {
 
 export function RemoveWorkspaceMemberButton({
   member,
-  onSuccess
+  onSuccess,
 }: RemoveWorkspaceMemberButtonProps) {
   const [open, setOpen] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
