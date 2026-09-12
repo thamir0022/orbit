@@ -1,8 +1,7 @@
-import { Module, Global } from '@nestjs/common'
+import { Global, Module } from '@nestjs/common'
 import { CacheModule } from '@nestjs/cache-manager'
-import KeyvRedis from '@keyv/redis'
-import { Keyv } from 'keyv'
-import { CacheableMemory } from 'cacheable'
+import { createKeyv, Keyv } from '@keyv/redis'
+import { KeyvCacheableMemory } from 'cacheable'
 import {
   type IRedisConfig,
   REDIS_CONFIG,
@@ -17,9 +16,9 @@ import {
         return {
           stores: [
             new Keyv({
-              store: new CacheableMemory({ ttl: 60000, lruSize: 5000 }),
+              store: new KeyvCacheableMemory({ ttl: 60000, lruSize: 5000 }),
             }),
-            new KeyvRedis(config.redisUri),
+            createKeyv(config.redisUri),
           ],
         }
       },
