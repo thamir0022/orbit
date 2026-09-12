@@ -180,4 +180,14 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   MAIL_FROM_EMAIL!: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  OBSERVE_APP_KEY!: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  OBSERVE_APP_SECRET!: string
 }

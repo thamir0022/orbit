@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core'
-import { AppModule } from '@/app.module'
+import { AppModule, ObserveInstrument } from '@/app.module'
 import { Logger, ValidationPipe } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import cookieParser from 'cookie-parser'
@@ -15,7 +15,9 @@ import { APP_CONFIG, IAppConfig } from './shared/infrastructure'
  */
 async function bootstrap() {
   const logger = new Logger('Bootstrap')
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create(AppModule, {
+    instrument: ObserveInstrument,
+  })
 
   const config = app.get<IAppConfig>(APP_CONFIG)
 

@@ -150,4 +150,14 @@ export class AppConfigService
   get mailFromEmail(): string {
     return this.configService.get('MAIL_FROM_EMAIL')
   }
+
+  get observeAppKey(): string {
+    console.log('OBSERVE APP KEY', this.configService.get('OBSERVE_APP_KEY'))
+    return this.configService.get('OBSERVE_APP_KEY')
+  }
+
+  get observeAppSecret(): string {
+    console.log('SECRET', this.configService.get('OBSERVE_APP_SECRET'))
+    return this.configService.get('OBSERVE_APP_SECRET')
+  }
 }

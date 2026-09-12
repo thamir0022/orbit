@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { MongoDbModule } from '@/shared/infrastructure'
+import { APP_CONFIG, IAppConfig, MongoDbModule } from '@/shared/infrastructure'
 import { RedisModule } from '@/shared/infrastructure'
 import { UserModule } from '@/modules/user/user.module'
 import { GlobalExceptionFilter } from '@/shared/presentation/filters/global-exception.filter'
@@ -14,7 +14,9 @@ import { SecurityModule } from './shared/infrastructure/security/security.module
 import { AuthorizationModule } from './modules/authorization/authorization.module'
 import { PlatformAdminModule } from './modules/platform-admin/platform-admin.module'
 import { ProjectModule } from './modules/project/project.module'
+import { createObserveModule } from '@nestjs/observe'
 
+export const { ObserveModule, ObserveInstrument } = createObserveModule()
 @Module({
   imports: [
     // App Configuration
@@ -36,6 +38,17 @@ import { ProjectModule } from './modules/project/project.module'
     WorkspaceModule,
     PlatformAdminModule,
     ProjectModule,
+
+    // NestJs Observability
+    ObserveModule.forRootAsync({
+      inject: [APP_CONFIG],
+      useFactory: (config: IAppConfig) => ({
+        appKey: config.observeAppKey,
+        appSecret: config.observeAppSecret,
+        serviceId: 'orbit-api',
+        debug: true,
+      }),
+    }),
   ],
   providers: [
     {
