@@ -2,6 +2,7 @@ export const API_ROUTES = {
   AUTH: {
     SIGN_IN: '/auth/sign-in',
     SIGN_UP_INITIATE: '/auth/sign-up/initiate',
+    SIGN_UP_OTP_RESEND: '/auth/sign-up/resend',
     SIGN_UP_VERIFY: '/auth/sign-up/verify',
     SIGN_UP_DETAILS: '/auth/sign-up/details',
     SIGN_UP_COMPLETE: '/auth/sign-up/complete',
