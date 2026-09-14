@@ -10,15 +10,16 @@ interface WorkspaceCardProps {
 export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
   return (
     <Link
+      title={workspace.name}
       href={`/${workspace.slug}/overview`}
-      className="bg-gray-100/10 hover:bg-gray-100/30 delay-100 size-20 border-2 p-3 rounded-2xl"
+      className="bg-gray-100/10 hover:bg-gray-100/30 delay-100 size-20 border-2 p-3 rounded-2xl overflow-hidden"
     >
       <div className="flex flex-col items-center gap-2">
         {workspace.logoUrl ? (
           <Image
             src={workspace.logoUrl}
             alt={workspace.name}
-            className="h-12 w-12 rounded-lg object-cover"
+            className="size-10 rounded-lg object-cover"
           />
         ) : (
           <Building2 />
@@ -37,6 +38,7 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
 export function AddWorkspaceCard() {
   return (
     <Link
+      title="Create new workspace"
       href="/workspaces/new"
       className="flex items-center justify-center bg-gray-100/10 hover:bg-gray-100/30 delay-100 size-20 border-2 p-3 rounded-2xl"
     >
