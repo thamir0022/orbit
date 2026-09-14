@@ -8,13 +8,9 @@ export interface GetActiveWorkspaceData {
 
 export const getActiveWorkspaceApi =
   async (): Promise<GetActiveWorkspaceData | null> => {
-    try {
-      const response = await httpClient.get<GetActiveWorkspaceData>(
-        API_ROUTES.WORKSPACES.ACTIVE
-      )
+    const response = await httpClient.get<GetActiveWorkspaceData>(
+      API_ROUTES.WORKSPACES.ACTIVE
+    )
 
-      return response.data
-    } catch (error) {
-      console.log('ERROR : ', error)
-    }
+    return response.data
   }

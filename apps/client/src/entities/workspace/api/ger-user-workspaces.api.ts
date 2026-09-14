@@ -1,16 +1,15 @@
 import { API_ROUTES } from '@/shared/api/api.routes'
 import { httpClient } from '@/shared/lib/http/http-client'
+import { WorkspaceListItem } from './get-user-workspaces.server'
 
-interface GetUserWorkspacesData {
-  name: string
-  slug: string
-  logoUrl: string
+interface GetUserWorkspacesResponse {
+  workspaces: WorkspaceListItem[]
 }
 
 export async function getUserWorkspacesApi() {
-  const response = await httpClient.get<GetUserWorkspacesData>(
+  const res = await httpClient.get<GetUserWorkspacesResponse>(
     API_ROUTES.WORKSPACES.ALL
   )
 
-  return response.data
+  return res
 }

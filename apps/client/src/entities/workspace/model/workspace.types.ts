@@ -32,6 +32,38 @@ export enum VerificationStatus {
   REJECTED = 'rejected',
 }
 
+export interface WorkspaceSettings {
+  defaultPointsPerMemberPerDay: number
+  defaultHoursPerDay: number
+  defaultWorkingDaysPerWeek: number
+  defaultWorkingDaysPerSprint: number
+  logoUrl?: string
+  primaryColor?: string
+}
+
+export interface WorkspaceLocation {
+  country?: string
+  state?: string
+  city?: string
+  addressLine1?: string
+  addressLine2?: string
+  postalCode?: string
+}
+
+export interface WorkspaceContactInfo {
+  phone?: string
+  email?: string
+  website?: string
+  linkedin?: string
+  twitter?: string
+  github?: string
+}
+
+export interface WorkspaceVerification {
+  status: VerificationStatus
+  verifiedAt?: Date
+}
+
 export interface Workspace {
   id: string
   name: string
@@ -39,42 +71,14 @@ export interface Workspace {
   ownerId: string
   companySize?: CompanySize
   companyType?: CompanyType
-
   planId: string
   subscriptionId?: string
   trialEndsAt?: Date
-
-  settings: {
-    defaultPointsPerMemberPerDay: number
-    defaultHoursPerDay: number
-    defaultWorkingDaysPerWeek: number
-    defaultWorkingDaysPerSprint: number
-    logoUrl?: string
-    primaryColor?: string
-  }
-  location?: {
-    country?: string
-    state?: string
-    city?: string
-    addressLine1?: string
-    addressLine2?: string
-    postalCode?: string
-  }
-  contactInfo?: {
-    phone?: string
-    email?: string
-    website?: string
-    linkedin?: string
-    twitter?: string
-    github?: string
-  }
-  verification?: {
-    status: VerificationStatus
-    verifiedAt?: Date
-  }
-
+  settings: WorkspaceSettings
+  location?: WorkspaceLocation
+  contactInfo?: WorkspaceContactInfo
+  verification?: WorkspaceVerification
   status: WorkspaceStatus
-
   createdAt: Date
   updatedAt?: Date
 }

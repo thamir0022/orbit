@@ -1,20 +1,18 @@
-import { CompanySize, CompanyType, Workspace } from '@/entities/workspace'
+import {
+  CompanySize,
+  CompanyType,
+  Workspace,
+  WorkspaceSettings,
+} from '@/entities/workspace'
 import { API_ROUTES } from '@/shared/api/api.routes'
 import { httpClient } from '@/shared/lib/http/http-client'
-
-export type WorkspaceSettingsPayload = {
-  defaultPointsPerMemberPerDay?: number
-  defaultHoursPerDay?: number
-  defaultWorkingDaysPerWeek?: number
-  defaultWorkingDaysPerSprint?: number
-}
 
 export type EditWorkspacePayload = {
   name?: string
   slug?: string
   companyType?: CompanyType
   companySize?: CompanySize
-  settings?: WorkspaceSettingsPayload
+  settings?: Partial<WorkspaceSettings>
 }
 
 type EditWorkspaceResponse = {

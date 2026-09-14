@@ -12,7 +12,7 @@ export const createWorkspaceSchema = z.object({
     )
     .trim(),
   companyType: z.enum(CompanyType, { error: 'Please select a company type' }),
-  companySize: z.enum(CompanySize, { error: 'Please select a compamy size' }),
+  companySize: z.enum(CompanySize, { error: 'Please select a company size' }),
 })
 
 export type CreateWorkspaceData = z.infer<typeof createWorkspaceSchema>
