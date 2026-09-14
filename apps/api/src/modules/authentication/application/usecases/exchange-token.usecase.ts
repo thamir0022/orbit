@@ -31,6 +31,8 @@ import {
   USER_ROLE_REPOSITORY,
   type UserRoleRepository,
 } from '@/modules/authorization/application/repositories/user-role.repository'
+import { Workspace } from '@/modules/workspace/domain'
+import { WorkspaceMapper } from '@/modules/workspace/application/mappers/workspace.mapper'
 
 export class ExchangeTokenUseCase implements IExchangeTokenUseCase {
   private readonly logger = new Logger(ExchangeTokenUseCase.name)
@@ -77,28 +79,29 @@ export class ExchangeTokenUseCase implements IExchangeTokenUseCase {
 
     const isSystemUser = await this.authService.isSystemUser(userIdValue.value)
 
-    const authorizationContext = await this.resolveAuthorizationContext({
-      userId: userIdValue,
-      slug,
-      isSystemUser,
-    })
+    const { workspace, roleId, permissionKeys } =
+      await this.resolveAuthorizationContext({
+        userId: userIdValue,
+        slug,
+        isSystemUser,
+      })
 
     const accessToken = await this.authService.createAccessToken({
       jti: this.authService.generateSecureToken(),
       sub: user.id.value,
-      ...(authorizationContext.workspaceId && {
-        tid: authorizationContext.workspaceId,
+      ...(workspace?.id && {
+        tid: workspace.id.value,
       }),
     })
 
-    await this.authService.cachePermissions(
-      authorizationContext.roleId,
-      authorizationContext.permissionKeys
-    )
+    await this.authService.cachePermissions(roleId, permissionKeys)
 
     const expiresIn = this.authService.extractTokenExpiry(accessToken)
 
     return {
+      ...(workspace && {
+        workspace: WorkspaceMapper.toOutputDto(workspace),
+      }),
       accessToken,
       expiresIn,
     }
@@ -156,7 +159,7 @@ export class ExchangeTokenUseCase implements IExchangeTokenUseCase {
       )
 
     return {
-      workspaceId: workspaceContext.workspace.id.value,
+      workspace: workspaceContext.workspace,
       roleId: workspaceContext.roleId,
       permissionKeys,
     }
@@ -164,7 +167,7 @@ export class ExchangeTokenUseCase implements IExchangeTokenUseCase {
 }
 
 interface AuthorizationContext {
-  readonly workspaceId?: string
+  readonly workspace?: Workspace
   readonly roleId: string
   readonly permissionKeys: string[]
 }

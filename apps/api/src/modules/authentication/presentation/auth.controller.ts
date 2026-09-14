@@ -412,10 +412,11 @@ export class AuthController {
     @Body() request: ExchnageTokenRequestDto,
     @Res({ passthrough: true }) res: Response
   ) {
-    const { accessToken, expiresIn } = await this.exchangeTokenUseCase.execute({
-      userId: identity.sub,
-      slug: request.slug,
-    })
+    const { workspace, accessToken, expiresIn } =
+      await this.exchangeTokenUseCase.execute({
+        userId: identity.sub,
+        slug: request.slug,
+      })
 
     res.cookie('access_token', accessToken, {
       httpOnly: true,
@@ -423,6 +424,8 @@ export class AuthController {
       secure: this._config.isProduction,
       expires: expiresIn,
     })
+
+    return { workspace }
   }
 
   @Post('sign-out')
