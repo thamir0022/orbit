@@ -127,6 +127,10 @@ export class AppConfigService
     return this.configService.get('FRONTEND_URL')
   }
 
+  get oAuthSuccessRedirectUrl(): string {
+    return this.configService.get('OAUTH_SUCCESS_REDIRECT_URL')
+  }
+
   get mailHost(): string {
     return this.configService.get('MAIL_HOST')
   }

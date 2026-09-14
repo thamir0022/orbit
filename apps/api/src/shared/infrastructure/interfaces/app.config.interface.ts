@@ -4,6 +4,7 @@ export interface IAppConfig {
   port: number
   corsOrigins: string[]
   frontEndUrl: string
+  oAuthSuccessRedirectUrl: string
   observeAppKey: string
   observeAppSecret: string
 }

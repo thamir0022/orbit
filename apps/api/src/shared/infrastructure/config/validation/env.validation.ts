@@ -152,6 +152,11 @@ export class EnvironmentVariables {
   FRONTEND_URL!: string
 
   @IsDefined()
+  @Transform(({ value }: { value: string }) => value?.trim())
+  @IsUrl({ require_protocol: true, require_tld: false })
+  OAUTH_SUCCESS_REDIRECT_URL!: string
+
+  @IsDefined()
   @IsString()
   @IsNotEmpty()
   MAIL_HOST!: string

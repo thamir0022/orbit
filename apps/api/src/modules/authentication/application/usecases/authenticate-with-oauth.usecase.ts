@@ -49,12 +49,16 @@ export class AuthenticateWithOAuthUseCase implements IAuthenticateWithOAuthUseCa
 
     let user = await this._userRepository.findByEmail(oauthUserEmail.value)
 
+    let newUser = false
+
     if (user && user.authProvider !== AuthProvider.GOOGLE)
       throw new BadRequestException(
         `Your account is already linked with ${user.authProvider}, Please sign in with ${user.authProvider}.`
       )
 
     if (!user) {
+      newUser = true
+
       user = User.create({
         firstName: oauthUser.firstName,
         lastName: oauthUser.lastName,
@@ -89,6 +93,7 @@ export class AuthenticateWithOAuthUseCase implements IAuthenticateWithOAuthUseCa
     const expiresIn = this._authService.extractTokenExpiry(refreshToken)
 
     return {
+      isNewUser: newUser,
       refreshToken,
       expiresIn,
     }

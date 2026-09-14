@@ -384,7 +384,7 @@ export class AuthController {
         `${this._config.frontEndUrl}/oauth?success=false&error=no_code&provider=${provider}`
       )
 
-    const { refreshToken, expiresIn } =
+    const { isNewUser, refreshToken, expiresIn } =
       await this._authenticateWithOAuthUseCase.execute({
         code,
         provider,
@@ -401,7 +401,11 @@ export class AuthController {
       expires: expiresIn,
     })
 
-    res.redirect(`${this._config.frontEndUrl}`)
+    const redirectURL = isNewUser
+      ? `${this._config.oAuthSuccessRedirectUrl}/new?isNewUser=true`
+      : `${this._config.oAuthSuccessRedirectUrl}`
+
+    res.redirect(redirectURL)
   }
 
   @Post('exchange')
