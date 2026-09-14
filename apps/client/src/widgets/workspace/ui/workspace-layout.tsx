@@ -1,14 +1,10 @@
 'use client'
 
-import { getActiveWorkspaceApi } from '@/entities/workspace/api/get-active-workspace.api'
-import {
-  useWorkspace,
-  useWorkspaceStore,
-} from '@/entities/workspace/model/workspace.store'
-import { useQuery } from '@tanstack/react-query'
+import { useWorkspace } from '@/entities/workspace/model/workspace.store'
 import { Loader } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useEffect, useRef } from 'react'
+import { useSelectWorkspaceMutation } from '../model/use-select-workspace.mutation'
 
 export const WorkSpaceLayout = ({
   children,
@@ -19,42 +15,39 @@ export const WorkSpaceLayout = ({
 }) => {
   const router = useRouter()
   const workspace = useWorkspace()
-  const setWorkspace = useWorkspaceStore((state) => state.setWorkspace)
 
-  // 1. Fetch the Active Workspace (Relies on the HttpOnly tenant_token cookie)
-  const { data, isPending, isError } = useQuery({
-    queryKey: ['workspace', 'active', slug],
-    queryFn: getActiveWorkspaceApi,
-    retry: false, // If it fails, they likely don't have access
-  })
+  const {
+    mutate: selectWorkspace,
+    isPending,
+    isError,
+  } = useSelectWorkspaceMutation()
+
+  const selectedSlugRef = useRef<string | null>(null)
 
   useEffect(() => {
-    if (data?.workspace && data.workspace.id !== workspace?.id) {
-      setWorkspace(data.workspace)
+    // Prevent duplicate selection for the same slug.
+    if (selectedSlugRef.current === slug) {
+      return
     }
-  }, [data, workspace?.id, setWorkspace])
 
-  console.log({ data, isPending, isError })
+    selectedSlugRef.current = slug
 
-  // 3. Security/Fallback routing
+    selectWorkspace({ slug })
+  }, [slug, selectWorkspace])
+
   useEffect(() => {
     if (isError) {
-      // If the API throws a 401/403 (e.g., token expired and exchange failed),
-      // kick them back to the workspace selection screen.
-      // router.replace('/workspaces')
+      router.replace('/workspaces')
     }
   }, [isError, router])
 
-  // 4. Loading State
-  if (!workspace && isPending) {
+  if (isPending || !workspace || workspace.slug !== slug) {
     return (
       <div className="flex size-full items-center justify-center bg-background">
         <Loader className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
-
-  if (!workspace) return null
 
   return <div className="min-h-full">{children}</div>
 }

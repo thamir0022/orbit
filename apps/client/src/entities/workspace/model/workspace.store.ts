@@ -29,6 +29,7 @@ export const useWorkspace = () => useWorkspaceStore((state) => state.workspace)
 export const useWorkspaceActions = () => {
   return useWorkspaceStore(
     useShallow((state) => ({
+      workspace: state.workspace,
       setWorkspace: state.setWorkspace,
       clearWorkspace: state.clearWorkspace,
     }))

@@ -14,7 +14,7 @@ export async function WorkspaceSelectionView() {
     <div className="mx-auto w-full">
       <div className="text-2xl text-center">Select Your Workspace</div>
       {workspaces.length > 0 ? (
-        <div className="mx-auto max-w-sm mt-10 mx-auto grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="mx-auto max-w-sm mt-10 grid grid-cols-3 sm:grid-cols-4 gap-3">
           {workspaces.map((workspace) => (
             <WorkspaceCard key={workspace.slug} workspace={workspace} />
           ))}

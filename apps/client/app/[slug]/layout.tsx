@@ -16,7 +16,7 @@ export default async function Layout({
 }) {
   const { slug } = await params
   return (
-    <WorkSpaceLayout slug={slug}>
+    <WorkSpaceLayout key={slug} slug={slug}>
       <SidebarProvider>
         <AppSidebar slug={slug} variant="inset" />
         <SidebarTrigger />

@@ -20,7 +20,7 @@ const NavWorkspaces = () => {
   const workspace = useWorkspace()
   const { data, isPending } = useUserWorkspaces()
 
-  console.log('DATA : ', data)
+  const workspaces = data?.data.workspaces.filter((w) => w.slug !== workspace?.slug)
 
   return (
     <SidebarMenu>
@@ -39,8 +39,8 @@ const NavWorkspaces = () => {
                 <Loader className="size-5 animate-spin" />
               </DropdownMenuItem>
             ) : (
-              data?.workspaces &&
-              data.workspaces.map((w) => (
+              workspaces &&
+              workspaces.map((w) => (
                 <Link key={w.slug} href={`/${w.slug}/overview`}>
                   <DropdownMenuItem>
                     {w.logoUrl ? (
