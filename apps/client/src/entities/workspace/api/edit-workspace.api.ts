@@ -20,10 +20,10 @@ type EditWorkspaceResponse = {
 }
 
 export const editWorkspace = async (payload: EditWorkspacePayload) => {
-  const { data } = await httpClient.put<EditWorkspaceResponse>(
+  const res = await httpClient.put<EditWorkspaceResponse>(
     API_ROUTES.WORKSPACES.UPDATE_WORKSPACE,
     payload
   )
 
-  return data.workspace
+  return res
 }

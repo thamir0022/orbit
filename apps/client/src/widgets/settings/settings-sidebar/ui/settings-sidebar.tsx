@@ -22,7 +22,7 @@ export function SettingsSidebar() {
   }>()
 
   return (
-    <Sidebar variant="floating" collapsible="none" className="h-full border-r">
+    <Sidebar variant="floating" collapsible="none" className="max-h-full border-r">
       <SidebarHeader className="px-4 py-6">
         <h3 className="text-xl font-semibold">Settings</h3>
       </SidebarHeader>

@@ -1,7 +1,7 @@
-import { WorkspaceSettings } from '@/features/settings'
+import { WorkspaceSettingsPage } from '@/_pages/settings'
 
-const Page = () => {
-  return <WorkspaceSettings />
+const WorkspaceSettings = () => {
+  return <WorkspaceSettingsPage />
 }
 
-export default Page
+export default WorkspaceSettings

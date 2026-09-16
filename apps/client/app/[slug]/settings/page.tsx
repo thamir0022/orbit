@@ -1,7 +1,7 @@
-import React from 'react'
+import { GeneralSettingsPage } from '@/_pages/settings'
 
-const Page = () => {
-  return <div className="size-full">Page</div>
+const GeneralSettings = () => {
+  return <GeneralSettingsPage />
 }
 
-export default Page
+export default GeneralSettings
