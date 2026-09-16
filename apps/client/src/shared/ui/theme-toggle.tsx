@@ -1,9 +1,7 @@
 'use client'
 
-import * as React from 'react'
-import { Moon, Sun } from 'lucide-react'
+import { Moon, Sun, Monitor } from 'lucide-react'
 import { useTheme } from 'next-themes'
-
 import { Button } from './button'
 import {
   DropdownMenu,
@@ -11,11 +9,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
+import { ToggleGroup, ToggleGroupItem } from './toggle-group'
 
-export function ModeToggle() {
-  const { setTheme } = useTheme()
+type ThemeToggleType = 'dropdown' | 'toggle'
 
-  return (
+export function ThemeToggle({
+  toggleType = 'dropdown',
+}: {
+  toggleType?: ThemeToggleType
+}) {
+  const { theme, setTheme } = useTheme()
+
+  return toggleType === 'dropdown' ? (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
@@ -36,5 +41,24 @@ export function ModeToggle() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  ) : (
+    <ToggleGroup
+      variant="outline"
+      type="single"
+      size="lg"
+      className="*:cursor-pointer"
+      defaultValue={theme}
+      onValueChange={(theme) => setTheme(theme)}
+    >
+      <ToggleGroupItem value="light">
+        <Sun className="" />
+      </ToggleGroupItem>
+      <ToggleGroupItem value="dark">
+        <Moon className="" />
+      </ToggleGroupItem>
+      <ToggleGroupItem value="system">
+        <Monitor className="" />
+      </ToggleGroupItem>
+    </ToggleGroup>
   )
 }
