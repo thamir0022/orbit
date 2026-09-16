@@ -1,7 +1,7 @@
-import { ProfileSettings } from '@/features/settings'
+import { ProfileSettingsPage } from '@/_pages/settings'
 
-const Page = () => {
-  return <ProfileSettings />
+const ProfileSettings = () => {
+  return <ProfileSettingsPage />
 }
 
-export default Page
+export default ProfileSettings

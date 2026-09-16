@@ -1,4 +1,5 @@
-import { SettingsSidebar } from '@/widgets/settings-sidebar'
+import { ScrollArea } from '@/shared/ui/scroll-area'
+import { SettingsSidebar } from '@/widgets/settings'
 
 export default function SettingsLayout({
   children,
@@ -6,9 +7,9 @@ export default function SettingsLayout({
   children: React.ReactNode
 }>) {
   return (
-    <div className="flex size-full">
+    <div className="size-full grid grid-cols-4">
       <SettingsSidebar />
-      <main className="flex-1 p-2">{children}</main>
+      <ScrollArea className="col-span-3 p-2 h-175">{children}</ScrollArea>
     </div>
   )
 }

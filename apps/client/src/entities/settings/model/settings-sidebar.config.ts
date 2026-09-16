@@ -3,6 +3,7 @@ import {
   Building2,
   CreditCard,
   Settings,
+  Shield,
   User,
   Users,
 } from 'lucide-react'
@@ -23,6 +24,11 @@ export const settingsSidebarConfig = [
     key: 'workspace',
     title: 'Workspace',
     icon: Building2,
+  },
+  {
+    key: 'security',
+    title: 'Security',
+    icon: Shield,
   },
   {
     key: 'roles',

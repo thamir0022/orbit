@@ -26,22 +26,25 @@ export function useSignInMutation() {
 
         try {
           // 3. Fetch the workspaces and cache them globally
-          const workspaceResponse = await queryClient.fetchQuery({
+          const workspaceResponse = await queryClient.query({
             queryKey: ['workspaces'],
             queryFn: getUserWorkspacesApi,
             // Stale time ensures it doesn't refetch immediately on the next page
             staleTime: 1000 * 60 * 5,
           })
 
-          const workspaces = workspaceResponse.workspaces
-
-          console.log('WORK SPACES :', workspaces)
+          const workspaces = workspaceResponse.data.workspaces
 
           // 4. Handle the routing logic based on the user's workspace state
           if (workspaces && workspaces.length > 0) {
-            // User has workspaces: Send them to the first one
-            const defaultSlug = workspaces[0].slug
-            router.replace(redirectUrl ?? `/${defaultSlug}/overview`)
+            const url =
+              workspaces.length === 1
+                ? `/${workspaces[0].slug}/overview`
+                : redirectUrl
+                  ? redirectUrl
+                  : '/workspaces'
+
+            router.replace(url)
           } else {
             // User has NO workspaces: Send them to onboarding/creation
             router.replace('/workspaces/new')
