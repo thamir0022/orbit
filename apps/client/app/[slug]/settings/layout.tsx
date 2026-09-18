@@ -7,9 +7,9 @@ export default function SettingsLayout({
   children: React.ReactNode
 }>) {
   return (
-    <div className="size-full grid grid-cols-4">
+    <div className="size-full grid grid-cols-4  ">
       <SettingsSidebar />
-      <ScrollArea className="col-span-3 p-2 h-175">{children}</ScrollArea>
+      <ScrollArea className="col-span-3 p-2 h-187.5">{children}</ScrollArea>
     </div>
   )
 }
