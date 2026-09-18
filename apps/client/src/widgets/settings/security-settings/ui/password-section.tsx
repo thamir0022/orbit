@@ -1,8 +1,17 @@
 'use client'
 
 import { useState } from 'react'
+import { formatDistanceToNow } from 'date-fns'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+
+import { useUser } from '@/entities/user/model/user.store'
+
+import { useChangePasswordMutation } from '../model/change-password.mutation'
+import {
+  changePasswordSchema,
+  type ChangePasswordData,
+} from '../model/change-password.schema'
 
 import { Button } from '@/shared/ui/button'
 import {
@@ -14,18 +23,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/shared/ui/dialog'
-import { Field, FieldContent, FieldError, FieldLabel } from '@/shared/ui/field'
-import { Input } from '@/shared/ui/input'
-
 import {
-  changePasswordSchema,
-  type ChangePasswordData,
-} from '../model/change-password.schema'
-import { useChangePasswordMutation } from '../model/change-password.mutation'
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/shared/ui/field'
 import PasswordField from '@/shared/ui/PasswordField'
 
 export const PasswordSection = () => {
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false)
+
+  const user = useUser()
+  const hasPassword = user?.hasPassword ?? false
 
   const {
     register,
@@ -53,9 +64,12 @@ export const PasswordSection = () => {
   }
 
   const onSubmit = async (data: ChangePasswordData) => {
-    console.log(data)
+    const { currentPassword, newPassword } = data
 
-    await changePassword(data)
+    await changePassword({
+      ...(hasPassword && { currentPassword }),
+      newPassword,
+    })
 
     reset()
     setPasswordDialogOpen(false)
@@ -65,38 +79,53 @@ export const PasswordSection = () => {
     <Field orientation="horizontal" className="min-h-14 justify-between py-2">
       <FieldContent className="my-auto min-w-36">
         <FieldLabel>Password</FieldLabel>
+
+        {hasPassword && user?.passwordUpdatedAt && (
+          <FieldDescription>
+            Last updated{' '}
+            {formatDistanceToNow(user.passwordUpdatedAt, {
+              addSuffix: true,
+            })}
+          </FieldDescription>
+        )}
       </FieldContent>
 
       <Dialog open={passwordDialogOpen} onOpenChange={handleDialogChange}>
         <DialogTrigger asChild>
           <Button type="button" variant="outline" size="sm">
-            Change
+            {hasPassword ? 'Change' : 'Set password'}
           </Button>
         </DialogTrigger>
 
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-center">Change password</DialogTitle>
+            <DialogTitle className="text-center">
+              {hasPassword ? 'Change password' : 'Set password'}
+            </DialogTitle>
 
             <DialogDescription className="text-center">
-              Enter your current password and choose a new one.
+              {hasPassword
+                ? 'Enter your current password and choose a new one.'
+                : 'Choose a strong password to secure your account.'}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <Field data-invalid={!!errors.currentPassword}>
-              <PasswordField
-                id="current-password"
-                label="Current Password"
-                autoComplete="current-password"
-                aria-invalid={!!errors.currentPassword}
-                {...register('currentPassword')}
-              />
+            {hasPassword && (
+              <Field data-invalid={!!errors.currentPassword}>
+                <PasswordField
+                  id="current-password"
+                  label="Current Password"
+                  autoComplete="current-password"
+                  aria-invalid={!!errors.currentPassword}
+                  {...register('currentPassword')}
+                />
 
-              {errors.currentPassword && (
-                <FieldError>{errors.currentPassword.message}</FieldError>
-              )}
-            </Field>
+                {errors.currentPassword && (
+                  <FieldError>{errors.currentPassword.message}</FieldError>
+                )}
+              </Field>
+            )}
 
             <Field data-invalid={!!errors.newPassword}>
               <PasswordField
@@ -140,7 +169,7 @@ export const PasswordSection = () => {
                 disabled={!isValid || isSubmitting}
                 isLoading={isSubmitting}
               >
-                Change
+                {hasPassword ? 'Change' : 'Set password'}
               </Button>
             </DialogFooter>
           </form>
