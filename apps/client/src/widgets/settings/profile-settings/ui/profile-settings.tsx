@@ -174,31 +174,6 @@ export const ProfileSettings = () => {
 
       <Separator className="my-4" />
 
-      {/* Account information */}
-      <section>
-        <h2 className="text-lg font-medium">Account</h2>
-
-        <div className="mt-3">
-          <div className="flex min-h-14 items-center justify-between gap-6 border-b py-2">
-            <span className="text-sm font-semibold">Email</span>
-
-            <span className="text-muted-foreground max-w-sm truncate text-right text-sm font-semibold">
-              {user?.email ?? '—'}
-            </span>
-          </div>
-
-          <div className="flex min-h-14 items-center justify-between gap-6 py-2">
-            <span className="text-sm font-semibold">Role</span>
-
-            <span className="text-muted-foreground text-sm font-semibold">
-              Software Engineer
-            </span>
-          </div>
-        </div>
-      </section>
-
-      <Separator className="my-8" />
-
       {/* Actions */}
       <div className="flex items-center justify-end gap-2">
         {isDirty && (

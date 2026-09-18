@@ -25,7 +25,7 @@ export const ProfileHeader = ({
   const initials = getInitials(firstName, lastName)
 
   return (
-    <div className="overflow-hidden rounded-xl">
+    <div className="overflow-hidden rounded-xl border">
       {/* Cover */}
       <div className="h-32 bg-linear-to-br from-muted via-muted/60 to-muted/30 sm:h-36" />
 
@@ -45,7 +45,7 @@ export const ProfileHeader = ({
         </div>
 
         <div className="mt-4 space-y-1">
-          <h2 className="text-lg font-semibold tracking-tight">
+          <h2 className="text-xl font-semibold tracking-tight">
             {displayName || fullName || 'Your name'}
           </h2>
 
