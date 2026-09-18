@@ -119,6 +119,7 @@ import {
   CHANGE_PASSWORD,
   IChangePasswordUseCase,
 } from '../application/usecases/change-password.interface'
+import { ChangePasswordResponseDto } from './dtos/responses/change-password.request.dto'
 
 @ApiTags('Auth')
 @Public()
@@ -366,8 +367,8 @@ export class AuthController {
   async changePassword(
     @CurrentIdentity() identity: RefreshTokenPayload,
     @Body() request: ChangePasswordRequestDto
-  ): Promise<void> {
-    await this._changePasswordUseCase.execute({
+  ): Promise<ChangePasswordResponseDto> {
+    return this._changePasswordUseCase.execute({
       userId: identity.sub,
       currentPassword: request.currentPassword,
       newPassword: request.newPassword,

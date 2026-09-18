@@ -1,7 +1,7 @@
-import { ChangePasswordInput } from '../dto'
+import { ChangePasswordInput, ChangePasswordOutputDto } from '../dto'
 
 export interface IChangePasswordUseCase {
-  execute(input: ChangePasswordInput): Promise<void>
+  execute(input: ChangePasswordInput): Promise<ChangePasswordOutputDto>
 }
 
 export const CHANGE_PASSWORD = Symbol('IChangePasswordUseCase')

@@ -18,8 +18,10 @@ import {
   PASSWORD_HASHER,
 } from '@/shared/application/ports/password-hasher.interface'
 
-import { ChangePasswordInput } from '../dto'
+import { ChangePasswordInput, ChangePasswordOutputDto } from '../dto'
 import { IChangePasswordUseCase } from './change-password.interface'
+import { UserMapper } from '@/modules/user/application/mappers/user.mapper'
+import { isAfter, subHours } from 'date-fns'
 
 @Injectable()
 export class ChangePasswordUseCase implements IChangePasswordUseCase {
@@ -31,7 +33,7 @@ export class ChangePasswordUseCase implements IChangePasswordUseCase {
     private readonly passwordHasher: IPasswordHasher
   ) {}
 
-  async execute(input: ChangePasswordInput): Promise<void> {
+  async execute(input: ChangePasswordInput): Promise<ChangePasswordOutputDto> {
     const userId = UserId.create(input.userId)
 
     const user = await this.userRepository.findById(userId)
@@ -67,12 +69,11 @@ export class ChangePasswordUseCase implements IChangePasswordUseCase {
         )
     }
 
-    const now = Date.now()
-    const passwordChangeCooldown = 24 * 60 * 60 * 1000
+    const cooldownStart = subHours(new Date(), 24)
 
     if (
       user.passwordUpdatedAt &&
-      now - user.passwordUpdatedAt.getTime() < passwordChangeCooldown
+      isAfter(user.passwordUpdatedAt, cooldownStart)
     )
       throw new HttpException(
         'Password can only be changed once every 24 hours',
@@ -88,5 +89,7 @@ export class ChangePasswordUseCase implements IChangePasswordUseCase {
     user.passwordUpdatedAt = new Date()
 
     await this.userRepository.save(user)
+
+    return { user: UserMapper.toOutputDto(user) }
   }
 }
