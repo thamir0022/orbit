@@ -16,6 +16,7 @@ export interface User {
   lastName: string
   displayName: string
   email: string
+  hasPassword: boolean
   avatarUrl?: string
   emailVerified?: boolean
   mfaEnabled: boolean
@@ -33,6 +34,7 @@ export interface User {
   locale: string
   lastLoginAt?: Date
   lastActiveAt?: Date
+  passwordUpdatedAt?: Date
   createdAt: Date
   updatedAt: Date
 }
