@@ -10,6 +10,7 @@ export interface UserProps {
   email: Email
 
   passwordHash: Password | undefined
+  hasPassword: boolean
 
   avatarUrl: string | undefined
 
@@ -22,6 +23,7 @@ export interface UserProps {
   // Rate limiting
   loginAttempts: number | undefined
   lockedUntil: Date | undefined
+  passwordUpdatedAt?: Date
 
   // OAuth
   authProvider: AuthProvider

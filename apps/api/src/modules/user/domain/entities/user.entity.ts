@@ -12,6 +12,8 @@ export class User extends AggregateRoot<UserId> {
   private _displayName: string
   private _email: Email
   private _passwordHash: Password | undefined
+  private _hasPassword: boolean
+  private _passwordUpdatedAt?: Date
   private _avatarUrl: string | undefined
   private _emailVerified: boolean
   private _mfaEnabled: boolean
@@ -36,6 +38,8 @@ export class User extends AggregateRoot<UserId> {
     this._displayName = `${props.firstName} ${props.lastName}`
     this._email = props.email
     this._passwordHash = props.passwordHash
+    this._hasPassword = props.hasPassword
+    this._passwordUpdatedAt = props.passwordUpdatedAt
     this._avatarUrl = props.avatarUrl
     this._emailVerified = props.emailVerified
     this._mfaEnabled = props.mfaEnabled
@@ -76,6 +80,14 @@ export class User extends AggregateRoot<UserId> {
 
   get passwordHash(): Password | undefined {
     return this._passwordHash
+  }
+
+  get hasPassword(): boolean {
+    return this._hasPassword
+  }
+
+  get passwordUpdatedAt(): Date | undefined {
+    return this._passwordUpdatedAt
   }
 
   get avatarUrl(): string | undefined {
@@ -161,6 +173,14 @@ export class User extends AggregateRoot<UserId> {
     this._passwordHash = passwordHash
   }
 
+  set hasPassword(hasPassword: boolean) {
+    this._hasPassword = hasPassword
+  }
+
+  set passwordUpdatedAt(passwordUpdatedAt: Date) {
+    this._passwordUpdatedAt = passwordUpdatedAt
+  }
+
   set avatarUrl(avartarUrl: string) {
     this._avatarUrl = avartarUrl
   }
@@ -193,6 +213,7 @@ export class User extends AggregateRoot<UserId> {
       email: props.email,
       avatarUrl: props.avatarUrl,
       passwordHash: props.passwordHash,
+      hasPassword: !!props.passwordHash,
       emailVerified: props.emailVerified ?? false,
       mfaEnabled: false,
       mfaBackupCodes: [],

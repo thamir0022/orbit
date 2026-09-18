@@ -34,6 +34,12 @@ export class UserModel {
   @Prop()
   passwordHash!: string
 
+  @Prop({ default: false })
+  hasPassword!: boolean
+
+  @Prop()
+  passwordUpdatedAt?: Date
+
   @Prop()
   avatarUrl!: string
 

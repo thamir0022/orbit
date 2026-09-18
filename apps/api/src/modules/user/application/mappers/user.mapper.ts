@@ -34,6 +34,10 @@ export class UserMapper {
 
       email: user.email.value,
 
+      hasPassword: user.hasPassword,
+
+      passwordUpdatedAt: user.passwordUpdatedAt,
+
       avatarUrl: user.avatarUrl,
 
       emailVerified: user.emailVerified,
@@ -73,6 +77,10 @@ export class UserMapper {
       email: user.email.value,
 
       passwordHash: user.passwordHash?.value,
+
+      hasPassword: user.hasPassword,
+
+      passwordUpdatedAt: user.passwordUpdatedAt,
 
       avatarUrl: user.avatarUrl,
 
@@ -131,6 +139,10 @@ export class UserMapper {
       passwordHash: document.passwordHash
         ? Password.fromHashed(document.passwordHash)
         : undefined,
+
+      hasPassword: document.hasPassword,
+
+      passwordUpdatedAt: document.passwordUpdatedAt,
 
       avatarUrl: document.avatarUrl,
 

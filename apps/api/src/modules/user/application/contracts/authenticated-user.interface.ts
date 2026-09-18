@@ -6,6 +6,8 @@ export interface AuthenticatedUser {
   lastName: string
   displayName: string
   email: string
+  hasPassword: boolean
+  passwordUpdatedAt?: Date
   avatarUrl: string | undefined
   emailVerified: boolean | undefined
   mfaEnabled: boolean
