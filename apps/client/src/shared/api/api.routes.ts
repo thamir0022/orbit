@@ -11,6 +11,7 @@ export const API_ROUTES = {
     RESET_PASSWORD_VERIFY: '/auth/password-reset/verify',
     RESET_PASSWORD_CONFIRM: '/auth/password-reset/confirm',
     RESET_PASSWORD_RESEND: '/auth/password-reset/resend',
+    CHANGE_PASSWORD: '/auth/password',
     EXCHANGE: '/auth/exchange',
     SIGN_OUT: '/auth/sign-out',
   },
