@@ -1,5 +1,6 @@
 export { GeneralSettings } from './general-settings/ui/general-settings'
 export { ProfileSettings } from './profile-settings/ui/profile-settings'
 export { WorkspaceSettings } from './workspace-settings/ui/workspace-settings'
-export { MembersSettings } from './members-settings/ui/members-settings'
+// export { MembersSettings } from './members-settings/ui/members-settings'
 export { SettingsSidebar } from './settings-sidebar/ui/settings-sidebar'
+export { SecuritySettings } from './security-settings/ui/security-settings'
