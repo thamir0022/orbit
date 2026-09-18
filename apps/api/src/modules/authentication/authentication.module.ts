@@ -37,6 +37,8 @@ import { COMPLETE_REGISTRATION } from './application/usecases/complete-registrat
 import { CompleteRegistrationUseCase } from './application/usecases/complete-registration.usecase'
 import { SIGN_UP_RESEND_OTP } from './application/usecases/sign-up-resend-otp.interface'
 import { SignUpResendOtpUseCase } from './application/usecases/sign-up-resend-otp.usecase'
+import { CHANGE_PASSWORD } from './application/usecases/change-password.interface'
+import { ChangePasswordUseCase } from './application/usecases/change-password.usecase'
 
 @Module({
   imports: [
@@ -63,6 +65,7 @@ import { SignUpResendOtpUseCase } from './application/usecases/sign-up-resend-ot
     { provide: PASSWORD_RESET_REQUEST, useClass: PasswordResetRequestUseCase },
     { provide: PASSWORD_RESET_VERIFY, useClass: PasswordResetVerifyUseCase },
     { provide: PASSWORD_RESET_CONFIRM, useClass: PasswordResetConfirmUseCase },
+    { provide: CHANGE_PASSWORD, useClass: ChangePasswordUseCase },
     {
       provide: PASSWORD_RESET_RESEND_OTP,
       useClass: PasswordResetResendOtpUseCase,

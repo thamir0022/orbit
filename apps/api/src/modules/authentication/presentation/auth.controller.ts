@@ -1,4 +1,5 @@
 import {
+  ChangePasswordRequestDto,
   CompleteRegistrationRequest,
   ExchnageTokenRequestDto,
   SignUpCompleteResponseDto,
@@ -16,6 +17,7 @@ import {
   Ip,
   Param,
   ParseEnumPipe,
+  Patch,
   Post,
   Query,
   Res,
@@ -113,6 +115,10 @@ import {
   type ISignupResendOtpUseCase,
   SIGN_UP_RESEND_OTP,
 } from '../application/usecases/sign-up-resend-otp.interface'
+import {
+  CHANGE_PASSWORD,
+  IChangePasswordUseCase,
+} from '../application/usecases/change-password.interface'
 
 @ApiTags('Auth')
 @Public()
@@ -141,6 +147,8 @@ export class AuthController {
     private readonly _passwordResetConfirmUseCase: IPasswordResetConfirmUseCase,
     @Inject(PASSWORD_RESET_RESEND_OTP)
     private readonly _passwordResetResendOtp: IPasswordResetResendOtpUseCase,
+    @Inject(CHANGE_PASSWORD)
+    private readonly _changePasswordUseCase: IChangePasswordUseCase,
     @Inject(AUTHENTICATE_WITH_OAUTH)
     private readonly _authenticateWithOAuthUseCase: IAuthenticateWithOAuthUseCase,
     @Inject(EXCHANGE_TOKEN)
@@ -348,6 +356,21 @@ export class AuthController {
   ): Promise<void> {
     await this._passwordResetResendOtp.execute({
       email: passwordResetResendOtpRequest.email,
+    })
+  }
+
+  @Patch('password')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage(AuthResponseMessage.CHANGE_PASSWORD_SUCCESS)
+  @UseGuards(RefreshTokenGuard)
+  async changePassword(
+    @CurrentIdentity() identity: RefreshTokenPayload,
+    @Body() request: ChangePasswordRequestDto
+  ): Promise<void> {
+    await this._changePasswordUseCase.execute({
+      userId: identity.sub,
+      currentPassword: request.currentPassword,
+      newPassword: request.newPassword,
     })
   }
 
