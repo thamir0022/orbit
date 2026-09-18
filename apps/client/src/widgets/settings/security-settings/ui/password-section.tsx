@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 import { useUser } from '@/entities/user/model/user.store'
 
-import { useChangePasswordMutation } from '../model/change-password.mutation'
+import { useChangePasswordMutation } from '../model/use-change-password.mutation'
 import {
   changePasswordSchema,
   type ChangePasswordData,
@@ -33,10 +33,20 @@ import {
 import PasswordField from '@/shared/ui/PasswordField'
 
 export const PasswordSection = () => {
-  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const user = useUser()
+
   const hasPassword = user?.hasPassword ?? false
+  const passwordUpdatedAt = user?.passwordUpdatedAt
+
+  const title = hasPassword ? 'Change password' : 'Set password'
+
+  const description = hasPassword
+    ? 'Enter your current password and choose a new one.'
+    : 'Choose a strong password to secure your account.'
+
+  const actionLabel = hasPassword ? 'Change' : 'Set password'
 
   const {
     register,
@@ -44,7 +54,7 @@ export const PasswordSection = () => {
     reset,
     formState: { errors, isValid, isSubmitting },
   } = useForm<ChangePasswordData>({
-    resolver: zodResolver(changePasswordSchema),
+    resolver: zodResolver(changePasswordSchema(hasPassword)),
     mode: 'onChange',
     defaultValues: {
       currentPassword: '',
@@ -53,10 +63,12 @@ export const PasswordSection = () => {
     },
   })
 
-  const { mutateAsync: changePassword } = useChangePasswordMutation()
+  const { mutateAsync: changePassword, isPending } = useChangePasswordMutation()
+
+  const isLoading = isSubmitting || isPending
 
   const handleDialogChange = (open: boolean) => {
-    setPasswordDialogOpen(open)
+    setIsDialogOpen(open)
 
     if (!open) {
       reset()
@@ -64,15 +76,21 @@ export const PasswordSection = () => {
   }
 
   const onSubmit = async (data: ChangePasswordData) => {
-    const { currentPassword, newPassword } = data
+    const payload = {
+      newPassword: data.newPassword,
+      ...(hasPassword && {
+        currentPassword: data.currentPassword,
+      }),
+    }
 
-    await changePassword({
-      ...(hasPassword && { currentPassword }),
-      newPassword,
-    })
+    await changePassword(payload)
 
     reset()
-    setPasswordDialogOpen(false)
+    setIsDialogOpen(false)
+  }
+
+  if (!user) {
+    return null
   }
 
   return (
@@ -80,33 +98,28 @@ export const PasswordSection = () => {
       <FieldContent className="my-auto min-w-36">
         <FieldLabel>Password</FieldLabel>
 
-        {hasPassword && user?.passwordUpdatedAt && (
-          <FieldDescription>
-            Last updated{' '}
-            {formatDistanceToNow(user.passwordUpdatedAt, {
-              addSuffix: true,
-            })}
-          </FieldDescription>
-        )}
+        <FieldDescription className="text-xs">
+          {hasPassword && passwordUpdatedAt
+            ? `Last updated ${formatDistanceToNow(new Date(passwordUpdatedAt), {
+                addSuffix: true,
+              })}`
+            : 'No password is set yet. Add one to keep your account secure.'}
+        </FieldDescription>
       </FieldContent>
 
-      <Dialog open={passwordDialogOpen} onOpenChange={handleDialogChange}>
+      <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
         <DialogTrigger asChild>
           <Button type="button" variant="outline" size="sm">
-            {hasPassword ? 'Change' : 'Set password'}
+            {actionLabel}
           </Button>
         </DialogTrigger>
 
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-center">
-              {hasPassword ? 'Change password' : 'Set password'}
-            </DialogTitle>
+            <DialogTitle className="text-center">{title}</DialogTitle>
 
             <DialogDescription className="text-center">
-              {hasPassword
-                ? 'Enter your current password and choose a new one.'
-                : 'Choose a strong password to secure your account.'}
+              {description}
             </DialogDescription>
           </DialogHeader>
 
@@ -118,6 +131,7 @@ export const PasswordSection = () => {
                   label="Current Password"
                   autoComplete="current-password"
                   aria-invalid={!!errors.currentPassword}
+                  disabled={isLoading}
                   {...register('currentPassword')}
                 />
 
@@ -133,6 +147,7 @@ export const PasswordSection = () => {
                 label="New Password"
                 autoComplete="new-password"
                 aria-invalid={!!errors.newPassword}
+                disabled={isLoading}
                 {...register('newPassword')}
               />
 
@@ -147,6 +162,7 @@ export const PasswordSection = () => {
                 label="Confirm Password"
                 autoComplete="new-password"
                 aria-invalid={!!errors.confirmPassword}
+                disabled={isLoading}
                 {...register('confirmPassword')}
               />
 
@@ -159,6 +175,7 @@ export const PasswordSection = () => {
               <Button
                 type="button"
                 variant="outline"
+                disabled={isLoading}
                 onClick={() => handleDialogChange(false)}
               >
                 Cancel
@@ -166,10 +183,10 @@ export const PasswordSection = () => {
 
               <Button
                 type="submit"
-                disabled={!isValid || isSubmitting}
-                isLoading={isSubmitting}
+                disabled={!isValid || isLoading}
+                isLoading={isLoading}
               >
-                {hasPassword ? 'Change' : 'Set password'}
+                {actionLabel}
               </Button>
             </DialogFooter>
           </form>
