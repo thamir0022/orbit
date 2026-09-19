@@ -40,13 +40,13 @@ export const PasswordSection = () => {
   const hasPassword = user?.hasPassword ?? false
   const passwordUpdatedAt = user?.passwordUpdatedAt
 
-  const title = hasPassword ? 'Change password' : 'Set password'
+  const title = hasPassword ? 'Change Password' : 'Set Password'
 
   const description = hasPassword
     ? 'Enter your current password and choose a new one.'
     : 'Choose a strong password to secure your account.'
 
-  const actionLabel = hasPassword ? 'Change' : 'Set password'
+  const actionLabel = hasPassword ? 'Change' : 'Set Password'
 
   const {
     register,
