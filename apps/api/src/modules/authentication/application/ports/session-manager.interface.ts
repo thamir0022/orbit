@@ -1,3 +1,5 @@
+import { UserAgent } from '../contracts'
+
 /**
  * Identity Session Manager Interface (Port)
  *
@@ -6,14 +8,24 @@
  */
 
 export interface SessionData {
+  id: string
   sid: string
   userId: string
   jti: string
   email: string
   ipAddress: string
-  userAgent: string
+  userAgent: UserAgent
+  lastActiveAt: Date
   createdAt: Date
   expiresAt: Date
+}
+
+export interface CreateSessionPayload {
+  userId: string
+  jti: string
+  email: string
+  ipAddress: string
+  userAgent: UserAgent
 }
 
 export interface ISessionManager {
@@ -21,11 +33,11 @@ export interface ISessionManager {
    * Stores the global session metadata when a user logs in.
    * @returns The generated global Session ID (sid)
    */
-  createSession(
-    data: Omit<SessionData, 'sid' | 'createdAt' | 'expiresAt'>
-  ): Promise<string>
+  createSession(data: CreateSessionPayload): Promise<string>
 
   getSession(sid: string): Promise<SessionData | null>
+
+  getAllSessionIds(userId: string): Promise<string[] | undefined>
 
   /**
    * Revokes a specific session (e.g., User clicked "Log Out" on this device).

@@ -2,7 +2,11 @@ import { Inject, Injectable } from '@nestjs/common'
 import { type Cache } from 'cache-manager'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { UuidUtil } from '@/shared/utils'
-import { type ISessionManager, type SessionData } from '../../application'
+import {
+  CreateSessionPayload,
+  type ISessionManager,
+  type SessionData,
+} from '../../application'
 import {
   REDIS_CONFIG,
   type IRedisConfig,
@@ -20,16 +24,17 @@ export class RedisSessionManager implements ISessionManager {
     private readonly config: IRedisConfig
   ) {}
 
-  async createSession(
-    data: Omit<SessionData, 'sid' | 'createdAt' | 'expiresAt'>
-  ): Promise<string> {
+  async createSession(data: CreateSessionPayload): Promise<string> {
+    const id = UuidUtil.generate()
     const sid = UuidUtil.generate()
     const now = Date.now()
     const ttl = this.config.sessionTTL
 
     const session: SessionData = {
+      id,
       sid,
       ...data,
+      lastActiveAt: new Date(now),
       createdAt: new Date(now),
       expiresAt: new Date(now + ttl),
     }
@@ -40,6 +45,10 @@ export class RedisSessionManager implements ISessionManager {
     ])
 
     return sid
+  }
+
+  async getAllSessionIds(userId: string): Promise<string[] | undefined> {
+    return await this.cache.get<string[]>(this.userSessionsKey(userId))
   }
 
   async getSession(sid: string): Promise<SessionData | null> {
