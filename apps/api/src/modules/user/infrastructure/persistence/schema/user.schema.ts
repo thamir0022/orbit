@@ -75,9 +75,6 @@ export class UserModel {
   @Prop()
   lastLoginAt!: Date
 
-  @Prop()
-  lastActiveAt!: Date
-
   // Preferences
   @Prop({ type: Object })
   preferences!: UserPreferencesData

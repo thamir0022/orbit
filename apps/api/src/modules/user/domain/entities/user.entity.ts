@@ -24,7 +24,6 @@ export class User extends AggregateRoot<UserId> {
   private _oauthProviderId: string | undefined
   private _status: UserStatus
   private _lastLoginAt: Date | undefined
-  private _lastActiveAt: Date | undefined
   private _preferences: UserPreferences
   private _timezone: string | undefined
   private _locale: string | undefined
@@ -50,7 +49,6 @@ export class User extends AggregateRoot<UserId> {
     this._oauthProviderId = props.oauthProviderId
     this._status = props.status
     this._lastLoginAt = props.lastLoginAt
-    this._lastActiveAt = props.lastActiveAt
     this._preferences = props.preferences
     this._createdAt = props.createdAt || new Date()
     this._updatedAt = props.updatedAt || new Date()
@@ -128,10 +126,6 @@ export class User extends AggregateRoot<UserId> {
 
   get lastLoginAt() {
     return this._lastLoginAt
-  }
-
-  get lastActiveAt() {
-    return this._lastActiveAt
   }
 
   get preferences() {
@@ -224,7 +218,6 @@ export class User extends AggregateRoot<UserId> {
       loginAttempts: undefined,
       lockedUntil: undefined,
       lastLoginAt: undefined,
-      lastActiveAt: undefined,
       deletedAt: undefined,
       createdAt: now,
       updatedAt: now,
@@ -261,7 +254,6 @@ export class User extends AggregateRoot<UserId> {
   // Record a successful login
   recordLogin(): void {
     this._lastLoginAt = new Date()
-    this._lastActiveAt = new Date()
     this._loginAttempts = 0
     this._lockedUntil = undefined
     this.touch()
@@ -289,18 +281,12 @@ export class User extends AggregateRoot<UserId> {
     this._loginAttempts = 0
     this._lockedUntil = undefined
     this._lastLoginAt = new Date()
-    this._lastActiveAt = new Date()
     this.touch()
   }
 
   enableMfa(backupCodes: string[]): void {
     this._mfaEnabled = true
     this._mfaBackupCodes = backupCodes
-    this.touch()
-  }
-
-  updateLastActive(): void {
-    this._lastActiveAt = new Date()
     this.touch()
   }
 

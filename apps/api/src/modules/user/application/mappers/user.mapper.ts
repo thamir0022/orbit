@@ -102,8 +102,6 @@ export class UserMapper {
 
       lastLoginAt: user.lastLoginAt,
 
-      lastActiveAt: user.lastActiveAt,
-
       preferences: user.preferences.preferences,
 
       timezone: user.preferences.timezone,
@@ -163,8 +161,6 @@ export class UserMapper {
       status: document.status as UserStatus,
 
       lastLoginAt: document.lastLoginAt,
-
-      lastActiveAt: document.lastActiveAt,
 
       preferences: UserPreferences.create(
         document.preferences,

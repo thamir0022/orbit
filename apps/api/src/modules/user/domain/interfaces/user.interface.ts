@@ -33,7 +33,6 @@ export interface UserProps {
   status: UserStatus
 
   lastLoginAt: Date | undefined
-  lastActiveAt: Date | undefined
 
   // Preferences
   preferences: UserPreferences
