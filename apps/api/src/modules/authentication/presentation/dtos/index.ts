@@ -14,3 +14,7 @@ export * from './exchange-token.request.dto'
 export * from './requests/complete-registration.request.dto'
 export * from './requests/sign-up-resend-otp.request.dto'
 export * from './requests/change-password.request.dto'
+export {
+  ActiveSessionResponseDto,
+  GetActiveSessionsResponseDto,
+} from './responses/get-active-sessions.response.dto'

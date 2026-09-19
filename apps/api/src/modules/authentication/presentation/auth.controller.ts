@@ -2,6 +2,7 @@ import {
   ChangePasswordRequestDto,
   CompleteRegistrationRequest,
   ExchnageTokenRequestDto,
+  GetActiveSessionsResponseDto,
   SignUpCompleteResponseDto,
   SignUpResendOtpRequest,
   SignUpVerifyEmailWithOtpResponseDto,
@@ -120,6 +121,10 @@ import {
   IChangePasswordUseCase,
 } from '../application/usecases/change-password.interface'
 import { ChangePasswordResponseDto } from './dtos/responses/change-password.request.dto'
+import {
+  GET_ACTIVE_SESSIONS,
+  IGetActiveSessionsUseCase,
+} from '../application/usecases/get-active-sessions.interface'
 
 @ApiTags('Auth')
 @Public()
@@ -156,6 +161,8 @@ export class AuthController {
     private readonly exchangeTokenUseCase: IExchangeTokenUseCase,
     @Inject(SIGN_OUT)
     private readonly signOutUseCase: ISignOutUseCase,
+    @Inject(GET_ACTIVE_SESSIONS)
+    private readonly getSessionsUseCase: IGetActiveSessionsUseCase,
     @Inject(TOKEN_CONFIG)
     private readonly _config: ITokenConfig & IAppConfig
   ) {}
@@ -479,5 +486,17 @@ export class AuthController {
     // Overwrite the cookies with an immediate expiration date
     res.clearCookie('refresh_token', cookieOptions)
     res.clearCookie('access_token', cookieOptions)
+  }
+
+  // Sessions
+  @Get('sessions')
+  @UseGuards(RefreshTokenGuard)
+  async getSessions(
+    @CurrentIdentity() identity: RefreshTokenPayload
+  ): Promise<GetActiveSessionsResponseDto> {
+    return await this.getSessionsUseCase.execute({
+      sid: identity.sid,
+      userId: identity.sub,
+    })
   }
 }

@@ -39,6 +39,10 @@ import { SIGN_UP_RESEND_OTP } from './application/usecases/sign-up-resend-otp.in
 import { SignUpResendOtpUseCase } from './application/usecases/sign-up-resend-otp.usecase'
 import { CHANGE_PASSWORD } from './application/usecases/change-password.interface'
 import { ChangePasswordUseCase } from './application/usecases/change-password.usecase'
+import { GET_ACTIVE_SESSIONS } from './application/usecases/get-active-sessions.interface'
+import { GetActiveSessionsUseCase } from './application/usecases/get-active-sessions.usecase'
+import { USER_AGENT_PARSER } from './application/ports/user-agent-parser.interface'
+import { UserAgentParserService } from './infrastructure/services/user-agent-parser.service'
 
 @Module({
   imports: [
@@ -75,10 +79,14 @@ import { ChangePasswordUseCase } from './application/usecases/change-password.us
       useClass: AuthenticateWithOAuthUseCase,
     },
     { provide: AUTH_SERVICE, useClass: AuthService },
+    { provide: USER_AGENT_PARSER, useClass: UserAgentParserService },
     {
       provide: SIGN_OUT,
       useClass: SignOutUseCase,
     },
+
+    // Sessions
+    { provide: GET_ACTIVE_SESSIONS, useClass: GetActiveSessionsUseCase },
   ],
 })
 export class AuthenticationModule {}

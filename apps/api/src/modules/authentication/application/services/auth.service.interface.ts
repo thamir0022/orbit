@@ -30,6 +30,7 @@ export interface IAuthService {
   /* Global Identity Session Management                                         */
   /* -------------------------------------------------------------------------- */
   createSession(payload: CreateSessionPayload): Promise<string>
+  getAllUserSession(userId: string): Promise<SessionData[] | null>
   getSession(sessionId: string): Promise<SessionData | null>
   extendSession(sessionId: string, newExpiresAt: Date): Promise<void>
   revokeSession(sessionId: string): Promise<void>

@@ -62,6 +62,10 @@ import {
 } from '@/modules/authorization/application/repositories/permission-cache-manager.interface'
 import { SystemRole } from '@/modules/authorization/domain/enums/system-role.enum'
 import { RoleId } from '@/modules/authorization/domain/value-objects/role-id.vo'
+import {
+  IUserAgentParserService,
+  USER_AGENT_PARSER,
+} from '../ports/user-agent-parser.interface'
 
 export interface IAuthRedirectConfig {
   rootDomain: string
@@ -102,17 +106,37 @@ export class AuthService implements IAuthService {
     private readonly userRoleRepository: UserRoleRepository,
 
     @Inject(PERMISSION_CACHE_MANAGER)
-    private readonly permissionCache: IPermissionCacheManager
+    private readonly permissionCache: IPermissionCacheManager,
+
+    @Inject(USER_AGENT_PARSER)
+    private readonly userAgentParserService: IUserAgentParserService
   ) {}
 
   async createSession(payload: CreateSessionPayload): Promise<string> {
+    const userAgent = this.userAgentParserService.parse(payload.userAgent)
+
     return await this.sessionManager.createSession({
       userId: payload.userId.value,
       email: payload.email.value,
       jti: payload.jti,
       ipAddress: payload.ipAddress,
-      userAgent: payload.userAgent,
+      userAgent,
     })
+  }
+
+  async getAllUserSession(userId: string): Promise<SessionData[] | null> {
+    const sessionIds = await this.sessionManager.getAllSessionIds(userId)
+
+    if (!sessionIds || sessionIds.length === 0) return null
+
+    const sessions = await Promise.all(
+      sessionIds.map((sid) => this.sessionManager.getSession(sid))
+    )
+
+    return sessions.filter(
+      (session): session is SessionData =>
+        session !== null && session.userId === userId
+    )
   }
 
   async getSession(sessionId: string): Promise<SessionData | null> {
