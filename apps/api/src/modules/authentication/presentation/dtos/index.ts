@@ -18,3 +18,4 @@ export {
   ActiveSessionResponseDto,
   GetActiveSessionsResponseDto,
 } from './responses/get-active-sessions.response.dto'
+export * from './responses/sign-in.response.dto'

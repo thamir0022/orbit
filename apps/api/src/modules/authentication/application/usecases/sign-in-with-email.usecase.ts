@@ -20,9 +20,9 @@ import {
 } from '../services/auth.service.interface'
 import { type SignInInputDto, type SignInOutputDto } from '../dto'
 import {
-  PERMISSION_REPOSITORY,
-  type PermissionRepository,
-} from '@/modules/authorization/application/repositories/permission.repository'
+  IWorkspaceRepository,
+  WORKSPACE_REPOSITORY,
+} from '@/modules/workspace/application'
 
 @Injectable()
 export class SignInWithEmailUseCase implements ISignInWithEmailUseCase {
@@ -33,8 +33,8 @@ export class SignInWithEmailUseCase implements ISignInWithEmailUseCase {
     private readonly userRepository: IUserRepository,
     @Inject(AUTH_SERVICE)
     private readonly authService: IAuthService,
-    @Inject(PERMISSION_REPOSITORY)
-    private readonly permissionRepository: PermissionRepository
+    @Inject(WORKSPACE_REPOSITORY)
+    private readonly workspaceRepository: IWorkspaceRepository
   ) {}
 
   async execute({
@@ -87,6 +87,10 @@ export class SignInWithEmailUseCase implements ISignInWithEmailUseCase {
     user.recordLogin()
     await this.userRepository.save(user)
 
+    const workspaces = await this.workspaceRepository.findByUserId({
+      userId: user.id.value,
+    })
+
     // 8. Generate Cryptographic Identifiers
     const jti = this.authService.generateSecureToken() // Unique ID for the JWT itself
 
@@ -116,6 +120,7 @@ export class SignInWithEmailUseCase implements ISignInWithEmailUseCase {
     return {
       refreshToken,
       expiresIn,
+      workspaces,
     }
   }
 }

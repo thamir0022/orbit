@@ -3,6 +3,7 @@ import {
   CompleteRegistrationRequest,
   ExchnageTokenRequestDto,
   GetActiveSessionsResponseDto,
+  SignInResponseDto,
   SignUpCompleteResponseDto,
   SignUpResendOtpRequest,
   SignUpVerifyEmailWithOtpResponseDto,
@@ -188,9 +189,10 @@ export class AuthController {
     @Ip() ipAddress: string,
     @Body() request: SignInRequestDto,
     @Res({ passthrough: true }) res: Response
-  ) {
+  ): Promise<SignInResponseDto> {
     const { email, password } = request
-    const { refreshToken, expiresIn } =
+
+    const { refreshToken, expiresIn, workspaces } =
       await this._signInWithEmailUseCase.execute({
         email: email,
         password: password,
@@ -203,6 +205,8 @@ export class AuthController {
       secure: this._config.isProduction,
       expires: expiresIn,
     })
+
+    return { workspaces }
   }
 
   @Post('/sign-up/initiate')
