@@ -53,6 +53,8 @@ export interface ISessionManager {
    * Extends the global session heartbeat.
    */
   extendSession(sid: string, newExpiresAt: Date): Promise<void>
+
+  touchSession(sid: string): Promise<void>
 }
 
 export const SESSION_MANAGER = Symbol('ISessionManager')

@@ -95,6 +95,32 @@ export class RedisSessionManager implements ISessionManager {
     ])
   }
 
+  async touchSession(sid: string): Promise<void> {
+    const key = this.sessionKey(sid)
+    const session = await this.cache.get<SessionData>(key)
+
+    if (!session) {
+      return
+    }
+
+    const now = Date.now()
+
+    const expiresAt = new Date(session.expiresAt).getTime()
+    const ttl = expiresAt - now
+
+    // Session has already expired.
+    if (ttl <= 0) {
+      return
+    }
+
+    const updatedSession: SessionData = {
+      ...session,
+      lastActiveAt: new Date(now),
+    }
+
+    await this.cache.set(key, updatedSession, ttl)
+  }
+
   /* -------------------------------------------------------------------------- */
   /* Private Helpers                                                            */
   /* -------------------------------------------------------------------------- */
