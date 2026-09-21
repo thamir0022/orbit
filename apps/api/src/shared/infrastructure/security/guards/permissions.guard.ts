@@ -37,10 +37,10 @@ export class PermissionsGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>()
-    const userPayload = request.identity
+    const authContext = request.auth
 
     // Fast-Fail: Defensive check to ensure the AuthGuard ran first
-    if (!userPayload || !userPayload.jti) {
+    if (!authContext || !authContext.tokenId) {
       this.logger.warn(
         'PermissionsGuard executed without a valid JTI in the request payload.'
       )
@@ -49,7 +49,7 @@ export class PermissionsGuard implements CanActivate {
 
     // 2. The Single Network Hop: Fetch ALL permissions for this token from Redis
     const cachedPermissionsArray =
-      await this.permissionCacheManager.getPermissions(userPayload.jti)
+      await this.permissionCacheManager.getPermissions(authContext.tokenId)
 
     // Fast-Fail: Session expired in Redis or user was forcefully demoted
     if (!cachedPermissionsArray || cachedPermissionsArray.length === 0) {
@@ -73,7 +73,7 @@ export class PermissionsGuard implements CanActivate {
 
     if (!hasAllPermissions) {
       this.logger.debug(
-        `User ${userPayload.sub} denied access. Missing required permissions.`
+        `User ${authContext.userId} denied access. Missing required permissions.`
       )
       throw new ForbiddenException(
         'You do not have the required clearance to perform this action.'
