@@ -68,4 +68,9 @@ export interface HttpRequestConfig {
    * Works with Axios v1+ and Fetch.
    */
   signal?: AbortSignal;
+
+  /**
+   *  Set true for skip auth interceptor, (for handling public routes eg: /sign-in)
+   */
+  skipAuthHandling?: boolean;
 }

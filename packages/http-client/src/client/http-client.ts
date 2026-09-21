@@ -19,7 +19,7 @@ export class HttpClient {
 
   async post<T>(
     url: string,
-    data: unknown,
+    data?: unknown,
     config?: HttpRequestConfig,
   ): Promise<ApiSuccess<T>> {
     return this.request({
