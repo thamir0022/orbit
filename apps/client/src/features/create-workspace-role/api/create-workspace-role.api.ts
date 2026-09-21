@@ -1,6 +1,6 @@
 import type { CreateWorkspaceRoleInput, WorkspaceRole } from '@/entities/role'
-import { API_ROUTES } from '@/shared/api/api.routes'
-import { httpClient } from '@/shared/lib/http/http-client'
+import { API_ROUTES } from '@/shared/api/routes/api.routes'
+import { httpClient } from '@/shared/api/config/http-client'
 
 interface CreateWorkspaceRoleResponse {
   role: WorkspaceRole

@@ -9,11 +9,5 @@ export const useResendEmailVerificationOtpMutation = () => {
     onSuccess: (res) => {
       if (res.success) toast.success(res.message)
     },
-    onError: (error: unknown) => {
-      const msg = isAxiosError(error)
-        ? error.response?.data.message
-        : 'Failed to resend otp, try again'
-      toast.error(msg)
-    },
   })
 }

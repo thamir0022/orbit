@@ -1,9 +1,9 @@
-import { httpClient } from '@/shared/lib/http/http-client'
+import { httpClient } from '@/shared/api/config/http-client'
 import type {
   GetWorkspaceMembersParams,
   WorkspaceMembersResponse,
 } from '../model/types'
-import { API_ROUTES } from '@/shared/api/api.routes'
+import { API_ROUTES } from '@/shared/api/routes/api.routes'
 
 function buildQueryString(params: GetWorkspaceMembersParams): string {
   const searchParams = new URLSearchParams()

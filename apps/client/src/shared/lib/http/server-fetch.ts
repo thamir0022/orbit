@@ -1,4 +1,4 @@
-import { ApiResponse } from '@/shared/api/api.types'
+import { ApiResponse } from '@orbit/http-client'
 import { cookies } from 'next/headers'
 
 /**

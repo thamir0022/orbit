@@ -1,5 +1,4 @@
 import { serverFetch } from '@/shared/lib/http/server-fetch' // Adjust path to your serverFetch
-import type { ApiResponse } from '@/shared/api/api.types'
 
 export interface WorkspaceListItem {
   name: string

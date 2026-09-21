@@ -1,12 +1,18 @@
-import { axiosInstance } from '@/shared/lib/axios'
+import { httpClient } from '@/shared/api/config/http-client'
 import type { SignInFormData } from '../model/sign-in.schema'
-import type { SignInResponse } from './types'
-import { API_ROUTES } from '@/shared/api/api.routes'
+import { API_ROUTES } from '@/shared/api/routes/api.routes'
+import { WorkspaceListItem } from '@/entities/workspace'
 
-export async function signInApi(data: SignInFormData): Promise<SignInResponse> {
-  const response = await axiosInstance.post<SignInResponse>(
+interface SignInResponse {
+  workspaces: WorkspaceListItem[]
+}
+
+export async function signInApi(data: SignInFormData) {
+  const res = await httpClient.post<SignInResponse>(
     API_ROUTES.AUTH.SIGN_IN,
-    data
+    data,
+    { skipAuthHandling: true }
   )
-  return response.data
+
+  return res
 }

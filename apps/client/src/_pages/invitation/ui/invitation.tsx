@@ -1,5 +1,5 @@
 import { InvitationCard } from '@/features/invitation'
-import { API_ROUTES } from '@/shared/api/api.routes'
+import { API_ROUTES } from '@/shared/api/routes/api.routes'
 import { serverFetch } from '@/shared/lib/http/server-fetch'
 import InvitationPage from './invitation-page'
 

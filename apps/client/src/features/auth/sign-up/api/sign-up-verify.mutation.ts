@@ -1,9 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
-import { isAxiosError } from 'axios'
 import { toast } from 'sonner'
-import { axiosInstance } from '@/shared/lib/axios'
-import type { ApiResponse } from '@/shared/api/api.types'
-import { API_ROUTES } from '@/shared/api/api.routes'
+import { API_ROUTES } from '@/shared/api/routes/api.routes'
+import { httpClient } from '@/shared/api/config/http-client'
 
 interface VerifyOtpPayload {
   email: string
@@ -14,14 +12,12 @@ interface VerifyOtpResponse {
   registrationToken: string
 }
 
-async function signUpVerifyApi(
-  data: VerifyOtpPayload
-): Promise<ApiResponse<VerifyOtpResponse>> {
-  const response = await axiosInstance.post(
+async function signUpVerifyApi(data: VerifyOtpPayload) {
+  const res = await httpClient.post<VerifyOtpResponse>(
     API_ROUTES.AUTH.SIGN_UP_VERIFY,
     data
   )
-  return response.data
+  return res
 }
 
 export function useSignUpVerifyMutation(
@@ -34,15 +30,6 @@ export function useSignUpVerifyMutation(
         toast.success(data.message || 'Email verified successfully!')
         onSuccessCallback?.(data.data.registrationToken)
       }
-    },
-    onError: (error: unknown) => {
-      const errorMsg = isAxiosError<ApiResponse<null>>(error)
-        ? (error.response?.data?.message ?? error.message)
-        : error instanceof Error
-          ? error.message
-          : 'Invalid verification code.'
-
-      toast.error(errorMsg)
     },
   })
 }

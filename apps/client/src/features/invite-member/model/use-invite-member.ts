@@ -1,24 +1,19 @@
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { inviteApi, inviteKeys } from '@/entities/invite'
-import { workspaceMemberKeys } from '@/entities/workspace-member'
-import type {
+import {
   CreateWorkspaceInvitationInput,
-  CreateWorkspaceInvitationResponse,
-  WorkspaceInvitation,
+  inviteApi,
+  inviteKeys,
 } from '@/entities/invite'
-import { ApiResponse } from '@/shared/api/api.types'
+import { workspaceMemberKeys } from '@/entities/workspace-member'
 
 export function useInviteMemberMutation(workspaceId: string) {
   const queryClient = useQueryClient()
 
-  return useMutation<
-    ApiResponse<CreateWorkspaceInvitationResponse>,
-    Error,
-    CreateWorkspaceInvitationInput
-  >({
-    mutationFn: (input) => inviteApi.createWorkspaceInvitation(input),
+  return useMutation({
+    mutationFn: (input: CreateWorkspaceInvitationInput) =>
+      inviteApi.createWorkspaceInvitation(input),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({

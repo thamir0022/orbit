@@ -1,24 +1,17 @@
 import { useMutation } from '@tanstack/react-query'
-import { isAxiosError } from 'axios'
 import { toast } from 'sonner'
-import { axiosInstance } from '@/shared/lib/axios'
-import type { ApiResponse } from '@/shared/api/api.types'
 import type { ProfileStepData } from '../model/sign-up-details.schema'
-import { API_ROUTES } from '@/shared/api/api.routes'
+import { API_ROUTES } from '@/shared/api/routes/api.routes'
+import { httpClient } from '@/shared/api/config/http-client'
 
 // We omit confirmPassword before sending to the server
 type SetupProfilePayload = Omit<ProfileStepData, 'confirmPassword'> & {
   registrationToken: string
 }
 
-async function signUpDetailsApi(
-  data: SetupProfilePayload
-): Promise<ApiResponse<null>> {
-  const response = await axiosInstance.post(
-    API_ROUTES.AUTH.SIGN_UP_DETAILS,
-    data
-  )
-  return response.data
+async function signUpDetailsApi(data: SetupProfilePayload) {
+  const res = await httpClient.post(API_ROUTES.AUTH.SIGN_UP_DETAILS, data)
+  return res
 }
 
 export function useSignUpDetailsMutation(onSuccessCallback?: () => void) {
@@ -29,12 +22,6 @@ export function useSignUpDetailsMutation(onSuccessCallback?: () => void) {
         toast.success(data.message)
         onSuccessCallback?.()
       }
-    },
-    onError: (error: unknown) => {
-      const errorMsg = isAxiosError<ApiResponse<null>>(error)
-        ? (error.response?.data?.message ?? error.message)
-        : 'Failed to create profile.'
-      toast.error(errorMsg)
     },
   })
 }

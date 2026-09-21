@@ -1,18 +1,10 @@
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { isAxiosError } from 'axios'
-import type { ApiResponse } from '@/shared/api/api.types'
 import { resetPasswordApi } from './reset-password.api'
 
 // Centralized error handler for the feature
 const handleMutationError = (error: unknown) => {
-  console.log(error)
-  const errorMsg = isAxiosError<ApiResponse<null>>(error)
-    ? (error.response?.data?.message ?? error.message)
-    : error instanceof Error
-      ? error.message
-      : 'Something went wrong!'
-  toast.error(errorMsg)
+  toast.error('Something went wrong')
 }
 
 export function useRequestResetMutation() {

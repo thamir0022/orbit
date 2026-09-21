@@ -1,11 +1,9 @@
 import { useMutation } from '@tanstack/react-query'
-import { isAxiosError } from 'axios'
 import { toast } from 'sonner'
-import { axiosInstance } from '@/shared/lib/axios'
-import type { ApiResponse } from '@/shared/api/api.types'
-import type { CreateWorkspaceData } from '../model/sign-up-complete.schema'
-import { API_ROUTES } from '@/shared/api/api.routes'
+import { API_ROUTES } from '@/shared/api/routes/api.routes'
 import { useRouter } from 'next/navigation'
+import { httpClient } from '@/shared/api/config/http-client'
+import { CreateWorkspaceData } from '@/entities/workspace/model/create-workspace.schema'
 
 type CreateOrgPayload = CreateWorkspaceData & { registrationToken: string }
 
@@ -13,14 +11,12 @@ interface SignUpCompleteResponseData {
   slug: string
 }
 
-async function signUpCompleteApi(
-  data: CreateOrgPayload
-): Promise<ApiResponse<SignUpCompleteResponseData>> {
-  const response = await axiosInstance.post(
+async function signUpCompleteApi(data: CreateOrgPayload) {
+  const res = await httpClient.post<SignUpCompleteResponseData>(
     API_ROUTES.AUTH.SIGN_UP_COMPLETE,
     data
   )
-  return response.data
+  return res
 }
 
 export function useSignUpCompleteMutation() {
@@ -29,17 +25,11 @@ export function useSignUpCompleteMutation() {
   return useMutation({
     mutationFn: signUpCompleteApi,
     onSuccess: (res) => {
-      if (res.success) {
+      if (res) {
         toast.success(res.message)
         console.log(res)
         router.replace(`${res.data.slug}/overview`)
       }
-    },
-    onError: (error: unknown) => {
-      const errorMsg = isAxiosError<ApiResponse<null>>(error)
-        ? (error.response?.data?.message ?? error.message)
-        : 'Failed to create workspace.'
-      toast.error(errorMsg)
     },
   })
 }

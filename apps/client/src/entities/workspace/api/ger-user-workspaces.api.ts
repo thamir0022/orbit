@@ -1,6 +1,6 @@
-import { API_ROUTES } from '@/shared/api/api.routes'
-import { httpClient } from '@/shared/lib/http/http-client'
+import { API_ROUTES } from '@/shared/api/routes/api.routes'
 import { WorkspaceListItem } from './get-user-workspaces.server'
+import { httpClient } from '@/shared/api/config/http-client'
 
 interface GetUserWorkspacesResponse {
   workspaces: WorkspaceListItem[]
@@ -8,7 +8,8 @@ interface GetUserWorkspacesResponse {
 
 export async function getUserWorkspacesApi() {
   const res = await httpClient.get<GetUserWorkspacesResponse>(
-    API_ROUTES.WORKSPACES.ALL
+    API_ROUTES.WORKSPACES.ALL,
+    { skipAuthHandling: true }
   )
 
   return res

@@ -1,6 +1,5 @@
-import { API_ROUTES } from '@/shared/api/api.routes'
-import { ApiResponse } from '@/shared/api/api.types'
-import { httpClient } from '@/shared/lib/http/http-client'
+import { API_ROUTES } from '@/shared/api/routes/api.routes'
+import { httpClient } from '@/shared/api/config/http-client'
 import { Workspace } from '../model/workspace.types'
 
 export type SelectWorkspaceApiPayload = {
@@ -14,7 +13,7 @@ export type SelectWorkspaceApiResponse = {
 export const selectWorkspaceApi = async (
   payload: SelectWorkspaceApiPayload
 ) => {
-  const res = await httpClient.post<ApiResponse<SelectWorkspaceApiResponse>>(
+  const res = await httpClient.post<SelectWorkspaceApiResponse>(
     API_ROUTES.AUTH.EXCHANGE,
     payload
   )

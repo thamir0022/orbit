@@ -22,11 +22,5 @@ export const useChangePasswordMutation = () => {
       setUser(updatedUser)
       toast.success(res.message)
     },
-    onError: (error: unknown) => {
-      const errorMsg = isAxiosError(error)
-        ? error?.response?.data.message
-        : 'Failed to change password'
-      toast.error(errorMsg)
-    },
   })
 }

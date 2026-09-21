@@ -1,14 +1,13 @@
-import { httpClient } from '@/shared/lib/http/http-client'
+import { httpClient } from '@/shared/api/config/http-client'
 import {
   CreateWorkspaceInvitationInput,
   CreateWorkspaceInvitationResponse,
 } from '../model/types'
-import { API_ROUTES } from '@/shared/api/api.routes'
-import { ApiResponse } from '@/shared/api/api.types'
+import { API_ROUTES } from '@/shared/api/routes/api.routes'
 
 export async function createWorkspaceInvitation(
   payload: CreateWorkspaceInvitationInput
-): Promise<ApiResponse<CreateWorkspaceInvitationResponse>> {
+) {
   return await httpClient.post<CreateWorkspaceInvitationResponse>(
     API_ROUTES.WORKSPACES.CREATE_INVITATION,
     payload

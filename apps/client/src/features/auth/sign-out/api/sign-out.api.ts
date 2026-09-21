@@ -1,7 +1,7 @@
-import { httpClient } from '@/shared/lib/http/http-client'
-import { API_ROUTES } from '@/shared/api/api.routes'
+import { httpClient } from '@/shared/api/config/http-client'
+import { API_ROUTES } from '@/shared/api/routes/api.routes'
 
 export async function signOutApi() {
-  const response = await httpClient.post(API_ROUTES.AUTH.SIGN_OUT)
-  return response.data
+  const res = await httpClient.post(API_ROUTES.AUTH.SIGN_OUT)
+  return res
 }
