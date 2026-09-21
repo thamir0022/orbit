@@ -155,6 +155,10 @@ export class AuthService implements IAuthService {
     await this.sessionManager.revokeAllUserSessions(userId.value)
   }
 
+  async touchSession(sessionId: string): Promise<void> {
+    await this.sessionManager.touchSession(sessionId)
+  }
+
   async createRefreshToken(
     payload: RefreshTokenPayload,
     options?: JwtSignOptions

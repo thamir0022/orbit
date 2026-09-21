@@ -35,6 +35,7 @@ export interface IAuthService {
   extendSession(sessionId: string, newExpiresAt: Date): Promise<void>
   revokeSession(sessionId: string): Promise<void>
   revokeAllUserSessions(userId: UserId): Promise<void>
+  touchSession(sessionId: string): Promise<void>
 
   /* -------------------------------------------------------------------------- */
   /* Multi-Tenant Token Generation & Validation                                 */
