@@ -128,7 +128,6 @@ import {
 import { AuthContext } from '@/shared/domain/types'
 
 @ApiTags('Auth')
-@Public()
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -169,6 +168,7 @@ export class AuthController {
   ) {}
 
   @Post('sign-in')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: SignInRequestDto })
   @ApiCreatedResponse({
@@ -210,6 +210,7 @@ export class AuthController {
   }
 
   @Post('/sign-up/initiate')
+  @Public()
   @ResponseMessage(AuthResponseMessage.SIGNUP_INITIATE_SUCCESS)
   async initiateSignUp(
     @Body() request: SignUpInititateWithEmailRequestDto
@@ -220,6 +221,7 @@ export class AuthController {
   }
 
   @Post('/sign-up/resend')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ResponseMessage(AuthResponseMessage.SIGNUP_RESEND_OTP)
   async signUpResendOtp(
@@ -229,6 +231,7 @@ export class AuthController {
   }
 
   @Post('/sign-up/verify')
+  @Public()
   @ResponseMessage(AuthResponseMessage.SIGNUP_VERIFY_SUCCESS)
   async verifyEmailWithOtp(
     @Body() request: SignUpVerifyEmailWithOtpRequestDto
@@ -241,6 +244,7 @@ export class AuthController {
   }
 
   @Post('/sign-up/details')
+  @Public()
   @ResponseMessage(AuthResponseMessage.SIGNUP_DETAILS_SUCCESS)
   async userDetails(
     @Body() request: SignUpUserDetailsRequestDto
@@ -255,6 +259,7 @@ export class AuthController {
   }
 
   @Post('/sign-up/complete')
+  @Public()
   @ResponseMessage(AuthResponseMessage.SIGNUP_COMPLETE_SUCCESS)
   async createWorkspace(
     @Ip() ipAddress: string,
@@ -287,6 +292,7 @@ export class AuthController {
   }
 
   @Post('/complete-registration')
+  @Public()
   async completeRegistration(
     @Ip() ipAddress: string,
     @Headers('user-agent') userAgent: string,
@@ -324,6 +330,7 @@ export class AuthController {
   }
 
   @Post('password-reset/request')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ResponseMessage(AuthResponseMessage.PASSWORD_RESET_REQUEST_SUCCESS)
   async requestPasswordReset(
@@ -335,6 +342,7 @@ export class AuthController {
   }
 
   @Post('password-reset/verify')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ResponseMessage(AuthResponseMessage.PASSWORD_RESET_VERIFY_SUCCESS)
   async verifyPasswordReset(
@@ -348,6 +356,7 @@ export class AuthController {
   }
 
   @Post('password-reset/confirm')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ResponseMessage(AuthResponseMessage.PASSWORD_RESET_CONFIRM_SUCCESS)
   async confirmPasswordReset(
@@ -361,6 +370,7 @@ export class AuthController {
   }
 
   @Post('password-reset/resend')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ResponseMessage(AuthResponseMessage.PASSWORD_RESET_OTP_RESEND_SUCCESS)
   async resendPasswordResetOtp(
@@ -374,7 +384,6 @@ export class AuthController {
   @Patch('password')
   @HttpCode(HttpStatus.OK)
   @ResponseMessage(AuthResponseMessage.CHANGE_PASSWORD_SUCCESS)
-  @UseGuards(RefreshTokenGuard)
   async changePassword(
     @CurrentAuth('userId') userId: string,
     @Body() request: ChangePasswordRequestDto
@@ -387,6 +396,7 @@ export class AuthController {
   }
 
   @Get('oauth/:provider')
+  @Public()
   @HttpCode(HttpStatus.TEMPORARY_REDIRECT)
   @ResponseMessage(AuthResponseMessage.OAUTH_REDIRECT_INITIATED)
   authenticateWithOAuth(
@@ -398,6 +408,7 @@ export class AuthController {
   }
 
   @Get('oauth/:provider/callback')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ResponseMessage(AuthResponseMessage.OAUTH_VERIFY_SUCCESS)
   async authenticateWithOAuthCallback(
@@ -444,6 +455,7 @@ export class AuthController {
   }
 
   @Post('exchange')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @UseGuards(RefreshTokenGuard)
   async exchangeToken(
@@ -470,7 +482,6 @@ export class AuthController {
 
   @Post('sign-out')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(RefreshTokenGuard)
   @ApiOperation({
     summary: 'Signs out the user and destroys HttpOnly sessions',
   })
@@ -495,7 +506,6 @@ export class AuthController {
 
   // Sessions
   @Get('sessions')
-  @UseGuards(RefreshTokenGuard)
   async getSessions(
     @CurrentAuth() auth: AuthContext
   ): Promise<GetActiveSessionsResponseDto> {
