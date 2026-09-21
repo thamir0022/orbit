@@ -34,7 +34,7 @@ export class User extends AggregateRoot<UserId> {
     super(props.id)
     this._firstName = props.firstName
     this._lastName = props.lastName
-    this._displayName = `${props.firstName} ${props.lastName}`
+    this._displayName = props.displayName
     this._email = props.email
     this._passwordHash = props.passwordHash
     this._hasPassword = props.hasPassword
