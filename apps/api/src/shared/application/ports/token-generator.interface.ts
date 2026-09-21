@@ -18,6 +18,7 @@ export interface RefreshTokenPayload {
 }
 
 export interface AccessTokenPayload {
+  sid: string // Global Session ID
   jti: string // JWT Token ID
   sub: string // Subject - Global User ID (Must match the Identity Session)
   tid?: string // Tenant ID (The active workspace)
