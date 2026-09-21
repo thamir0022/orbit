@@ -23,8 +23,6 @@ import { UserDetailsUseCase } from './application/usecases/sign-up-user-details.
 import { SIGN_UP_COMPLETE } from './application/usecases/sign-up-complete.interface'
 import { SignUpCompleteUseCase } from './application/usecases/sign-up-complete.usecase'
 import { WorkspaceModule } from '../workspace/workspace.module'
-import { AUTH_SERVICE } from './application/services/auth.service.interface'
-import { AuthService } from './application/services/auth.service'
 import { JwtModule } from '@nestjs/jwt'
 import { PASSWORD_RESET_RESEND_OTP } from './application/usecases/password-reset-resend-otp.interface'
 import { PasswordResetResendOtpUseCase } from './application/usecases/password-reset-resend-otp.usecase'
@@ -41,8 +39,6 @@ import { CHANGE_PASSWORD } from './application/usecases/change-password.interfac
 import { ChangePasswordUseCase } from './application/usecases/change-password.usecase'
 import { GET_ACTIVE_SESSIONS } from './application/usecases/get-active-sessions.interface'
 import { GetActiveSessionsUseCase } from './application/usecases/get-active-sessions.usecase'
-import { USER_AGENT_PARSER } from './application/ports/user-agent-parser.interface'
-import { UserAgentParserService } from './infrastructure/services/user-agent-parser.service'
 
 @Module({
   imports: [
@@ -58,18 +54,54 @@ import { UserAgentParserService } from './infrastructure/services/user-agent-par
   providers: [
     ...authProviders,
     GoogleOAuthProvider,
-    { provide: SIGN_UP_INITIATE, useClass: SignUpInitiateWithEmailUseCase },
-    { provide: SIGN_UP_RESEND_OTP, useClass: SignUpResendOtpUseCase },
-    { provide: SIGN_UP_VERIFY_EMAIL, useClass: SignUpVerifyEmailUseCase },
-    { provide: SIGN_UP_USER_DETAILS, useClass: UserDetailsUseCase },
-    { provide: SIGN_UP_COMPLETE, useClass: SignUpCompleteUseCase },
-    { provide: COMPLETE_REGISTRATION, useClass: CompleteRegistrationUseCase },
-    { provide: SIGN_IN_WITH_EMAIL, useClass: SignInWithEmailUseCase },
-    { provide: EXCHANGE_TOKEN, useClass: ExchangeTokenUseCase },
-    { provide: PASSWORD_RESET_REQUEST, useClass: PasswordResetRequestUseCase },
-    { provide: PASSWORD_RESET_VERIFY, useClass: PasswordResetVerifyUseCase },
-    { provide: PASSWORD_RESET_CONFIRM, useClass: PasswordResetConfirmUseCase },
-    { provide: CHANGE_PASSWORD, useClass: ChangePasswordUseCase },
+    {
+      provide: SIGN_UP_INITIATE,
+      useClass: SignUpInitiateWithEmailUseCase,
+    },
+    {
+      provide: SIGN_UP_RESEND_OTP,
+      useClass: SignUpResendOtpUseCase,
+    },
+    {
+      provide: SIGN_UP_VERIFY_EMAIL,
+      useClass: SignUpVerifyEmailUseCase,
+    },
+    {
+      provide: SIGN_UP_USER_DETAILS,
+      useClass: UserDetailsUseCase,
+    },
+    {
+      provide: SIGN_UP_COMPLETE,
+      useClass: SignUpCompleteUseCase,
+    },
+    {
+      provide: COMPLETE_REGISTRATION,
+      useClass: CompleteRegistrationUseCase,
+    },
+    {
+      provide: SIGN_IN_WITH_EMAIL,
+      useClass: SignInWithEmailUseCase,
+    },
+    {
+      provide: EXCHANGE_TOKEN,
+      useClass: ExchangeTokenUseCase,
+    },
+    {
+      provide: PASSWORD_RESET_REQUEST,
+      useClass: PasswordResetRequestUseCase,
+    },
+    {
+      provide: PASSWORD_RESET_VERIFY,
+      useClass: PasswordResetVerifyUseCase,
+    },
+    {
+      provide: PASSWORD_RESET_CONFIRM,
+      useClass: PasswordResetConfirmUseCase,
+    },
+    {
+      provide: CHANGE_PASSWORD,
+      useClass: ChangePasswordUseCase,
+    },
     {
       provide: PASSWORD_RESET_RESEND_OTP,
       useClass: PasswordResetResendOtpUseCase,
@@ -78,15 +110,16 @@ import { UserAgentParserService } from './infrastructure/services/user-agent-par
       provide: AUTHENTICATE_WITH_OAUTH,
       useClass: AuthenticateWithOAuthUseCase,
     },
-    { provide: AUTH_SERVICE, useClass: AuthService },
-    { provide: USER_AGENT_PARSER, useClass: UserAgentParserService },
     {
       provide: SIGN_OUT,
       useClass: SignOutUseCase,
     },
 
     // Sessions
-    { provide: GET_ACTIVE_SESSIONS, useClass: GetActiveSessionsUseCase },
+    {
+      provide: GET_ACTIVE_SESSIONS,
+      useClass: GetActiveSessionsUseCase,
+    },
   ],
 })
 export class AuthenticationModule {}
