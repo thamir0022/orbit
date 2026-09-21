@@ -1,4 +1,9 @@
-import { ForbiddenException, Inject, Logger } from '@nestjs/common'
+import {
+  ForbiddenException,
+  Inject,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common'
 import { ExchangeTokenInputDto, ExchangeTokenOutputDto } from '../dto'
 import { IExchangeTokenUseCase } from './exchange-token.interface'
 import {
@@ -58,6 +63,7 @@ export class ExchangeTokenUseCase implements IExchangeTokenUseCase {
   ) {}
 
   async execute({
+    sid,
     userId,
     slug,
   }: ExchangeTokenInputDto): Promise<ExchangeTokenOutputDto> {
@@ -77,6 +83,13 @@ export class ExchangeTokenUseCase implements IExchangeTokenUseCase {
       throw new AccountInactiveException(user.status)
     }
 
+    const session = await this.authService.getSession(sid)
+
+    console.log('SESSION : ', session)
+
+    if (!session)
+      throw new UnauthorizedException('Session is expired sign in again')
+
     const isSystemUser = await this.authService.isSystemUser(userIdValue.value)
 
     const { workspace, roleId, permissionKeys } =
@@ -87,6 +100,7 @@ export class ExchangeTokenUseCase implements IExchangeTokenUseCase {
       })
 
     const accessToken = await this.authService.createAccessToken({
+      sid: session.sid,
       jti: this.authService.generateSecureToken(),
       sub: user.id.value,
       ...(workspace?.id && {
