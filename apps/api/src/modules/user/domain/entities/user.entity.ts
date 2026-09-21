@@ -208,6 +208,7 @@ export class User extends AggregateRoot<UserId> {
       avatarUrl: props.avatarUrl,
       passwordHash: props.passwordHash,
       hasPassword: !!props.passwordHash,
+      passwordUpdatedAt: props.passwordHash ? new Date() : undefined,
       emailVerified: props.emailVerified ?? false,
       mfaEnabled: false,
       mfaBackupCodes: [],
