@@ -1,19 +1,8 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Inject,
-  Put,
-  Query,
-  UseGuards,
-} from '@nestjs/common'
+import { Body, Controller, Get, Inject, Put, Query } from '@nestjs/common'
 import {
   GET_CURRENT_USER,
   type IGetCurrentUserUseCase,
 } from '../../application/usecases/current-user.interface'
-import { CurrentIdentity } from '@/shared/presentation/decorators/current-identity.decorator'
-import { type RefreshTokenPayload } from '@/shared/domain/types'
-import { RefreshTokenGuard } from '@/shared/infrastructure/security/guards/refresh-token.guard'
 import { ResponseMessage } from '@/shared/presentation/decorators/response-message.decorator'
 import { UserResponseMessages } from '../enums/response-messages.enum'
 import {
@@ -30,6 +19,7 @@ import {
   EDIT_USER_PROFILE_USECASE,
   type IEditUserProfileUseCase,
 } from '../../application/usecases/edit-user-profile.interface'
+import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
 
 @Controller('users')
 export class UserController {
@@ -43,30 +33,27 @@ export class UserController {
   ) {}
 
   @Get('me')
-  @UseGuards(RefreshTokenGuard)
   @ResponseMessage(UserResponseMessages.GET_USER_SUCCESS)
   async getCurrentUser(
-    @CurrentIdentity() identity: RefreshTokenPayload
+    @CurrentAuth('userId') userId: string
   ): Promise<CurrentUserResponseDto> {
-    return this.getCurrentUserUseCase.execute({ userId: identity.sub })
+    return this.getCurrentUserUseCase.execute({ userId })
   }
 
-  @UseGuards(RefreshTokenGuard)
   @Put()
   async editUserProfile(
     @Body() request: EditUserProfileRequest,
-    @CurrentIdentity() identity: RefreshTokenPayload
+    @CurrentAuth('userId') userId: string
   ): Promise<EditUserProfileResponse> {
     return await this.editUserProfileUseCase.execute({
       firstName: request.firstName,
       lastName: request.lastName,
       displayName: request.displayName,
-      userId: identity.sub,
+      userId,
     })
   }
 
   @Get()
-  @UseGuards(RefreshTokenGuard)
   @RequirePermissions()
   @ResponseMessage(UserResponseMessages.GET_ALL_USERS_SUCCESS)
   async getAllUsers(

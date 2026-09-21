@@ -101,9 +101,8 @@ import {
   EXCHANGE_TOKEN,
   type IExchangeTokenUseCase,
 } from '../application/usecases/exchange-token.interface'
-import { CurrentIdentity } from '@/shared/presentation/decorators/current-identity.decorator'
-import { type RefreshTokenPayload } from '@/shared/domain/types'
-import { RefreshTokenGuard } from '@/shared/infrastructure/security/guards/refresh-token.guard'
+import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
+import { RefreshTokenGuard } from '@/modules/authentication/presentation/guards/refresh-token.guard'
 import {
   type ISignOutUseCase,
   SIGN_OUT,
@@ -125,6 +124,7 @@ import {
   GET_ACTIVE_SESSIONS,
   IGetActiveSessionsUseCase,
 } from '../application/usecases/get-active-sessions.interface'
+import { AuthContext } from '@/shared/domain/types'
 
 @ApiTags('Auth')
 @Public()
@@ -372,11 +372,11 @@ export class AuthController {
   @ResponseMessage(AuthResponseMessage.CHANGE_PASSWORD_SUCCESS)
   @UseGuards(RefreshTokenGuard)
   async changePassword(
-    @CurrentIdentity() identity: RefreshTokenPayload,
+    @CurrentAuth('userId') userId: string,
     @Body() request: ChangePasswordRequestDto
   ): Promise<ChangePasswordResponseDto> {
     return this._changePasswordUseCase.execute({
-      userId: identity.sub,
+      userId,
       currentPassword: request.currentPassword,
       newPassword: request.newPassword,
     })
@@ -443,13 +443,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(RefreshTokenGuard)
   async exchangeToken(
-    @CurrentIdentity() identity: RefreshTokenPayload,
+    @CurrentAuth() auth: AuthContext,
     @Body() request: ExchnageTokenRequestDto,
     @Res({ passthrough: true }) res: Response
   ) {
     const { workspace, accessToken, expiresIn } =
       await this.exchangeTokenUseCase.execute({
-        userId: identity.sub,
+        sid: auth.sessionId,
+        userId: auth.userId,
         slug: request.slug,
       })
 
@@ -472,10 +473,10 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Successfully signed out' })
   @ResponseMessage(AuthResponseMessage.SIGN_OUT_SUCCESS)
   async signOut(
-    @CurrentIdentity() identity: RefreshTokenPayload,
+    @CurrentAuth('sessionId') sid: string,
     @Res({ passthrough: true }) res: Response
   ) {
-    await this.signOutUseCase.execute({ sid: identity.sid })
+    await this.signOutUseCase.execute({ sid })
 
     const cookieOptions = {
       httpOnly: true,
@@ -492,11 +493,11 @@ export class AuthController {
   @Get('sessions')
   @UseGuards(RefreshTokenGuard)
   async getSessions(
-    @CurrentIdentity() identity: RefreshTokenPayload
+    @CurrentAuth() auth: AuthContext
   ): Promise<GetActiveSessionsResponseDto> {
     return await this.getSessionsUseCase.execute({
-      sid: identity.sid,
-      userId: identity.sub,
+      sid: auth.sessionId,
+      userId: auth.userId,
     })
   }
 }

@@ -7,7 +7,6 @@ import {
   Put,
   Post,
   Query,
-  UseGuards,
   ParseIntPipe,
   ParseEnumPipe,
   DefaultValuePipe,
@@ -20,14 +19,6 @@ import {
   GET_ACTIVE_WORKSPACE,
   type IGetActiveWorkspace,
 } from '../../application/usecases/active-workspace.interface'
-import { CurrentTenant } from '@/shared/presentation/decorators/current-tenent.decorator'
-import {
-  type RefreshTokenPayload,
-  type AccessTokenPayload,
-} from '@/shared/domain/types'
-import { AccessTokenGuard } from '@/shared/infrastructure/security/guards/access-token.guard'
-import { RefreshTokenGuard } from '@/shared/infrastructure/security/guards/refresh-token.guard'
-import { CurrentIdentity } from '@/shared/presentation/decorators/current-identity.decorator'
 import {
   GET_USER_WORKSPACES,
   type IGetUserWorkspacesUseCase,
@@ -113,6 +104,8 @@ import {
   DELETE_WORKSPACE_ROLE,
   type IDeleteWorkspaceRoleUseCase,
 } from '../../application/usecases/delete-workspace-role.interface'
+import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
+import { AuthContext } from '@/shared/domain/types'
 
 @Controller('workspaces')
 export class WorkspaceController {
@@ -154,27 +147,24 @@ export class WorkspaceController {
   ) {}
 
   @Get()
-  @UseGuards(RefreshTokenGuard)
   async getUserWorkspaces(
-    @CurrentIdentity() identity: RefreshTokenPayload
+    @CurrentAuth('userId') userId: string
   ): Promise<GetUserWorkspacesResponseDto> {
     return await this.getUserWorkspacesUseCase.execute({
-      userId: identity.sub,
+      userId,
     })
   }
 
   @Get('active')
-  @UseGuards(AccessTokenGuard)
   @ResponseMessage(Messages.GET_WORKSPACE_SUCCESS)
-  async currentWorkSpace(@CurrentTenant() tenant: AccessTokenPayload) {
+  async currentWorkSpace(@CurrentAuth() auth: AuthContext) {
     return await this.getActiveWorkspace.execute({
-      userId: tenant.sub,
-      workspaceId: tenant.tid,
+      userId: auth.userId,
+      workspaceId: auth.workspaceId,
     })
   }
 
   @Get('all')
-  // @UseGuards(AccessTokenGuard)
   @ResponseMessage(Messages.GET_WORKSPACE_SUCCESS)
   async getAllWorkspaces(
     @Query('page') page: number,
@@ -192,7 +182,6 @@ export class WorkspaceController {
   }
 
   @Get('members')
-  @UseGuards(AccessTokenGuard, RefreshTokenGuard)
   async getAllWorkspaceMembers(
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -203,13 +192,12 @@ export class WorkspaceController {
       })
     )
     status: WorkspaceMemberStatus,
-    @CurrentTenant()
-    tenant: AccessTokenPayload,
+    @CurrentAuth('workspaceId') workspaceId: string,
     @Query('roleId') roleId?: string,
     @Query('search') search?: string
   ): Promise<GetWorkspaceMembersReponse> {
     return await this.getWorkspaceMembersUseCase.execute({
-      workspaceId: tenant.tid!,
+      workspaceId,
       limit,
       page,
       roleId,
@@ -219,71 +207,65 @@ export class WorkspaceController {
   }
 
   @Get('/members/:id')
-  @UseGuards(AccessTokenGuard, RefreshTokenGuard)
   async getWorkspaceMember(
     @Param('id') memberId: string,
-    @CurrentTenant() tenant: AccessTokenPayload
+    @CurrentAuth('workspaceId') workspaceId: string
   ) {
     return this.getWorkspaceMemberUseCase.execute({
       memberId,
-      workspaceId: tenant.tid!,
+      workspaceId,
     })
   }
 
   @Patch('/members/:id')
-  @UseGuards(AccessTokenGuard, RefreshTokenGuard)
   async updateWorkspaceMember(
     @Param('id') memberId: string,
     @Body() { roleId, status }: UpdateWorkspaceMemberRequest,
-    @CurrentTenant() tenant: AccessTokenPayload
+    @CurrentAuth('workspaceId') workspaceId: string
   ) {
     return this.updateWorkspaceMemberUseCase.execute({
       memberId,
-      workspaceId: tenant.tid!,
+      workspaceId,
       roleId,
       status,
     })
   }
 
   @Delete('/members/:id/remove')
-  @UseGuards(AccessTokenGuard, RefreshTokenGuard)
   async removeWorkspaceMember(
     @Param('id') memberId: string,
-    @CurrentTenant() tenant: AccessTokenPayload
+    @CurrentAuth('workspaceId') workspaceId: string
   ) {
     return this.removeWorkspaceMemberUseCase.execute({
       memberId,
-      workspaceId: tenant.tid!,
+      workspaceId,
     })
   }
 
   @Post()
-  @UseGuards(RefreshTokenGuard)
   async createWorkspace(
-    @CurrentIdentity() identity: RefreshTokenPayload,
+    @CurrentAuth('userId') userId: string,
     @Body() request: CreateWorkspaceRequest
   ): Promise<CreateWorkspaceResponse> {
     return await this.createWorkspaceUseCase.execute({
       name: request.name,
       slug: request.slug,
-      userId: identity.sub,
+      userId,
       companySize: request.companySize,
       companyType: request.companyType,
     })
   }
 
   @Put()
-  @UseGuards(RefreshTokenGuard, AccessTokenGuard)
   async editWorkspace(
     @Body() request: EditWorkspaceRequest,
-    @CurrentIdentity() identity: RefreshTokenPayload,
-    @CurrentTenant() tenant: AccessTokenPayload
+    @CurrentAuth() auth: AuthContext
   ): Promise<EditWorkspaceResponse> {
     const { name, slug, companySize, companyType } = request
 
     return await this.editWorkspaceUseCase.execute({
-      userId: identity.sub,
-      workspaceId: tenant.tid!,
+      userId: auth.userId,
+      workspaceId: auth.workspaceId!,
       name,
       slug,
       companySize,
@@ -292,15 +274,13 @@ export class WorkspaceController {
   }
 
   @Post('invite')
-  @UseGuards(RefreshTokenGuard, AccessTokenGuard)
   async inviteWorkspaceMember(
-    @CurrentIdentity() identity: RefreshTokenPayload,
-    @CurrentTenant() tenant: AccessTokenPayload,
+    @CurrentAuth() auth: AuthContext,
     @Body() request: InviteWorkspaceMemberRequest
   ): Promise<InviteWorkspaceMemberResponse> {
     return await this.inviteWorkspaceMemberUseCase.execute({
-      workspaceId: tenant.tid!,
-      invitedBy: identity.sub,
+      workspaceId: auth.workspaceId!,
+      invitedBy: auth.userId,
       email: request.email,
       roleId: request.roleId,
     })
@@ -316,44 +296,40 @@ export class WorkspaceController {
   }
 
   @Post('invite/:token/accept')
-  @UseGuards(RefreshTokenGuard)
   async acceptWorkspaceInvitation(
-    @CurrentIdentity() identity: RefreshTokenPayload,
+    @CurrentAuth('userId') userId: string,
     @Param('token', WorkspaceInvitationTokenPipe) token: string
   ): Promise<AcceptWorkspaceInvitationReponse> {
     return this.acceptWorkspaceInvitationUseCase.execute({
       token,
-      userId: identity.sub,
+      userId,
     })
   }
 
   @Post('roles')
-  @UseGuards(AccessTokenGuard, RefreshTokenGuard)
   async createWorkspaceRole(
-    @CurrentIdentity() identity: RefreshTokenPayload,
-    @CurrentTenant() tenant: AccessTokenPayload,
+    @CurrentAuth() auth: AuthContext,
     @Body() request: CreateWorkspaceRoleRequest
   ): Promise<CreateWorkspaceRoleResponse> {
     return this.createWorkspaceRoleUseCase.execute({
-      workspaceId: tenant.tid!,
+      workspaceId: auth.workspaceId!,
       name: request.name,
       description: request.description,
       permissionIds: request.permissionIds,
-      createdBy: identity.sub,
+      createdBy: auth.userId,
     })
   }
 
   @Get('roles')
-  @UseGuards(AccessTokenGuard, RefreshTokenGuard)
   async workspaceRoles(
     @Query('name') name: string,
     @Query('scope') scope: RoleScope,
     @Query('status') status: RoleStatus,
     @Query('type') type: 'all' | 'assignable',
-    @CurrentTenant() tenant: AccessTokenPayload
+    @CurrentAuth('workspaceId') workspaceId: string
   ) {
     return this.getworkspaceRoles.execute({
-      workspaceId: tenant.tid!,
+      workspaceId,
       name,
       scope,
       status,
@@ -362,15 +338,14 @@ export class WorkspaceController {
   }
 
   @Patch('roles/:id')
-  @UseGuards(RefreshTokenGuard, AccessTokenGuard)
   async updateWorkspaceRole(
     @Param('id') roleId: string,
     @Body() request: UpdateWorkspaceRoleRequest,
-    @CurrentTenant() tenant: AccessTokenPayload
+    @CurrentAuth('workspaceId') workspaceId: string
   ): Promise<UpdateWorkspaceRoleResponse> {
     return this.updateWorkspaceRoleUseCase.execute({
       roleId: roleId,
-      workspaceId: tenant.tid!,
+      workspaceId,
       permissionIds: request.permissionIds,
       description: request.description,
       name: request.name,
@@ -379,14 +354,13 @@ export class WorkspaceController {
   }
 
   @Delete('roles/:id')
-  @UseGuards(RefreshTokenGuard, AccessTokenGuard)
   async deleteWorkspaceRole(
     @Param('id') roleId: string,
-    @CurrentTenant() tenant: AccessTokenPayload
+    @CurrentAuth('workspaceId') workspaceId: string
   ): Promise<void> {
     return this.deleteWorkspaceRoleUseCase.execute({
       roleId,
-      workspaceId: tenant.tid!,
+      workspaceId,
     })
   }
 

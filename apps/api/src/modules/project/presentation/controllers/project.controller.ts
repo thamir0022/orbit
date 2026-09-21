@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Inject,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common'
+import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common'
 import {
   CREATE_PROJECT,
   type ICreateProjectUseCase,
@@ -17,18 +9,12 @@ import {
   GetProjectsRequest,
   GetProjectsResponse,
 } from '../dtos'
-import { AccessTokenGuard } from '@/shared/infrastructure/security/guards/access-token.guard'
-import { RefreshTokenGuard } from '@/shared/infrastructure/security/guards/refresh-token.guard'
-import { CurrentIdentity } from '@/shared/presentation/decorators/current-identity.decorator'
-import {
-  type AccessTokenPayload,
-  type RefreshTokenPayload,
-} from '@/shared/domain/types'
-import { CurrentTenant } from '@/shared/presentation/decorators/current-tenent.decorator'
 import {
   GET_PROJECTS,
   type IGetProjectsUseCase,
 } from '../../application/usecases/get-projects.interface'
+import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
+import { AuthContext } from '@/shared/domain/types'
 
 @Controller('projects')
 export class ProjectController {
@@ -41,10 +27,8 @@ export class ProjectController {
   ) {}
 
   @Post('')
-  @UseGuards(AccessTokenGuard, RefreshTokenGuard)
   async createProject(
-    @CurrentIdentity() identity: RefreshTokenPayload,
-    @CurrentTenant() tenant: AccessTokenPayload,
+    @CurrentAuth() auth: AuthContext,
     @Body() request: CreateProjectRequest
   ): Promise<CreateProjectResponse> {
     const {
@@ -60,7 +44,7 @@ export class ProjectController {
       type,
     } = request
     return this.createProjectUseCase.execute({
-      workspaceId: tenant.tid!,
+      workspaceId: auth.workspaceId!,
       name,
       key,
       description,
@@ -71,18 +55,17 @@ export class ProjectController {
       type,
       targetEndDate,
       leadId,
-      createdBy: identity.sub,
+      createdBy: auth.userId,
     })
   }
 
   @Get('')
-  @UseGuards(AccessTokenGuard, RefreshTokenGuard)
   async getProjects(
-    @CurrentTenant() tenant: AccessTokenPayload,
+    @CurrentAuth('workspaceId') workspaceId: string,
     @Query() query: GetProjectsRequest
   ): Promise<GetProjectsResponse> {
     return this.getProjectsUseCase.execute({
-      workspaceId: tenant.tid!,
+      workspaceId,
       name: query.name,
       key: query.key,
       type: query.type,
