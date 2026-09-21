@@ -1,33 +1,54 @@
-import type { AxiosError, AxiosRequestConfig } from "axios";
-import { AxiosInterceptor } from "../types/axios.types";
+import type {
+  AxiosError,
+  AxiosInstance,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
 
-export interface AuthInterceptorOptions {
-  /**
-   * Called when an authentication failure occurs.
-   *
-   * Responsible for refreshing credentials.
-   */
-  onUnauthorized(error: AxiosError, request: AxiosRequestConfig): Promise<void>;
+export interface UnauthorizedContext {
+  error: AxiosError;
+  client: AxiosInstance;
 }
 
-export function authInterceptor({
-  onUnauthorized,
-}: AuthInterceptorOptions): AxiosInterceptor {
-  return (client) => {
+export interface AuthInterceptorOptions {
+  onUnauthorized?: (context: UnauthorizedContext) => Promise<AxiosResponse>;
+}
+
+export interface AuthAxiosRequestConfig extends InternalAxiosRequestConfig {
+  skipAuthHandling?: boolean;
+  _authRetry?: boolean;
+}
+
+export type AxiosInterceptor = (client: AxiosInstance) => void;
+
+export const authInterceptor = (
+  options: AuthInterceptorOptions = {},
+): AxiosInterceptor => {
+  const { onUnauthorized } = options;
+
+  return (client: AxiosInstance) => {
     client.interceptors.response.use(
       (response) => response,
 
       async (error: AxiosError) => {
-        const request = error.config;
+        const config = error.config as AuthAxiosRequestConfig | undefined;
 
-        if (error.response?.status === 401 && request) {
-          await onUnauthorized(error, request);
+        const isUnauthorized = error.response?.status === 401;
 
-          return client(request);
+        const shouldHandleUnauthorized =
+          isUnauthorized &&
+          !config?.skipAuthHandling &&
+          !config?._authRetry &&
+          onUnauthorized;
+
+        if (!shouldHandleUnauthorized) {
+          return Promise.reject(error);
         }
-
-        return Promise.reject(error);
+        return onUnauthorized({
+          error,
+          client,
+        });
       },
     );
   };
-}
+};
