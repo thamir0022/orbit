@@ -17,6 +17,7 @@ export const API_ROUTES = {
 
     SESSIONS: {
       ACTIVE: '/auth/sessions',
+      REVOKE: (publicId: string) => `/auth/sessions/${publicId}`,
     },
   },
   USERS: {

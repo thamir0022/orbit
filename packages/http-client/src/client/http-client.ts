@@ -58,7 +58,7 @@ export class HttpClient {
 
   async delete<T>(
     url: string,
-    data: unknown,
+    data?: unknown,
     config?: HttpRequestConfig,
   ): Promise<ApiSuccess<T>> {
     return this.request({

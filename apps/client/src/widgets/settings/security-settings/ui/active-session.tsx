@@ -30,6 +30,7 @@ import type {
 import { useActiveSessionQuery } from '@/entities/session/model/use-active-session.query'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
+import { useRevokeSessionMutation } from '../model/use-revoke-session.mutation'
 
 const DEVICE_ICONS: Record<SessionDeviceType, LucideIcon> = {
   desktop: Monitor,
@@ -103,9 +104,10 @@ const SessionDevice = ({ session }: SessionDeviceProps) => {
     .filter(Boolean)
     .join(' · ')
 
+  const { mutate: revokeSession } = useRevokeSessionMutation()
+
   const handleRevoke = () => {
-    // TODO: call revoke session mutation here
-    console.log('Revoke session:', session.id)
+    revokeSession(session.id)
   }
 
   return (
