@@ -66,6 +66,7 @@ import {
   IUserAgentParserService,
   USER_AGENT_PARSER,
 } from '../ports/user-agent-parser.interface'
+import { InvalidSessionException } from '../../domain/exceptions/auth.exception'
 
 export interface IAuthRedirectConfig {
   rootDomain: string
@@ -141,6 +142,21 @@ export class AuthService implements IAuthService {
 
   async getSession(sessionId: string): Promise<SessionData | null> {
     return await this.sessionManager.getSession(sessionId)
+  }
+
+  async getSessionByPublicId({
+    publicId,
+    userId,
+  }: {
+    publicId: string
+    userId: string
+  }): Promise<SessionData | undefined> {
+    const userSessions = await this.getAllUserSession(userId)
+
+    if (!userSessions || !userSessions.length)
+      throw new InvalidSessionException()
+
+    return userSessions.find(({ id }) => publicId === id)
   }
 
   async extendSession(sessionId: string, newExpiresAt: Date): Promise<void> {

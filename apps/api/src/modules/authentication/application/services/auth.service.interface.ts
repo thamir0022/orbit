@@ -32,6 +32,10 @@ export interface IAuthService {
   createSession(payload: CreateSessionPayload): Promise<string>
   getAllUserSession(userId: string): Promise<SessionData[] | null>
   getSession(sessionId: string): Promise<SessionData | null>
+  getSessionByPublicId(getSessionProps: {
+    publicId: string
+    userId: string
+  }): Promise<SessionData | undefined>
   extendSession(sessionId: string, newExpiresAt: Date): Promise<void>
   revokeSession(sessionId: string): Promise<void>
   revokeAllUserSessions(userId: UserId): Promise<void>
