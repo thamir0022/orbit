@@ -31,6 +31,7 @@ import { useActiveSessionQuery } from '@/entities/session/model/use-active-sessi
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { useRevokeSessionMutation } from '../model/use-revoke-session.mutation'
+import { SignOutButton } from '@/features/auth/sign-out/ui/sign-out-button'
 
 const DEVICE_ICONS: Record<SessionDeviceType, LucideIcon> = {
   desktop: Monitor,
@@ -104,7 +105,7 @@ const SessionDevice = ({ session }: SessionDeviceProps) => {
     .filter(Boolean)
     .join(' · ')
 
-  const { mutate: revokeSession } = useRevokeSessionMutation()
+  const { mutate: revokeSession, isPending } = useRevokeSessionMutation()
 
   const handleRevoke = () => {
     revokeSession(session.id)
@@ -172,31 +173,36 @@ const SessionDevice = ({ session }: SessionDeviceProps) => {
         </div>
       </div>
 
-      {/* Revoke */}
+      {/* Session action */}
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button
-            type="button"
-            size="xs"
-            variant="outline"
-            className={cn(
-              'h-7 gap-1.5 border-red-500/20',
-              'bg-red-500/5 px-2.5',
-              'text-red-500/80',
-              'hover:border-red-500/30',
-              'hover:bg-red-500/10',
-              'hover:text-red-500',
-              'dark:border-red-400/20',
-              'dark:bg-red-400/5',
-              'dark:text-red-400/80',
-              'dark:hover:border-red-400/30',
-              'dark:hover:bg-red-400/10',
-              'dark:hover:text-red-300'
-            )}
-          >
-            <X className="size-3" />
-            Revoke
-          </Button>
+          {isCurrent ? (
+            <SignOutButton />
+          ) : (
+            <Button
+              type="button"
+              size="xs"
+              variant="outline"
+              isLoading={isPending}
+              className={cn(
+                'h-7 gap-1.5 border-red-500/20',
+                'bg-red-500/5 px-2.5',
+                'text-red-500/80',
+                'hover:border-red-500/30',
+                'hover:bg-red-500/10',
+                'hover:text-red-500',
+                'dark:border-red-400/20',
+                'dark:bg-red-400/5',
+                'dark:text-red-400/80',
+                'dark:hover:border-red-400/30',
+                'dark:hover:bg-red-400/10',
+                'dark:hover:text-red-300'
+              )}
+            >
+              <X className="size-3" />
+              Revoke
+            </Button>
+          )}
         </AlertDialogTrigger>
 
         <AlertDialogContent size="sm">
