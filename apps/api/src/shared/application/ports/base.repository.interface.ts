@@ -1,7 +1,7 @@
 import { ITransactionOptions } from './transaction-manager.interface'
 
 export interface IBaseRepository<TEntity, TId> {
-  findById(id: TId): Promise<TEntity | null>
+  findById(id: TId, options?: ITransactionOptions): Promise<TEntity | null>
   save(entity: TEntity, options?: ITransactionOptions): Promise<void>
   delete(id: TId, options?: ITransactionOptions): Promise<void>
 }
