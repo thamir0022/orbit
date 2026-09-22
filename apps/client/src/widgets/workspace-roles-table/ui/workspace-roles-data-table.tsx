@@ -1,11 +1,9 @@
 'use client'
 
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
+import type { ColumnDef, RowData } from '@tanstack/react-table'
+import type { Dispatch, ReactNode, SetStateAction } from 'react'
+import { useTable } from '@tanstack/react-table'
+
 import {
   Table,
   TableBody,
@@ -15,20 +13,44 @@ import {
   TableRow,
 } from '@/shared/ui/table'
 
-type WorkspaceRolesDataTableProps<TData, TValue> = {
-  columns: ColumnDef<TData, TValue>[]
+import {
+  workspaceRolesTableFeatures,
+  type WorkspaceRolesTableFeatures,
+} from '../model/data-table-features'
+
+type WorkspaceRolesDataTableProps<TData extends RowData> = {
+  columns: ColumnDef<WorkspaceRolesTableFeatures, TData>[]
   data: TData[]
+
+  globalFilter: string
+  onGlobalFilterChange: Dispatch<SetStateAction<string>>
+
+  emptyState?: ReactNode
 }
 
-export function WorkspaceRolesDataTable<TData, TValue>({
+export function WorkspaceRolesDataTable<TData extends RowData>({
   columns,
   data,
-}: WorkspaceRolesDataTableProps<TData, TValue>) {
-  const table = useReactTable({
+  globalFilter,
+  onGlobalFilterChange,
+  emptyState,
+}: WorkspaceRolesDataTableProps<TData>) {
+  const table = useTable({
+    features: workspaceRolesTableFeatures,
+
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
+
+    globalFilterFn: 'includesString',
+
+    state: {
+      globalFilter,
+    },
+
+    onGlobalFilterChange,
   })
+
+  const rows = table.getRowModel().rows
 
   return (
     <div className="overflow-hidden rounded-2xl border">
@@ -38,12 +60,9 @@ export function WorkspaceRolesDataTable<TData, TValue>({
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <TableHead key={header.id} className="h-12">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                  {header.isPlaceholder ? null : (
+                    <table.FlexRender header={header} />
+                  )}
                 </TableHead>
               ))}
             </TableRow>
@@ -51,20 +70,27 @@ export function WorkspaceRolesDataTable<TData, TValue>({
         </TableHeader>
 
         <TableBody>
-          {table.getRowModel().rows.length
-            ? table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-4 align-top">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            : null}
+          {rows.length > 0 ? (
+            rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id} className="py-4 align-top">
+                    <table.FlexRender cell={cell} />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-40">
+                {emptyState ?? (
+                  <div className="flex items-center justify-center text-sm text-muted-foreground">
+                    No results.
+                  </div>
+                )}
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </div>

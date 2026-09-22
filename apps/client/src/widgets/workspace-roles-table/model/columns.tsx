@@ -1,49 +1,62 @@
 'use client'
 
-import type { ColumnDef } from '@tanstack/react-table'
-import { Badge } from '@/shared/ui/badge'
+import { createColumnHelper } from '@tanstack/react-table'
+
 import type { WorkspaceRole } from '@/entities/role'
+import { Badge } from '@/shared/ui/badge'
+
+import { workspaceRolesTableFeatures } from './data-table-features'
 import { RoleActions } from '../ui/role-actions'
 
 type GetWorkspaceRolesColumnsOptions = {
   workspaceId: string
 }
 
+const columnHelper = createColumnHelper<
+  typeof workspaceRolesTableFeatures,
+  WorkspaceRole
+>()
+
 export function getWorkspaceRolesColumns({
   workspaceId,
-}: GetWorkspaceRolesColumnsOptions): ColumnDef<WorkspaceRole>[] {
-  return [
-    {
-      accessorKey: 'name',
+}: GetWorkspaceRolesColumnsOptions) {
+  return columnHelper.columns([
+    columnHelper.accessor('name', {
       header: 'Role',
-      cell: ({ row }) => {
-        return <span className="font-medium">{row.original.name}</span>
-      },
-    },
-    {
-      accessorKey: 'description',
+
+      enableGlobalFilter: true,
+
+      cell: ({ getValue }) => <span className="font-medium">{getValue()}</span>,
+    }),
+
+    columnHelper.accessor('description', {
       header: 'Description',
-      cell: ({ row }) => {
-        return <span>{row.original.description ?? '—'}</span>
+
+      enableGlobalFilter: true,
+
+      cell: ({ getValue }) => {
+        return <span>{getValue() ?? '—'}</span>
       },
-    },
-    {
+    }),
+
+    columnHelper.display({
       id: 'type',
       header: 'Type',
-      cell: ({ row }) => {
-        return (
-          <Badge variant="secondary">
-            {row.original.isPredefined ? 'Predefined' : 'Custom'}
-          </Badge>
-        )
-      },
-    },
-    {
+
+      cell: ({ row }) => (
+        <Badge variant="secondary">
+          {row.original.isPredefined ? 'Predefined' : 'Custom'}
+        </Badge>
+      ),
+    }),
+
+    columnHelper.display({
       id: 'actions',
       header: 'Actions',
+
       cell: ({ row }) => (
         <RoleActions workspaceId={workspaceId} role={row.original} />
       ),
-    },
-  ]
+    }),
+  ])
 }
