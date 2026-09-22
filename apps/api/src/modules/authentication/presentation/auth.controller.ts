@@ -3,6 +3,7 @@ import {
   CompleteRegistrationRequest,
   ExchnageTokenRequestDto,
   GetActiveSessionsResponseDto,
+  RevokeSessionRequestDto,
   SignInResponseDto,
   SignUpCompleteResponseDto,
   SignUpResendOtpRequest,
@@ -11,6 +12,7 @@ import {
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
   HttpCode,
@@ -126,6 +128,10 @@ import {
   IGetActiveSessionsUseCase,
 } from '../application/usecases/get-active-sessions.interface'
 import { AuthContext } from '@/shared/domain/types'
+import {
+  IRevokeSessionUseCase,
+  REVOKE_SESSION,
+} from '../application/usecases/revoke-session.interface'
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -163,6 +169,8 @@ export class AuthController {
     private readonly signOutUseCase: ISignOutUseCase,
     @Inject(GET_ACTIVE_SESSIONS)
     private readonly getSessionsUseCase: IGetActiveSessionsUseCase,
+    @Inject(REVOKE_SESSION)
+    private readonly revokeSessionUseCase: IRevokeSessionUseCase,
     @Inject(TOKEN_CONFIG)
     private readonly _config: ITokenConfig & IAppConfig
   ) {}
@@ -512,6 +520,17 @@ export class AuthController {
     return await this.getSessionsUseCase.execute({
       sid: auth.sessionId,
       userId: auth.userId,
+    })
+  }
+
+  @Delete('sessions/:publicId')
+  async revokeSession(
+    @Param() { publicId }: RevokeSessionRequestDto,
+    @CurrentAuth('userId') userId: string
+  ) {
+    return this.revokeSessionUseCase.execute({
+      userId,
+      publicId,
     })
   }
 }

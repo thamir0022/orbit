@@ -39,6 +39,8 @@ import { CHANGE_PASSWORD } from './application/usecases/change-password.interfac
 import { ChangePasswordUseCase } from './application/usecases/change-password.usecase'
 import { GET_ACTIVE_SESSIONS } from './application/usecases/get-active-sessions.interface'
 import { GetActiveSessionsUseCase } from './application/usecases/get-active-sessions.usecase'
+import { REVOKE_SESSION } from './application/usecases/revoke-session.interface'
+import { RevokeSessionUseCase } from './application/usecases/revoke-session.usecase'
 
 @Module({
   imports: [
@@ -119,6 +121,10 @@ import { GetActiveSessionsUseCase } from './application/usecases/get-active-sess
     {
       provide: GET_ACTIVE_SESSIONS,
       useClass: GetActiveSessionsUseCase,
+    },
+    {
+      provide: REVOKE_SESSION,
+      useClass: RevokeSessionUseCase,
     },
   ],
 })

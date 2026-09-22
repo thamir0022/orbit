@@ -103,3 +103,13 @@ export class AuthProviderMismatchException extends DomainException {
     })
   }
 }
+
+export class InvalidSessionException extends DomainException {
+  constructor() {
+    super({
+      code: 'INVALID_SESSION',
+      message: 'Session is invalid',
+      statusCode: HttpStatus.BAD_REQUEST,
+    })
+  }
+}
