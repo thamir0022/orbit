@@ -19,6 +19,7 @@ import { Separator } from '@/shared/ui/separator'
 
 import { useUser } from '@/entities/user/model/user.store'
 import { PasswordSection } from './password-section'
+import { ActiveSession } from './active-session'
 
 export const SecuritySettings = () => {
   const user = useUser()
@@ -136,38 +137,14 @@ export const SecuritySettings = () => {
 
           {/* Password */}
 
-          <PasswordSection/>
-          
+          <PasswordSection />
         </div>
       </section>
 
       <Separator className="my-4" />
 
       {/* Sessions */}
-      <section>
-        <h2 className="text-lg font-medium">Sessions</h2>
-
-        <div className="mt-3">
-          <Field
-            orientation="horizontal"
-            className="min-h-14 justify-between py-2"
-          >
-            <FieldContent className="my-auto min-w-36">
-              <FieldLabel>Active sessions</FieldLabel>
-            </FieldContent>
-
-            <div className="flex items-center gap-3">
-              <span className="text-muted-foreground text-sm">
-                Manage your signed-in devices
-              </span>
-
-              <Button type="button" variant="outline" size="sm">
-                View
-              </Button>
-            </div>
-          </Field>
-        </div>
-      </section>
+      <ActiveSession />
     </div>
   )
 }

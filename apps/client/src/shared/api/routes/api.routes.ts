@@ -14,6 +14,10 @@ export const API_ROUTES = {
     CHANGE_PASSWORD: '/auth/password',
     EXCHANGE: '/auth/exchange',
     SIGN_OUT: '/auth/sign-out',
+
+    SESSIONS: {
+      ACTIVE: '/auth/sessions',
+    },
   },
   USERS: {
     ME: '/users/me',
