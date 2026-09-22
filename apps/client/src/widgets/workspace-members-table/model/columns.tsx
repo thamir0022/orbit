@@ -1,81 +1,105 @@
 'use client'
 
-import type { ColumnDef } from '@tanstack/react-table'
-import { Badge } from '@/shared/ui/badge'
-import type { Role } from '@/entities/role'
-import type { WorkspaceMember } from '@/entities/workspace-member'
-import { formatDateTime } from '@/shared/lib/format-date'
-import { MemberActions } from '../ui/member-actions'
-import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
+import { createColumnHelper } from '@tanstack/react-table'
 
-function prettifyRoleName(value: string): string {
-  return value.replaceAll('_', ' ')
-}
+import type { WorkspaceRole } from '@/entities/role'
+import type { WorkspaceMember } from '@/entities/workspace-member'
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
+import { Badge } from '@/shared/ui/badge'
+import { formatDateTime } from '@/shared/lib/format-date'
+
+import { workspaceMembersTableFeatures } from './data-table-features'
+import { MemberActions } from '../ui/member-actions'
 
 type GetWorkspaceMembersColumnsOptions = {
-  roles: Role[]
+  roles: WorkspaceRole[]
   rolesLoading?: boolean
+}
+
+const columnHelper = createColumnHelper<
+  typeof workspaceMembersTableFeatures,
+  WorkspaceMember
+>()
+
+function formatRoleName(value: string): string {
+  return value.replaceAll('_', ' ')
 }
 
 export function getWorkspaceMembersColumns({
   roles,
   rolesLoading = false,
-}: GetWorkspaceMembersColumnsOptions): ColumnDef<WorkspaceMember>[] {
-  return [
-    {
-      accessorKey: 'displayName',
+}: GetWorkspaceMembersColumnsOptions) {
+  return columnHelper.columns([
+    columnHelper.accessor('displayName', {
       header: 'Member',
-      cell: ({ row }) => {
+
+      cell: ({ row, getValue }) => {
         const member = row.original
+        const displayName = getValue()
 
         return (
-          <div className="flex gap-2">
-            <Avatar>
-              <AvatarImage />
-              <AvatarFallback>{member.displayName[0]}</AvatarFallback>
+          <div className="flex min-w-0 items-center gap-3">
+            <Avatar className="size-8">
+              <AvatarImage
+                src={member.avatarUrl ?? undefined}
+                alt={displayName}
+              />
+
+              <AvatarFallback>
+                {displayName.charAt(0).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
-            <div className="flex min-w-0 flex-col">
-              <span className="truncate font-medium text-left">
-                {member.displayName}
-              </span>
-              <span className="truncate text-sm text-left">{member.email}</span>
+
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium">{displayName}</p>
+
+              <p className="truncate text-xs text-muted-foreground">
+                {member.email}
+              </p>
             </div>
           </div>
         )
       },
-    },
-    {
-      accessorKey: 'roleName',
+    }),
+
+    columnHelper.accessor('roleName', {
       header: 'Role',
-      cell: ({ row }) => {
-        const roleName = row.original.roleName || '—'
 
-        return <Badge variant="secondary">{prettifyRoleName(roleName)}</Badge>
-      },
-    },
-    {
-      accessorKey: 'status',
-      header: 'Status',
-      cell: ({ row }) => {
-        const status = row.original.status || '—'
+      cell: ({ getValue }) => {
+        const roleName = getValue()
 
-        return <Badge variant="outline">{status}</Badge>
-      },
-    },
-    {
-      accessorKey: 'joinedAt',
-      header: 'Joined',
-      cell: ({ row }) => {
         return (
-          <span className="text-sm">
-            {formatDateTime(row.original.joinedAt)}
-          </span>
+          <Badge variant="secondary">
+            {roleName ? formatRoleName(roleName) : '—'}
+          </Badge>
         )
       },
-    },
-    {
+    }),
+
+    columnHelper.accessor('status', {
+      header: 'Status',
+
+      cell: ({ getValue }) => {
+        const status = getValue()
+
+        return <Badge variant="outline">{status || '—'}</Badge>
+      },
+    }),
+
+    columnHelper.accessor('joinedAt', {
+      header: 'Joined',
+
+      cell: ({ getValue }) => (
+        <span className="text-sm text-muted-foreground">
+          {formatDateTime(getValue())}
+        </span>
+      ),
+    }),
+
+    columnHelper.display({
       id: 'actions',
       header: 'Actions',
+
       cell: ({ row }) => (
         <MemberActions
           member={row.original}
@@ -83,6 +107,6 @@ export function getWorkspaceMembersColumns({
           rolesLoading={rolesLoading}
         />
       ),
-    },
-  ]
+    }),
+  ])
 }

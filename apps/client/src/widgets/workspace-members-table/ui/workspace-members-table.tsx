@@ -1,10 +1,11 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+
 import { useWorkspaceRoles } from '@/entities/role'
 import { useWorkspaceMembers } from '@/entities/workspace-member'
-// import { getErrorMessage } from '@/shared/api/http-client'
 import { useDebounce } from '@/shared/lib/use-debounce'
+
 import { getWorkspaceMembersColumns } from '../model/columns'
 import { MembersEmptyState } from './members-empty-state'
 import { MembersPagination } from './members-pagination'
@@ -16,26 +17,29 @@ type WorkspaceMembersTableProps = {
   workspaceId: string
 }
 
+const DEFAULT_PAGE = 1
+const DEFAULT_LIMIT = 10
+
 export function WorkspaceMembersTable({
   workspaceId,
 }: WorkspaceMembersTableProps) {
-  const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
-  const [searchInput, setSearchInput] = useState('')
+  const [page, setPage] = useState(DEFAULT_PAGE)
+  const [limit, setLimit] = useState(DEFAULT_LIMIT)
+  const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
   const [roleId, setRoleId] = useState('')
 
-  const debouncedSearch = useDebounce(searchInput, 350)
+  const debouncedSearch = useDebounce(search, 350)
 
   const params = useMemo(
     () => ({
       page,
       limit,
+      search: debouncedSearch.trim() || undefined,
       status: status || undefined,
       roleId: roleId || undefined,
-      search: debouncedSearch.trim() || undefined,
     }),
-    [page, limit, status, roleId, debouncedSearch]
+    [page, limit, debouncedSearch, status, roleId]
   )
 
   const {
@@ -49,74 +53,80 @@ export function WorkspaceMembersTable({
     useWorkspaceRoles(workspaceId)
 
   const columns = useMemo(
-    () => getWorkspaceMembersColumns({ roles, rolesLoading }),
+    () =>
+      getWorkspaceMembersColumns({
+        roles,
+        rolesLoading,
+      }),
     [roles, rolesLoading]
   )
 
   const members = membersResponse?.workspaceMembers ?? []
   const meta = membersResponse?.meta
+
+  const currentPage = meta?.page ?? page
   const totalPages = meta?.totalPages ?? 0
   const totalMembers = meta?.total ?? 0
 
   const hasFilters =
-    Boolean(searchInput.trim()) ||
-    Boolean(status) ||
-    Boolean(roleId) ||
-    limit !== 10
+    search.trim().length > 0 || Boolean(status) || Boolean(roleId)
 
-  function clearFilters() {
-    setSearchInput('')
+  function resetFilters() {
+    setSearch('')
     setStatus('')
     setRoleId('')
-    setLimit(10)
-    setPage(1)
+    setPage(DEFAULT_PAGE)
   }
 
   function handleSearchChange(value: string) {
-    setSearchInput(value)
-    setPage(1)
+    setSearch(value)
+    setPage(DEFAULT_PAGE)
   }
 
   function handleStatusChange(value: string) {
     setStatus(value)
-    setPage(1)
+    setPage(DEFAULT_PAGE)
   }
 
   function handleRoleChange(value: string) {
     setRoleId(value)
-    setPage(1)
+    setPage(DEFAULT_PAGE)
   }
 
   function handleLimitChange(value: number) {
     setLimit(value)
-    setPage(1)
+    setPage(DEFAULT_PAGE)
   }
-
-  const errorMessage = error && 'Failed to load workspace members'
-  // ? getErrorMessage(error, 'Failed to load workspace members')
-  // : null
 
   return (
     <section className="space-y-6">
-      <div className="rounded-3xl border p-6">
+      <header className="rounded-3xl border p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold">Workspace members</h1>
-            <p className="mt-1 text-sm">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Workspace members
+            </h1>
+
+            <p className="text-sm text-muted-foreground">
               Manage and review all members in this workspace.
             </p>
           </div>
 
-          <div className="rounded-2xl border px-4 py-3">
-            <p className="text-xs uppercase tracking-wide">Total members</p>
-            <p className="text-2xl font-semibold">{totalMembers}</p>
+          <div className="rounded-2xl border bg-muted/30 px-4 py-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Total members
+            </p>
+
+            <p className="text-2xl font-semibold tabular-nums">
+              {totalMembers}
+            </p>
           </div>
         </div>
-      </div>
+      </header>
 
       <MembersToolbar
         workspaceId={workspaceId}
-        searchValue={searchInput}
+        searchValue={search}
         statusValue={status}
         roleValue={roleId}
         roles={roles}
@@ -124,22 +134,30 @@ export function WorkspaceMembersTable({
         onSearchChange={handleSearchChange}
         onStatusChange={handleStatusChange}
         onRoleChange={handleRoleChange}
-        onClearFilters={clearFilters}
+        onClearFilters={resetFilters}
         showClearFilters={hasFilters}
       />
 
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm">{isFetching ? 'Refreshing members...' : ' '}</p>
+      <div className="flex min-h-10 items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground" aria-live="polite">
+          {isFetching && !membersLoading
+            ? 'Updating members…'
+            : `${members.length} members`}
+        </p>
 
         <div className="flex items-center gap-2">
-          <label className="text-sm" htmlFor="members-limit">
-            Rows per page
+          <label
+            htmlFor="members-limit"
+            className="text-sm text-muted-foreground"
+          >
+            Rows
           </label>
+
           <select
             id="members-limit"
             value={limit}
             onChange={(event) => handleLimitChange(Number(event.target.value))}
-            className="h-10 rounded-xl border px-3 text-sm outline-none"
+            className="h-9 rounded-lg border bg-background px-2.5 text-sm outline-none transition-colors focus:ring-2 focus:ring-ring"
           >
             <option value={10}>10</option>
             <option value={20}>20</option>
@@ -148,31 +166,28 @@ export function WorkspaceMembersTable({
         </div>
       </div>
 
-      {membersLoading ? <MembersTableSkeleton rows={limit} /> : null}
-
-      {!membersLoading && errorMessage ? (
-        <div className="rounded-2xl border px-4 py-3 text-sm">
-          {errorMessage}
+      {membersLoading ? (
+        <MembersTableSkeleton rows={limit} />
+      ) : error ? (
+        <div className="rounded-2xl border px-4 py-3 text-sm text-destructive">
+          Failed to load workspace members.
         </div>
-      ) : null}
-
-      {!membersLoading && !errorMessage && members.length === 0 ? (
+      ) : members.length === 0 ? (
         <MembersEmptyState
           showReset={hasFilters}
-          onReset={hasFilters ? clearFilters : undefined}
+          onReset={hasFilters ? resetFilters : undefined}
         />
-      ) : null}
-
-      {!membersLoading && !errorMessage && members.length > 0 ? (
+      ) : (
         <div className="space-y-4">
           <WorkspaceMembersDataTable columns={columns} data={members} />
+
           <MembersPagination
-            page={meta?.page ?? page}
+            page={currentPage}
             totalPages={totalPages}
             onPageChange={setPage}
           />
         </div>
-      ) : null}
+      )}
     </section>
   )
 }

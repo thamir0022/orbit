@@ -1,11 +1,7 @@
 'use client'
 
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
+import { type ColumnDef, type RowData, useTable } from '@tanstack/react-table'
+
 import {
   Table,
   TableBody,
@@ -15,19 +11,24 @@ import {
   TableRow,
 } from '@/shared/ui/table'
 
-type WorkspaceMembersDataTableProps<TData, TValue> = {
-  columns: ColumnDef<TData, TValue>[]
+import {
+  workspaceMembersTableFeatures,
+  type WorkspaceMembersTableFeatures,
+} from '../model/data-table-features'
+
+type WorkspaceMembersDataTableProps<TData extends RowData> = {
+  columns: ColumnDef<WorkspaceMembersTableFeatures, TData>[]
   data: TData[]
 }
 
-export function WorkspaceMembersDataTable<TData, TValue>({
+export function WorkspaceMembersDataTable<TData extends RowData>({
   columns,
   data,
-}: WorkspaceMembersDataTableProps<TData, TValue>) {
-  const table = useReactTable({
+}: WorkspaceMembersDataTableProps<TData>) {
+  const table = useTable({
+    features: workspaceMembersTableFeatures,
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
   })
 
   return (
@@ -37,13 +38,10 @@ export function WorkspaceMembersDataTable<TData, TValue>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="h-12 text-center">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                <TableHead key={header.id} className="h-12">
+                  {header.isPlaceholder ? null : (
+                    <table.FlexRender header={header} />
+                  )}
                 </TableHead>
               ))}
             </TableRow>
@@ -51,20 +49,26 @@ export function WorkspaceMembersDataTable<TData, TValue>({
         </TableHeader>
 
         <TableBody>
-          {table.getRowModel().rows.length
-            ? table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-4 text-center">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            : null}
+          {table.getRowModel().rows.length > 0 ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id} className="py-4">
+                    <table.FlexRender cell={cell} />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell
+                colSpan={columns.length}
+                className="h-24 text-center text-sm text-muted-foreground"
+              >
+                No members found.
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </div>

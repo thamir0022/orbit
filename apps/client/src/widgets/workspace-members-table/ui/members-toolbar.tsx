@@ -1,6 +1,6 @@
 'use client'
 
-import type { Role } from '@/entities/role'
+import type { WorkspaceRole } from '@/entities/role'
 import { InviteMemberDialog } from '@/features/invite-member'
 import { FilterWorkspaceMembersByRole } from '@/features/filter-workspace-members-by-role'
 import { FilterWorkspaceMembersByStatus } from '@/features/filter-workspace-members-by-status'
@@ -12,7 +12,7 @@ type MembersToolbarProps = {
   searchValue: string
   statusValue: string
   roleValue: string
-  roles: Role[]
+  roles: WorkspaceRole[]
   rolesLoading?: boolean
   onSearchChange: (value: string) => void
   onStatusChange: (value: string) => void
