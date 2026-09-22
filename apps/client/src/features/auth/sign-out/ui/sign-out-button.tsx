@@ -12,7 +12,6 @@ import {
 import { Button } from '@/shared/ui/button'
 import { cn } from '@/shared/lib/utils'
 import { LogOut } from 'lucide-react'
-
 import { useSignOutMutation } from '../modal/use-sign-out.mutation'
 
 export function SignOutButton() {
