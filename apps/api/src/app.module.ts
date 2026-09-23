@@ -15,6 +15,7 @@ import { AuthorizationModule } from './modules/authorization/authorization.modul
 import { PlatformAdminModule } from './modules/platform-admin/platform-admin.module'
 import { ProjectModule } from './modules/project/project.module'
 import { createObserveModule } from '@nestjs/observe'
+import { TeamModule } from './modules/team/team.module'
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule()
 @Module({
@@ -38,6 +39,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule()
     WorkspaceModule,
     PlatformAdminModule,
     ProjectModule,
+    TeamModule,
 
     // NestJs Observability
     ObserveModule.forRootAsync({
