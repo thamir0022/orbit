@@ -8,27 +8,29 @@ export interface TeamProps {
   readonly workspaceId: WorkspaceId
   readonly name: string
   readonly description?: string
-  readonly avatar?: string
-  readonly leadId?: UserId
+  readonly avatarUrl?: string
+  readonly leadId: UserId | null
   readonly status: TeamStatus
   readonly createdBy: UserId
+  readonly deletedAt: Date | null
+  readonly deletedBy: UserId | null
   readonly createdAt: Date
   readonly updatedAt: Date
 }
 
 export interface CreateTeamProps {
-  readonly workspaceId: WorkspaceId
+  readonly workspaceId: string
   readonly name: string
   readonly description?: string
-  readonly avatar?: string
-  readonly leadId?: UserId
-  readonly createdBy: UserId
+  readonly avatarUrl?: string
+  readonly leadId?: string
+  readonly createdBy: string
 }
 
 export interface UpdateTeamProps {
-  readonly name: string
-  readonly description: string
-  readonly avatar: string
-  readonly leadId: UserId
-  readonly status: TeamStatus
+  readonly name?: string
+  readonly description?: string
+  readonly avatarUrl?: string
+  readonly leadId?: string
+  readonly status?: TeamStatus
 }

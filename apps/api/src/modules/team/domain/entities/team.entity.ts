@@ -13,9 +13,11 @@ export class Team extends AggregateRoot<TeamId> {
   private readonly _workspaceId: WorkspaceId
   private _name: string
   private _description?: string
-  private _avatar?: string
-  private _leadId?: UserId
+  private _avatarUrl?: string
+  private _leadId: UserId | null
   private _status: TeamStatus
+  private _deletedAt: Date | null
+  private _deletedBy: UserId | null
   private readonly _createdBy: UserId
   private readonly _createdAt: Date
   private _updatedAt: Date
@@ -25,10 +27,12 @@ export class Team extends AggregateRoot<TeamId> {
     this._workspaceId = props.workspaceId
     this._name = props.name
     this._description = props.description
-    this._avatar = props.avatar
+    this._avatarUrl = props.avatarUrl
     this._leadId = props.leadId
     this._status = props.status
     this._createdBy = props.createdBy
+    this._deletedAt = props.deletedAt
+    this._deletedBy = props.deletedBy
     this._createdAt = props.createdAt || new Date()
     this._updatedAt = props.updatedAt || new Date()
   }
@@ -39,13 +43,15 @@ export class Team extends AggregateRoot<TeamId> {
 
     const team = new Team({
       id: teamId,
-      workspaceId: props.workspaceId,
+      workspaceId: WorkspaceId.create(props.workspaceId),
       name: props.name,
       description: props.description,
-      avatar: props.avatar,
-      leadId: props.leadId,
+      avatarUrl: props.avatarUrl,
+      leadId: props.leadId ? UserId.create(props.leadId) : null,
       status: TeamStatus.ACTIVE,
-      createdBy: props.createdBy,
+      createdBy: UserId.create(props.createdBy),
+      deletedAt: null,
+      deletedBy: null,
       createdAt: now,
       updatedAt: now,
     })
@@ -56,9 +62,23 @@ export class Team extends AggregateRoot<TeamId> {
   updateTeam(props: UpdateTeamProps) {
     this._name = props.name ?? this._name
     this._description = props.description ?? this._description
-    this._avatar = props.avatar ?? this._avatar
-    this._leadId = props.leadId ?? this._leadId
+    this._avatarUrl = props.avatarUrl ?? this._avatarUrl
+    this._leadId = props.leadId ? UserId.create(props.leadId) : this._leadId
     this._status = props.status ?? this._status
+  }
+
+  delete(userId: UserId): void {
+    this._deletedAt = new Date()
+    this._deletedBy = userId
+  }
+
+  restore(): void {
+    this._deletedAt = null
+    this._deletedBy = null
+  }
+
+  isDeleted(): boolean {
+    return this._deletedAt !== null
   }
 
   get id(): TeamId {
@@ -77,11 +97,11 @@ export class Team extends AggregateRoot<TeamId> {
     return this._description
   }
 
-  get avatar(): string | undefined {
-    return this._avatar
+  get avatarUrl(): string | undefined {
+    return this._avatarUrl
   }
 
-  get leadId(): UserId | undefined {
+  get leadId(): UserId | null {
     return this._leadId
   }
 
@@ -99,6 +119,14 @@ export class Team extends AggregateRoot<TeamId> {
 
   get updatedAt(): Date {
     return this._updatedAt
+  }
+
+  get deletedAt(): Date | null {
+    return this._deletedAt
+  }
+
+  get deletedBy(): UserId | null {
+    return this._deletedBy
   }
 
   static reconstitute(props: TeamProps): Team {
