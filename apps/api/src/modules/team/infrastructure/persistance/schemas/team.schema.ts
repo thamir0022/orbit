@@ -45,14 +45,28 @@ export class TeamModel {
   @Prop({
     type: MongooseSchema.Types.UUID,
     ref: 'users',
+    default: null,
   })
-  leadId?: string
+  leadId!: string | null
 
   @Prop({
     required: true,
     enum: TeamStatus,
   })
   status!: TeamStatus
+
+  @Prop({
+    type: Date,
+    default: null,
+  })
+  deletedAt!: Date | null
+
+  @Prop({
+    type: MongooseSchema.Types.UUID,
+    ref: 'users',
+    default: null,
+  })
+  deletedBy!: string | null
 
   @Prop({
     required: true,
@@ -93,14 +107,20 @@ TeamSchema.index({
  * Workspace + team name lookup.
  *
  * Useful for:
- * - checking duplicate team names
+ * - prevent duplicate team names within the same workspace.
  * - finding a specific team by name
  * - workspace-scoped team search
  */
-TeamSchema.index({
-  workspaceId: 1,
-  name: 1,
-})
+TeamSchema.index(
+  {
+    workspaceId: 1,
+    name: 1,
+  },
+  {
+    unique: true,
+    name: 'workspace_team_name_unique',
+  }
+)
 
 /**
  * Find teams led by a particular user inside a workspace.
