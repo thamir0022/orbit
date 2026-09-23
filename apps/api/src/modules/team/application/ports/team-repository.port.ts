@@ -8,9 +8,9 @@ export interface FindTeamByWorkspaceIdAndIdProps {
   teamId: TeamId
 }
 
-export interface DeleteTeamByWorkspaceIdAndIdProps {
+export interface FindTeamByWorkspaceIdAndNameProps {
   workspaceId: WorkspaceId
-  teamId: TeamId
+  name: string
 }
 
 export interface TeamRepository extends IBaseRepository<Team, TeamId> {
@@ -24,10 +24,10 @@ export interface TeamRepository extends IBaseRepository<Team, TeamId> {
     options?: ITransactionOptions
   ): Promise<Team | null>
 
-  deleteByWorkspaceIdAndId(
-    props: DeleteTeamByWorkspaceIdAndIdProps,
+  findByWorkspaceIdAndName(
+    props: FindTeamByWorkspaceIdAndNameProps,
     options?: ITransactionOptions
-  ): Promise<void>
+  ): Promise<Team | null>
 }
 
 export const TEAM_REPOSITORY = Symbol('ITeamRepository')

@@ -2,8 +2,8 @@ import { TeamId } from '../../../domain/value-objects/team-id.vo'
 import { Team } from '../../../domain/entities/team.entity'
 import { TeamMapper } from '../../../application/mappers/team.mapper'
 import {
-  DeleteTeamByWorkspaceIdAndIdProps,
   FindTeamByWorkspaceIdAndIdProps,
+  FindTeamByWorkspaceIdAndNameProps,
   TeamRepository,
 } from '../../../application/ports/team-repository.port'
 import { Injectable } from '@nestjs/common'
@@ -28,6 +28,7 @@ export class MongoTeamRepository implements TeamRepository {
       .findOne(
         {
           id: teamId.value,
+          deletedAt: null,
         },
         null,
         {
@@ -48,6 +49,7 @@ export class MongoTeamRepository implements TeamRepository {
       .find(
         {
           workspaceId: workspaceId.value,
+          deletedAt: null,
         },
         null,
         {
@@ -72,6 +74,29 @@ export class MongoTeamRepository implements TeamRepository {
         {
           workspaceId: props.workspaceId.value,
           id: props.teamId.value,
+          deletedAt: null,
+        },
+        null,
+        {
+          session: options?.session,
+        }
+      )
+      .lean()
+      .exec()
+
+    return document ? TeamMapper.toDomainDto(document) : null
+  }
+
+  async findByWorkspaceIdAndName(
+    props: FindTeamByWorkspaceIdAndNameProps,
+    options?: ITransactionOptions
+  ): Promise<Team | null> {
+    const document = await this.teamModel
+      .findOne(
+        {
+          workspaceId: props.workspaceId.value,
+          name: props.name,
+          deletedAt: null,
         },
         null,
         {
@@ -107,23 +132,7 @@ export class MongoTeamRepository implements TeamRepository {
       .deleteOne(
         {
           id: teamId.value,
-        },
-        {
-          session: options?.session,
-        }
-      )
-      .exec()
-  }
-
-  async deleteByWorkspaceIdAndId(
-    props: DeleteTeamByWorkspaceIdAndIdProps,
-    options?: ITransactionOptions
-  ): Promise<void> {
-    await this.teamModel
-      .deleteOne(
-        {
-          workspaceId: props.workspaceId.value,
-          id: props.teamId.value,
+          deletedAt: null,
         },
         {
           session: options?.session,
