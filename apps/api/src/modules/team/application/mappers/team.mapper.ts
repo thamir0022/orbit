@@ -12,10 +12,14 @@ export class TeamMapper {
       workspaceId: WorkspaceId.fromString(document.workspaceId),
       name: document.name,
       description: document.description,
-      avatar: document.avatarUrl,
+      avatarUrl: document.avatarUrl,
+      leadId: document.leadId ? UserId.fromString(document.leadId) : null,
       status: document.status,
-      ...(document.leadId && { leadId: UserId.fromString(document.leadId) }),
       createdBy: UserId.fromString(document.createdBy),
+      deletedAt: document.deletedAt ?? null,
+      deletedBy: document.deletedBy
+        ? UserId.fromString(document.deletedBy)
+        : null,
       createdAt: document.createdAt,
       updatedAt: document.updatedAt,
     })
@@ -24,10 +28,9 @@ export class TeamMapper {
   static toOutputDto(team: Team): TeamDto {
     return {
       id: team.id.value,
-      workspaceId: team.workspaceId.value,
       name: team.name,
       description: team.description,
-      avatar: team.avatar,
+      avatarUrl: team.avatarUrl,
       leadId: team.leadId?.value,
       status: team.status,
       createdBy: team.createdBy.value,
@@ -42,10 +45,12 @@ export class TeamMapper {
       workspaceId: team.workspaceId.value,
       name: team.name,
       description: team.description,
-      avatarUrl: team.avatar,
+      avatarUrl: team.avatarUrl,
       leadId: team.leadId?.value,
       status: team.status,
       createdBy: team.createdBy.value,
+      deletedAt: team.deletedAt,
+      deletedBy: team.deletedBy ? team.deletedBy.value : null,
       createdAt: team.createdAt,
       updatedAt: team.updatedAt,
     }
