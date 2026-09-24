@@ -10,7 +10,7 @@ import { HttpAdapterHost } from '@nestjs/core'
 import type { Request } from 'express'
 
 import { DomainException } from '@/shared/domain/exceptions/domain.exception'
-import { ApiResponseDto } from '../dtos/api-response.dto'
+import { ApiResponseDto } from '../dtos/responses/api-response.dto'
 
 type NormalizedException = {
   statusCode: number

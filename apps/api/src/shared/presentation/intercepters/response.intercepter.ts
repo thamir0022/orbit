@@ -7,7 +7,7 @@ import {
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { Request, Response } from 'express'
-import { ApiResponseDto } from '@/shared/presentation/dtos/api-response.dto'
+import { ApiResponseDto } from '@/shared/presentation/dtos/responses/api-response.dto'
 import { Reflector } from '@nestjs/core'
 import { RESPONSE_MESSAGE_KEY } from '../decorators/response-message.decorator'
 

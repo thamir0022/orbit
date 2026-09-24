@@ -41,7 +41,7 @@ import {
   type ISignInWithEmailUseCase,
   SIGN_IN_WITH_EMAIL,
 } from '../application/usecases/sign-in-with-email.interface'
-import { ApiResponseDto } from '@/shared/presentation/dtos/api-response.dto'
+import { ApiResponseDto } from '@/shared/presentation/dtos/responses/api-response.dto'
 import {
   type ITokenConfig,
   TOKEN_CONFIG,
