@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { teamProviders } from './infrastructure/providers/team.providers'
 import { CREATE_TEAM } from './application/usecases/create-team.interface'
-import { CreateTeamUsecase } from './application/usecases/create-team.usecase'
+import { CreateTeamUseCase } from './application/usecases/create-team.usecase'
 import { TeamController } from './presentation/team.controller'
 import { WorkspaceModule } from '../workspace/workspace.module'
 import { MongooseModule } from '@nestjs/mongoose'
@@ -32,7 +32,7 @@ import { DeleteTeamUseCase } from './application/usecases/delete-team.usecase'
   ],
   providers: [
     ...teamProviders,
-    { provide: CREATE_TEAM, useClass: CreateTeamUsecase },
+    { provide: CREATE_TEAM, useClass: CreateTeamUseCase },
     { provide: GET_TEAMS, useClass: GetTeamsUseCase },
     { provide: GET_TEAM, useClass: GetTeamUseCase },
     { provide: UPDATE_TEAM, useClass: UpdateTeamUseCase },
