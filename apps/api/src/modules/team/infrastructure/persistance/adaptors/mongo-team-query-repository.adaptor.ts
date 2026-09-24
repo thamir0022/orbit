@@ -1,3 +1,4 @@
+import { UUID } from 'mongodb'
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
@@ -25,7 +26,7 @@ export class MongoTeamQueryRepository implements TeamQueryRepository {
       .aggregate<TeamListItemOutput>([
         {
           $match: {
-            workspaceId: workspaceId.value,
+            workspaceId: new UUID(workspaceId.value),
             deletedAt: null,
           },
         },
@@ -123,8 +124,8 @@ export class MongoTeamQueryRepository implements TeamQueryRepository {
       .aggregate<TeamListItemOutput>([
         {
           $match: {
-            workspaceId: props.workspaceId.value,
-            id: props.teamId.value,
+            workspaceId: new UUID(props.workspaceId.value),
+            id: new UUID(props.teamId.value),
             deletedAt: null,
           },
         },
