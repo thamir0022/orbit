@@ -1,2 +1,4 @@
 export { TeamAlreadyExistsException } from './team-already-exists.exception'
 export { TeamNotFoundException } from './team-not-found.exception'
+export { TeamLeadNotWorkspaceMemberException } from './team-lead-not-workspace-member.exception.ts'
+export { TeamLeadNotActiveWorkspaceMemberException } from './team-lead-not-active-workspace-member.exception'
