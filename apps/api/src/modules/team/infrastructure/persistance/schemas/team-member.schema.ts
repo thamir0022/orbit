@@ -48,6 +48,13 @@ export class TeamMemberModel {
 
   @Prop({
     required: true,
+    type: MongooseSchema.Types.UUID,
+    ref: 'users',
+  })
+  addedBy!: string
+
+  @Prop({
+    required: true,
   })
   joinedAt!: Date
 

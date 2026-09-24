@@ -11,6 +11,7 @@ export interface TeamMemberProps {
   teamId: TeamId
   userId: UserId
   status: TeamMemberStatus
+  addedBy: UserId
   joinedAt: Date
   createdAt: Date
   updatedAt: Date
@@ -20,4 +21,5 @@ export interface CreateTeamMemberProps {
   workspaceId: WorkspaceId
   teamId: TeamId
   userId: UserId
+  addedBy: UserId
 }

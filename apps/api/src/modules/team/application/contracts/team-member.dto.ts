@@ -6,6 +6,7 @@ export interface TeamMemberDto {
   teamId: string
   userId: string
   status: TeamMemberStatus
+  addedBy: string
   joinedAt: Date
   createdAt: Date
   updatedAt: Date

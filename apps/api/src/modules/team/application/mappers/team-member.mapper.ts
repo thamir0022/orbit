@@ -15,6 +15,7 @@ export class TeamMemberMapper {
       teamId: TeamId.fromString(document.teamId),
       userId: UserId.fromString(document.userId),
       status: document.status,
+      addedBy: UserId.fromString(document.userId),
       joinedAt: document.joinedAt,
       createdAt: document.createdAt,
       updatedAt: document.updatedAt,
@@ -28,6 +29,7 @@ export class TeamMemberMapper {
       teamId: teamMember.teamId.value,
       userId: teamMember.userId.value,
       status: teamMember.status,
+      addedBy: teamMember.addedBy.value,
       joinedAt: teamMember.joinedAt,
       createdAt: teamMember.createdAt,
       updatedAt: teamMember.updatedAt,
@@ -42,6 +44,7 @@ export class TeamMemberMapper {
       userId: teamMember.userId.value,
       status: teamMember.status,
       joinedAt: teamMember.joinedAt,
+      addedBy: teamMember.addedBy.value,
       createdAt: teamMember.createdAt,
       updatedAt: teamMember.updatedAt,
     }

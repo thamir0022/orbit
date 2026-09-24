@@ -17,6 +17,7 @@ export class TeamMember extends AggregateRoot<TeamMemberId> {
 
   private _status: TeamMemberStatus
 
+  private readonly _addedBy: UserId
   private readonly _joinedAt: Date
   private readonly _createdAt: Date
   private _updatedAt: Date
@@ -30,6 +31,7 @@ export class TeamMember extends AggregateRoot<TeamMemberId> {
 
     this._status = props.status
 
+    this._addedBy = props.addedBy
     this._joinedAt = props.joinedAt
     this._createdAt = props.createdAt
     this._updatedAt = props.updatedAt
@@ -45,6 +47,7 @@ export class TeamMember extends AggregateRoot<TeamMemberId> {
       teamId: props.teamId,
       userId: props.userId,
       status: TeamMemberStatus.ACTIVE,
+      addedBy: props.addedBy,
       joinedAt: now,
       createdAt: now,
       updatedAt: now,
@@ -99,6 +102,10 @@ export class TeamMember extends AggregateRoot<TeamMemberId> {
 
   get status(): TeamMemberStatus {
     return this._status
+  }
+
+  get addedBy(): UserId {
+    return this._addedBy
   }
 
   get joinedAt(): Date {
