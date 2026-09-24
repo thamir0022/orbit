@@ -1,11 +1,9 @@
 import {
   ForbiddenException,
   Inject,
-  Logger,
   UnauthorizedException,
 } from '@nestjs/common'
-import { ExchangeTokenInputDto, ExchangeTokenOutputDto } from '../dto'
-import { IExchangeTokenUseCase } from './exchange-token.interface'
+import { IRefreshTokenUseCase } from './refresh-token.interface'
 import {
   WORKSPACE_REPOSITORY,
   type IWorkspaceRepository,
@@ -29,19 +27,15 @@ import {
   UserStatus,
 } from '@/modules/user/domain'
 import {
-  type IRoleRepository,
-  ROLE_REPOSITORY,
-} from '@/modules/authorization/application/repositories/role.repository'
-import {
   USER_ROLE_REPOSITORY,
   type UserRoleRepository,
 } from '@/modules/authorization/application/repositories/user-role.repository'
 import { Workspace } from '@/modules/workspace/domain'
 import { WorkspaceMapper } from '@/modules/workspace/application/mappers/workspace.mapper'
+import { WorkspaceNotFoundException } from '@/modules/workspace/domain/exceptions/workspace.exception'
+import { RefreshTokenInput, RefreshTokenOutput } from '../dto'
 
-export class ExchangeTokenUseCase implements IExchangeTokenUseCase {
-  private readonly logger = new Logger(ExchangeTokenUseCase.name)
-
+export class RefreshTokenUseCase implements IRefreshTokenUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
@@ -55,47 +49,31 @@ export class ExchangeTokenUseCase implements IExchangeTokenUseCase {
     @Inject(AUTH_SERVICE)
     private readonly authService: IAuthService,
 
-    @Inject(ROLE_REPOSITORY)
-    private readonly roleRepository: IRoleRepository,
-
     @Inject(USER_ROLE_REPOSITORY)
     private readonly userRoleRepository: UserRoleRepository
   ) {}
 
-  async execute({
-    sid,
-    userId,
-    slug,
-  }: ExchangeTokenInputDto): Promise<ExchangeTokenOutputDto> {
-    const userIdValue = UserId.create(userId)
+  async execute(input: RefreshTokenInput): Promise<RefreshTokenOutput> {
+    const userId = UserId.create(input.userId)
 
-    this.logger.debug(
-      `Token exchange started: user=${userId}, workspace=${slug ?? 'none'}`
-    )
+    const user = await this.userRepository.findById(userId)
 
-    const user = await this.userRepository.findById(userIdValue)
+    if (!user) throw new AccountNotFoundException()
 
-    if (!user) {
-      throw new AccountNotFoundException()
-    }
-
-    if (user.status !== UserStatus.ACTIVE) {
+    if (user.status !== UserStatus.ACTIVE)
       throw new AccountInactiveException(user.status)
-    }
 
-    const session = await this.authService.getSession(sid)
-
-    console.log('SESSION : ', session)
+    const session = await this.authService.getSession(input.sessionId)
 
     if (!session)
       throw new UnauthorizedException('Session is expired sign in again')
 
-    const isSystemUser = await this.authService.isSystemUser(userIdValue.value)
+    const isSystemUser = await this.authService.isSystemUser(userId.value)
 
     const { workspace, roleId, permissionKeys } =
       await this.resolveAuthorizationContext({
-        userId: userIdValue,
-        slug,
+        userId,
+        slug: input.slug,
         isSystemUser,
       })
 
@@ -147,11 +125,10 @@ export class ExchangeTokenUseCase implements IExchangeTokenUseCase {
       }
     }
 
-    if (!slug) {
+    if (!slug)
       throw new ForbiddenException(
         'Workspace slug is required for tenant access.'
       )
-    }
 
     const workspaceContext =
       await this.workspaceRepository.findActiveContextBySlug({
@@ -159,13 +136,7 @@ export class ExchangeTokenUseCase implements IExchangeTokenUseCase {
         userId,
       })
 
-    if (!workspaceContext) {
-      this.logger.warn(
-        `Workspace access denied: user=${userId.value}, workspace=${slug}`
-      )
-
-      throw new ForbiddenException('You do not have access to this workspace.')
-    }
+    if (!workspaceContext) throw new WorkspaceNotFoundException(slug)
 
     const permissionKeys =
       await this.rolePermissionRepository.findPermissionKeysByRoleId(

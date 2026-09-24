@@ -26,8 +26,8 @@ import { WorkspaceModule } from '../workspace/workspace.module'
 import { JwtModule } from '@nestjs/jwt'
 import { PASSWORD_RESET_RESEND_OTP } from './application/usecases/password-reset-resend-otp.interface'
 import { PasswordResetResendOtpUseCase } from './application/usecases/password-reset-resend-otp.usecase'
-import { EXCHANGE_TOKEN } from './application/usecases/exchange-token.interface'
-import { ExchangeTokenUseCase } from './application/usecases/exchange-token.usecase'
+import { REFRESH_TOKEN } from './application/usecases/refresh-token.interface'
+import { RefreshTokenUseCase } from './application/usecases/refresh-token.usecase'
 import { SIGN_OUT } from './application/usecases/sign-out.interface'
 import { SignOutUseCase } from './application/usecases/sign-out.usecase'
 import { AuthorizationModule } from '../authorization/authorization.module'
@@ -85,8 +85,8 @@ import { RevokeSessionUseCase } from './application/usecases/revoke-session.usec
       useClass: SignInWithEmailUseCase,
     },
     {
-      provide: EXCHANGE_TOKEN,
-      useClass: ExchangeTokenUseCase,
+      provide: REFRESH_TOKEN,
+      useClass: RefreshTokenUseCase,
     },
     {
       provide: PASSWORD_RESET_REQUEST,

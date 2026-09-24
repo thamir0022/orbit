@@ -1,6 +1,6 @@
 import { WorkspaceDto } from '@/shared/domain/types'
 
-export interface ExchangeTokenOutputDto {
+export interface RefreshTokenOutput {
   workspace?: WorkspaceDto
   accessToken: string
   expiresIn: Date

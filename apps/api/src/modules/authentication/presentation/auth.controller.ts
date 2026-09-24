@@ -1,8 +1,8 @@
 import {
   ChangePasswordRequestDto,
   CompleteRegistrationRequest,
-  ExchnageTokenRequestDto,
   GetActiveSessionsResponseDto,
+  RefreshTokenRequest,
   RevokeSessionRequestDto,
   SignInResponseDto,
   SignUpCompleteResponseDto,
@@ -101,9 +101,9 @@ import {
 } from './dtos'
 import { SignUpUserDetailsResponseDto } from './dtos/sign-up-user-details-response.dto'
 import {
-  EXCHANGE_TOKEN,
-  type IExchangeTokenUseCase,
-} from '../application/usecases/exchange-token.interface'
+  type IRefreshTokenUseCase,
+  REFRESH_TOKEN,
+} from '../application/usecases/refresh-token.interface'
 import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
 import { RefreshTokenGuard } from '@/modules/authentication/presentation/guards/refresh-token.guard'
 import {
@@ -163,8 +163,8 @@ export class AuthController {
     private readonly _changePasswordUseCase: IChangePasswordUseCase,
     @Inject(AUTHENTICATE_WITH_OAUTH)
     private readonly _authenticateWithOAuthUseCase: IAuthenticateWithOAuthUseCase,
-    @Inject(EXCHANGE_TOKEN)
-    private readonly exchangeTokenUseCase: IExchangeTokenUseCase,
+    @Inject(REFRESH_TOKEN)
+    private readonly refreshTokenUseCase: IRefreshTokenUseCase,
     @Inject(SIGN_OUT)
     private readonly signOutUseCase: ISignOutUseCase,
     @Inject(GET_ACTIVE_SESSIONS)
@@ -462,20 +462,20 @@ export class AuthController {
     res.redirect(redirectURL)
   }
 
-  @Post('exchange')
+  @Post('refresh')
   @Public()
   @HttpCode(HttpStatus.OK)
   @UseGuards(RefreshTokenGuard)
-  async exchangeToken(
+  async refreshToken(
     @CurrentAuth() auth: AuthContext,
-    @Body() request: ExchnageTokenRequestDto,
+    @Body() req: RefreshTokenRequest,
     @Res({ passthrough: true }) res: Response
   ) {
     const { workspace, accessToken, expiresIn } =
-      await this.exchangeTokenUseCase.execute({
-        sid: auth.sessionId,
+      await this.refreshTokenUseCase.execute({
+        sessionId: auth.sessionId,
         userId: auth.userId,
-        slug: request.slug,
+        slug: req.slug,
       })
 
     res.cookie('access_token', accessToken, {

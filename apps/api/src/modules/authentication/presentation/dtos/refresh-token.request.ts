@@ -1,7 +1,7 @@
 import { IsOptional, IsString } from 'class-validator'
 
-export class ExchnageTokenRequestDto {
-  @IsString()
+export class RefreshTokenRequest {
   @IsOptional()
-  slug?: string
+  @IsString()
+  readonly slug?: string
 }
