@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+
 import { TeamStatus } from '../../../domain/enums/team-status.enum'
+import { UserSummaryResponseDto } from '@/shared/presentation/dtos/responses/user-summary.response'
 
 export class TeamResponseDto {
   @ApiProperty({
@@ -28,7 +30,7 @@ export class TeamResponseDto {
     format: 'uri',
     nullable: true,
   })
-  avatar?: string
+  avatarUrl?: string
 
   @ApiProperty({
     description: 'Current team status',
@@ -39,19 +41,17 @@ export class TeamResponseDto {
   status!: TeamStatus
 
   @ApiPropertyOptional({
-    description: 'User identifier of the team lead',
-    format: 'uuid',
-    example: '0192f8c4-7a1b-7c32-8f4d-123456789abc',
+    description: 'Team lead',
+    type: () => UserSummaryResponseDto,
     nullable: true,
   })
-  leadId?: string
+  lead!: UserSummaryResponseDto | null
 
   @ApiProperty({
-    description: 'User identifier of the user who created the team',
-    format: 'uuid',
-    example: '0192f8c4-7a1b-7c32-8f4d-123456789abc',
+    description: 'User who created the team',
+    type: () => UserSummaryResponseDto,
   })
-  createdBy!: string
+  createdBy!: UserSummaryResponseDto
 
   @ApiProperty({
     description: 'Team creation timestamp',
