@@ -60,7 +60,6 @@ export class TeamMember extends AggregateRoot<TeamMemberId> {
     }
 
     this._status = TeamMemberStatus.ACTIVE
-    this.touch()
   }
 
   deactivate(): void {
@@ -69,7 +68,6 @@ export class TeamMember extends AggregateRoot<TeamMemberId> {
     }
 
     this._status = TeamMemberStatus.INACTIVE
-    this.touch()
   }
 
   isActive(): boolean {
@@ -78,10 +76,6 @@ export class TeamMember extends AggregateRoot<TeamMemberId> {
 
   isInactive(): boolean {
     return this._status === TeamMemberStatus.INACTIVE
-  }
-
-  private touch(): void {
-    this._updatedAt = new Date()
   }
 
   get id(): TeamMemberId {
