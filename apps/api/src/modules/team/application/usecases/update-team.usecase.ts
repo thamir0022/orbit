@@ -54,8 +54,6 @@ export class UpdateTeamUseCase implements IUpdateTeamUseCase {
         throw new TeamAlreadyExistsException(input.name)
     }
 
-    console.log('TEAM : ', team)
-
     team.updateTeam({
       name: input.name,
       description: input.description,
