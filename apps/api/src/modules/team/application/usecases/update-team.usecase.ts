@@ -14,7 +14,10 @@ import {
   TeamAlreadyExistsException,
   TeamNotFoundException,
 } from '../../domain/exceptions'
-import { TeamMapper } from '../mappers/team.mapper'
+import {
+  TEAM_QUERY_REPOSITORY,
+  TeamQueryRepository,
+} from '../ports/team-query-repository.port'
 
 @Injectable()
 export class UpdateTeamUseCase implements IUpdateTeamUseCase {
@@ -22,7 +25,9 @@ export class UpdateTeamUseCase implements IUpdateTeamUseCase {
     @Inject(WORKSPACE_REPOSITORY)
     private readonly workspaceRepo: WorkspaceRepository,
     @Inject(TEAM_REPOSITORY)
-    private readonly teamRepo: TeamRepository
+    private readonly teamRepo: TeamRepository,
+    @Inject(TEAM_QUERY_REPOSITORY)
+    private readonly teamQueryRepo: TeamQueryRepository
   ) {}
 
   async execute(input: UpdateTeamInput): Promise<UpdateTeamOutput> {
@@ -64,8 +69,13 @@ export class UpdateTeamUseCase implements IUpdateTeamUseCase {
 
     await this.teamRepo.save(team)
 
+    const result = await this.teamQueryRepo.findByWorkspaceIdAndId({
+      workspaceId,
+      teamId: team.id,
+    })
+
     return {
-      team: TeamMapper.toOutputDto(team),
+      team: result!,
     }
   }
 }

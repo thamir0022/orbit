@@ -13,8 +13,11 @@ import {
 } from '@/modules/workspace/domain/exceptions/workspace.exception'
 import { Team } from '../../domain/entities/team.entity'
 import { TEAM_REPOSITORY } from '../ports/team-repository.port'
-import { TeamMapper } from '../mappers/team.mapper'
 import { TeamAlreadyExistsException } from '../../domain/exceptions'
+import {
+  TEAM_QUERY_REPOSITORY,
+  TeamQueryRepository,
+} from '../ports/team-query-repository.port'
 
 @Injectable()
 export class CreateTeamUsecase implements ICreateTeamUseCase {
@@ -22,7 +25,9 @@ export class CreateTeamUsecase implements ICreateTeamUseCase {
     @Inject(WORKSPACE_REPOSITORY)
     private readonly workspaceRepo: IWorkspaceRepository,
     @Inject(TEAM_REPOSITORY)
-    private readonly teamRepo: TeamRepository
+    private readonly teamRepo: TeamRepository,
+    @Inject(TEAM_QUERY_REPOSITORY)
+    private readonly teamQueryRepo: TeamQueryRepository
   ) {}
 
   async execute(input: CreateTeamInput): Promise<CreateTeamOutput> {
@@ -53,8 +58,13 @@ export class CreateTeamUsecase implements ICreateTeamUseCase {
 
     await this.teamRepo.save(team)
 
+    const result = await this.teamQueryRepo.findByWorkspaceIdAndId({
+      workspaceId,
+      teamId: team.id,
+    })
+
     return {
-      team: TeamMapper.toOutputDto(team),
+      team: result!,
     }
   }
 }

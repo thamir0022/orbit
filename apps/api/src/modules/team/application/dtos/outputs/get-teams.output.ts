@@ -1,5 +1,5 @@
-import { TeamDto } from '../../contracts/team.dto'
+import { TeamListItemOutput } from '../../contracts/team-list-item.output'
 
 export interface GetTeamsOutput {
-  readonly teams: TeamDto[]
+  readonly teams: TeamListItemOutput[]
 }

@@ -13,7 +13,12 @@ import {
   CREATE_TEAM,
   ICreateTeamUseCase,
 } from '../application/usecases/create-team.interface'
-import { CreateTeamRequest, CreateTeamResponse, GetTeamRequest } from './dtos'
+import {
+  CreateTeamRequest,
+  CreateTeamResponse,
+  GetTeamRequest,
+  GetTeamResponse,
+} from './dtos'
 import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
 import { AuthContext } from '@/shared/domain/types'
 import {
@@ -80,7 +85,7 @@ export class TeamController {
   async getTeam(
     @CurrentAuth() auth: AuthContext,
     @Param() req: GetTeamRequest
-  ) {
+  ): Promise<GetTeamResponse> {
     return this.getTeamUseCase.execute({
       workspaceId: auth.workspaceId!,
       teamId: req.teamId,
