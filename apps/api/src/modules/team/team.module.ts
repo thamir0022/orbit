@@ -25,6 +25,8 @@ import { ADD_TEAM_MEMBERS } from './application/usecases/add-team-members.interf
 import { AddTeamMembersUseCase } from './application/usecases/add-team-members.usecase'
 import { GET_TEAM_MEMBERS } from './application/usecases/get-team-members.interface'
 import { GetTeamMembersUseCase } from './application/usecases/get-team-members.usecase'
+import { REMOVE_TEAM_MEMBER } from './application/usecases/remove-team-member.interface'
+import { RemoveTeamMemberUseCase } from './application/usecases/remove-team-member.usecase'
 
 @Module({
   imports: [
@@ -70,6 +72,10 @@ import { GetTeamMembersUseCase } from './application/usecases/get-team-members.u
     {
       provide: GET_TEAM_MEMBERS,
       useClass: GetTeamMembersUseCase,
+    },
+    {
+      provide: REMOVE_TEAM_MEMBER,
+      useClass: RemoveTeamMemberUseCase,
     },
   ],
   controllers: [TeamController],

@@ -20,6 +20,7 @@ import {
   CreateTeamResponse,
   GetTeamRequest,
   GetTeamResponse,
+  RemoveTeamMemberRequest,
 } from './dtos'
 import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
 import { AuthContext } from '@/shared/domain/types'
@@ -51,6 +52,10 @@ import {
   GET_TEAM_MEMBERS,
   IGetTeamMembersUseCase,
 } from '../application/usecases/get-team-members.interface'
+import {
+  IRemoveTeamMemberUseCase,
+  REMOVE_TEAM_MEMBER,
+} from '../application/usecases/remove-team-member.interface'
 
 @Controller('teams')
 export class TeamController {
@@ -68,7 +73,9 @@ export class TeamController {
     @Inject(ADD_TEAM_MEMBERS)
     private readonly addTeamMembersUseCase: IAddTeamMembersUseCase,
     @Inject(GET_TEAM_MEMBERS)
-    private readonly getTeamMembersUseCase: IGetTeamMembersUseCase
+    private readonly getTeamMembersUseCase: IGetTeamMembersUseCase,
+    @Inject(REMOVE_TEAM_MEMBER)
+    private readonly removeTeamMemberUseCase: IRemoveTeamMemberUseCase
   ) {}
 
   @Post()
@@ -185,6 +192,19 @@ export class TeamController {
     return this.getTeamMembersUseCase.execute({
       workspaceId,
       teamId,
+    })
+  }
+
+  @Delete(':teamId/members/:memberId')
+  async removeTeamMember(
+    @CurrentAuth() auth: AuthContext,
+    @Param() param: RemoveTeamMemberRequest
+  ) {
+    return this.removeTeamMemberUseCase.execute({
+      workspaceId: auth.workspaceId!,
+      teamId: param.teamId,
+      memberId: param.memberId,
+      actorId: auth.userId,
     })
   }
 }
