@@ -58,6 +58,19 @@ export class TeamMemberModel {
   })
   joinedAt!: Date
 
+  @Prop({
+    type: MongooseSchema.Types.UUID,
+    ref: 'users',
+    default: null,
+  })
+  removedBy!: string | null
+
+  @Prop({
+    type: Date,
+    default: null,
+  })
+  removedAt!: Date | null
+
   @Prop()
   createdAt!: Date
 

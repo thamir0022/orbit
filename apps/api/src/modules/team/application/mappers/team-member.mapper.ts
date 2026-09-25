@@ -17,6 +17,8 @@ export class TeamMemberMapper {
       status: document.status,
       addedBy: UserId.fromString(document.userId),
       joinedAt: document.joinedAt,
+      removedBy: document.removedBy ? UserId.create(document.removedBy) : null,
+      removedAt: document.removedAt ? document.removedAt : null,
       createdAt: document.createdAt,
       updatedAt: document.updatedAt,
     })
@@ -45,6 +47,8 @@ export class TeamMemberMapper {
       status: teamMember.status,
       joinedAt: teamMember.joinedAt,
       addedBy: teamMember.addedBy.value,
+      removedBy: teamMember.removedBy ? teamMember.removedBy.value : null,
+      removedAt: teamMember.removedAt,
       createdAt: teamMember.createdAt,
       updatedAt: teamMember.updatedAt,
     }

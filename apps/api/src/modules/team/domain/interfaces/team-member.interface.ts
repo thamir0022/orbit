@@ -13,6 +13,8 @@ export interface TeamMemberProps {
   status: TeamMemberStatus
   addedBy: UserId
   joinedAt: Date
+  removedBy: UserId | null
+  removedAt: Date | null
   createdAt: Date
   updatedAt: Date
 }
