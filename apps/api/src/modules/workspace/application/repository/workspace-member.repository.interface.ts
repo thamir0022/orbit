@@ -31,6 +31,11 @@ export interface FindMemberQuery {
   readonly memberId: UserId
 }
 
+export interface FindWorkspaceMembersByWorkspaceIdAndUserIdsProps {
+  workspaceId: WorkspaceId
+  userIds: UserId[]
+}
+
 export interface IWorkspaceMemberRepository extends IBaseRepository<
   WorkspaceMember,
   string
@@ -45,6 +50,10 @@ export interface IWorkspaceMemberRepository extends IBaseRepository<
     newRoleId: RoleId,
     options?: ITransactionOptions
   ): Promise<void>
+  findMembersByWorkspaceIdAndUserIds(
+    props: FindWorkspaceMembersByWorkspaceIdAndUserIdsProps,
+    options?: ITransactionOptions
+  ): Promise<WorkspaceMember[]>
 }
 
 export const WORKSPACE_MEMBER_REPOSITORY = Symbol('WORKSPACE_MEMBER_REPOSITORY')

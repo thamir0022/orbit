@@ -9,6 +9,7 @@ import { UUID } from 'mongodb'
 import {
   ExistsWorkspaceMemberQuery,
   FindMemberQuery,
+  FindWorkspaceMembersByWorkspaceIdAndUserIdsProps,
   FindWorkspaceMembersQuery,
   IWorkspaceMemberRepository,
 } from '@/modules/workspace/application/repository/workspace-member.repository.interface'
@@ -313,5 +314,28 @@ export class WorkspaceMemberRepository implements IWorkspaceMemberRepository {
       { $set: { roleId: newRoleId.value } },
       { session: options?.session }
     )
+  }
+
+  async findMembersByWorkspaceIdAndUserIds(
+    props: FindWorkspaceMembersByWorkspaceIdAndUserIdsProps,
+    options?: ITransactionOptions
+  ): Promise<WorkspaceMember[]> {
+    const documents = await this.memberModel
+      .find(
+        {
+          workspaceId: props.workspaceId.value,
+          userId: {
+            $in: props.userIds.map((userId) => userId.value),
+          },
+        },
+        null,
+        {
+          session: options?.session,
+        }
+      )
+      .lean()
+      .exec()
+
+    return documents.map((document) => WorkspaceMemberMapper.toDomain(document))
   }
 }
