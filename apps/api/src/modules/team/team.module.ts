@@ -23,6 +23,8 @@ import { DELETE_TEAM } from './application/usecases/delete-team.interface'
 import { DeleteTeamUseCase } from './application/usecases/delete-team.usecase'
 import { ADD_TEAM_MEMBERS } from './application/usecases/add-team-members.interface'
 import { AddTeamMembersUseCase } from './application/usecases/add-team-members.usecase'
+import { GET_TEAM_MEMBERS } from './application/usecases/get-team-members.interface'
+import { GetTeamMembersUseCase } from './application/usecases/get-team-members.usecase'
 
 @Module({
   imports: [
@@ -64,6 +66,10 @@ import { AddTeamMembersUseCase } from './application/usecases/add-team-members.u
     {
       provide: ADD_TEAM_MEMBERS,
       useClass: AddTeamMembersUseCase,
+    },
+    {
+      provide: GET_TEAM_MEMBERS,
+      useClass: GetTeamMembersUseCase,
     },
   ],
   controllers: [TeamController],

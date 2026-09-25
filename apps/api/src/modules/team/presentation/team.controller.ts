@@ -47,6 +47,10 @@ import {
   ADD_TEAM_MEMBERS,
   IAddTeamMembersUseCase,
 } from '../application/usecases/add-team-members.interface'
+import {
+  GET_TEAM_MEMBERS,
+  IGetTeamMembersUseCase,
+} from '../application/usecases/get-team-members.interface'
 
 @Controller('teams')
 export class TeamController {
@@ -62,7 +66,9 @@ export class TeamController {
     @Inject(DELETE_TEAM)
     private readonly deleteTeamUseCase: IDeleteTeamUseCase,
     @Inject(ADD_TEAM_MEMBERS)
-    private readonly addTeamMembersUseCase: IAddTeamMembersUseCase
+    private readonly addTeamMembersUseCase: IAddTeamMembersUseCase,
+    @Inject(GET_TEAM_MEMBERS)
+    private readonly getTeamMembersUseCase: IGetTeamMembersUseCase
   ) {}
 
   @Post()
@@ -162,6 +168,23 @@ export class TeamController {
       teamId,
       actorId: auth.userId,
       userIds: req.userIds,
+    })
+  }
+
+  @Get(':teamId/members')
+  async getTeamMembers(
+    @CurrentAuth('workspaceId') workspaceId: string,
+    @Param(
+      'teamId',
+      new ParseUUIDPipe({
+        version: '7',
+      })
+    )
+    teamId: string
+  ) {
+    return this.getTeamMembersUseCase.execute({
+      workspaceId,
+      teamId,
     })
   }
 }
