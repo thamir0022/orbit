@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { Model } from 'mongoose'
 import { ITransactionOptions } from '@/shared/application'
 import {
@@ -12,11 +12,12 @@ import {
 } from '../schemas/team-member.schema'
 import { TeamMemberListItem } from '../../../application/contracts/team-member-list-item.output'
 import { UUID } from 'mongodb'
+import { InjectModel } from '@nestjs/mongoose'
 
 @Injectable()
 export class MongoTeamMemberQueryRepository implements TeamMemberQueryRepository {
   constructor(
-    @Inject(TeamMemberModel.name)
+    @InjectModel(TeamMemberModel.name)
     private readonly teamMemberModel: Model<TeamMemberDocument>
   ) {}
 
