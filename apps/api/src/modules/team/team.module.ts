@@ -21,22 +21,50 @@ import { UPDATE_TEAM } from './application/usecases/update-team.interface'
 import { UpdateTeamUseCase } from './application/usecases/update-team.usecase'
 import { DELETE_TEAM } from './application/usecases/delete-team.interface'
 import { DeleteTeamUseCase } from './application/usecases/delete-team.usecase'
+import { ADD_TEAM_MEMBERS } from './application/usecases/add-team-members.interface'
+import { AddTeamMembersUseCase } from './application/usecases/add-team-members.usecase'
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: TeamModel.name, schema: TeamSchema },
-      { name: TeamMemberModel.name, schema: TeamMemberSchema },
+      {
+        name: TeamModel.name,
+        schema: TeamSchema,
+      },
+      {
+        name: TeamMemberModel.name,
+        schema: TeamMemberSchema,
+      },
     ]),
     WorkspaceModule,
   ],
   providers: [
     ...teamProviders,
-    { provide: CREATE_TEAM, useClass: CreateTeamUseCase },
-    { provide: GET_TEAMS, useClass: GetTeamsUseCase },
-    { provide: GET_TEAM, useClass: GetTeamUseCase },
-    { provide: UPDATE_TEAM, useClass: UpdateTeamUseCase },
-    { provide: DELETE_TEAM, useClass: DeleteTeamUseCase },
+    {
+      provide: CREATE_TEAM,
+      useClass: CreateTeamUseCase,
+    },
+    {
+      provide: GET_TEAMS,
+      useClass: GetTeamsUseCase,
+    },
+    {
+      provide: GET_TEAM,
+
+      useClass: GetTeamUseCase,
+    },
+    {
+      provide: UPDATE_TEAM,
+      useClass: UpdateTeamUseCase,
+    },
+    {
+      provide: DELETE_TEAM,
+      useClass: DeleteTeamUseCase,
+    },
+    {
+      provide: ADD_TEAM_MEMBERS,
+      useClass: AddTeamMembersUseCase,
+    },
   ],
   controllers: [TeamController],
 })

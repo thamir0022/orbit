@@ -14,6 +14,8 @@ import {
   ICreateTeamUseCase,
 } from '../application/usecases/create-team.interface'
 import {
+  AddTeamMembersRequest,
+  AddTeamMembersResponse,
   CreateTeamRequest,
   CreateTeamResponse,
   GetTeamRequest,
@@ -41,6 +43,10 @@ import {
 } from '../application/usecases/delete-team.interface'
 import { ResponseMessage } from '@/shared/presentation/decorators/response-message.decorator'
 import { TeamResponseMessage } from './enums/response-message.enum'
+import {
+  ADD_TEAM_MEMBERS,
+  IAddTeamMembersUseCase,
+} from '../application/usecases/add-team-members.interface'
 
 @Controller('teams')
 export class TeamController {
@@ -54,7 +60,9 @@ export class TeamController {
     @Inject(UPDATE_TEAM)
     private readonly updateTeamUseCase: IUpdateTeamUseCase,
     @Inject(DELETE_TEAM)
-    private readonly deleteTeamUseCase: IDeleteTeamUseCase
+    private readonly deleteTeamUseCase: IDeleteTeamUseCase,
+    @Inject(ADD_TEAM_MEMBERS)
+    private readonly addTeamMembersUseCase: IAddTeamMembersUseCase
   ) {}
 
   @Post()
@@ -122,6 +130,26 @@ export class TeamController {
       workspaceId: auth.workspaceId!,
       userId: auth.userId,
       teamId,
+    })
+  }
+
+  @Post(':teamId/members')
+  async addTeamMembers(
+    @CurrentAuth() auth: AuthContext,
+    @Param(
+      'teamId',
+      new ParseUUIDPipe({
+        version: '7',
+      })
+    )
+    teamId: string,
+    @Body() req: AddTeamMembersRequest
+  ): Promise<AddTeamMembersResponse> {
+    return this.addTeamMembersUseCase.execute({
+      workspaceId: auth.workspaceId!,
+      teamId,
+      actorId: auth.userId,
+      userIds: req.userIds,
     })
   }
 }
