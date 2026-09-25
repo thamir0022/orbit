@@ -19,6 +19,10 @@ export class TeamMember extends AggregateRoot<TeamMemberId> {
 
   private readonly _addedBy: UserId
   private readonly _joinedAt: Date
+
+  private _removedAt: Date | null
+  private _removedBy: UserId | null
+
   private readonly _createdAt: Date
   private _updatedAt: Date
 
@@ -33,6 +37,9 @@ export class TeamMember extends AggregateRoot<TeamMemberId> {
 
     this._addedBy = props.addedBy
     this._joinedAt = props.joinedAt
+
+    this._removedBy = props.removedBy
+    this._removedAt = props.removedAt
     this._createdAt = props.createdAt
     this._updatedAt = props.updatedAt
   }
@@ -49,6 +56,8 @@ export class TeamMember extends AggregateRoot<TeamMemberId> {
       status: TeamMemberStatus.ACTIVE,
       addedBy: props.addedBy,
       joinedAt: now,
+      removedBy: null,
+      removedAt: null,
       createdAt: now,
       updatedAt: now,
     })
@@ -78,6 +87,22 @@ export class TeamMember extends AggregateRoot<TeamMemberId> {
     return this._status === TeamMemberStatus.INACTIVE
   }
 
+  remove(userId: UserId): void {
+    if (this._status === TeamMemberStatus.INACTIVE) return
+
+    this._status = TeamMemberStatus.INACTIVE
+    this._removedAt = new Date()
+    this._removedBy = userId
+  }
+
+  restore(): void {
+    if (this._status === TeamMemberStatus.ACTIVE) return
+
+    this._status = TeamMemberStatus.ACTIVE
+    this._removedAt = null
+    this._removedBy = null
+  }
+
   get id(): TeamMemberId {
     return this._id
   }
@@ -104,6 +129,14 @@ export class TeamMember extends AggregateRoot<TeamMemberId> {
 
   get joinedAt(): Date {
     return this._joinedAt
+  }
+
+  get removedBy(): UserId | null {
+    return this._removedBy
+  }
+
+  get removedAt(): Date | null {
+    return this._removedAt
   }
 
   get createdAt(): Date {
