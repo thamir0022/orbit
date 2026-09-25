@@ -104,7 +104,13 @@ export class TeamController {
   @ResponseMessage(TeamResponseMessage.TEAM_UPDATED)
   async updateTeam(
     @CurrentAuth('workspaceId') workspaceId: string,
-    @Param('teamId', new ParseUUIDPipe()) teamId: string,
+    @Param(
+      'teamId',
+      new ParseUUIDPipe({
+        version: '7',
+      })
+    )
+    teamId: string,
     @Body() req: UpdateTeamRequest
   ): Promise<UpdateTeamResponse> {
     const { name, description, avatarUrl, leadId, status } = req
@@ -124,7 +130,13 @@ export class TeamController {
   @ResponseMessage(TeamResponseMessage.TEAM_DELETED)
   async deleteTeam(
     @CurrentAuth() auth: AuthContext,
-    @Param('teamId') teamId: string
+    @Param(
+      'teamId',
+      new ParseUUIDPipe({
+        version: '7',
+      })
+    )
+    teamId: string
   ) {
     return this.deleteTeamUseCase.execute({
       workspaceId: auth.workspaceId!,
