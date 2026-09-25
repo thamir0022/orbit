@@ -129,6 +129,14 @@ export class Team extends AggregateRoot<TeamId> {
     return this._deletedBy
   }
 
+  get isActive(): boolean {
+    return this._status === TeamStatus.ACTIVE
+  }
+
+  get isArchived(): boolean {
+    return this._status === TeamStatus.ARCHIVED
+  }
+
   static reconstitute(props: TeamProps): Team {
     return new Team(props)
   }
