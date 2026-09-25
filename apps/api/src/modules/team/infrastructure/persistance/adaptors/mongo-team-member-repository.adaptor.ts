@@ -10,6 +10,7 @@ import { TeamMemberMapper } from '../../../application/mappers/team-member.mappe
 import {
   DeleteTeamMemberByWorkspaceIdAndTeamIdAndUserIdProps,
   FindTeamMemberByWorkspaceIdAndTeamIdAndUserIdProps,
+  FindTeamMembersByWorkspaceIdAndTeamIdAndUserIdsProps,
   FindTeamMembersByWorkspaceIdAndTeamIdProps,
   TeamMemberRepository,
 } from '../../../application/ports/team-member-repository.port'
@@ -144,5 +145,46 @@ export class MongoTeamMemberRepository implements TeamMemberRepository {
         }
       )
       .exec()
+  }
+
+  async findByWorkspaceIdAndTeamIdAndUserIds(
+    props: FindTeamMembersByWorkspaceIdAndTeamIdAndUserIdsProps,
+    options?: ITransactionOptions
+  ): Promise<TeamMember[]> {
+    const documents = await this.teamMemberModel
+      .find(
+        {
+          workspaceId: props.workspaceId.value,
+          teamId: props.teamId.value,
+          userId: {
+            $in: props.userIds.map((userId) => userId.value),
+          },
+        },
+        null,
+        {
+          session: options?.session,
+        }
+      )
+      .lean()
+      .exec()
+
+    return documents.map((document) => TeamMemberMapper.toDomainDto(document))
+  }
+
+  async saveMany(
+    entities: TeamMember[],
+    options?: ITransactionOptions
+  ): Promise<void> {
+    if (entities.length === 0) return
+
+    const documents = entities.map((entity) => {
+      const persistenceModel = TeamMemberMapper.toPersistance(entity)
+
+      return new this.teamMemberModel(persistenceModel)
+    })
+
+    await this.teamMemberModel.bulkSave(documents, {
+      session: options?.session,
+    })
   }
 }

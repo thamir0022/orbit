@@ -24,6 +24,12 @@ export interface DeleteTeamMemberByWorkspaceIdAndTeamIdAndUserIdProps {
   userId: UserId
 }
 
+export interface FindTeamMembersByWorkspaceIdAndTeamIdAndUserIdsProps {
+  workspaceId: WorkspaceId
+  teamId: TeamId
+  userIds: UserId[]
+}
+
 export interface TeamMemberRepository extends IBaseRepository<
   TeamMember,
   TeamMemberId
@@ -42,6 +48,13 @@ export interface TeamMemberRepository extends IBaseRepository<
     props: DeleteTeamMemberByWorkspaceIdAndTeamIdAndUserIdProps,
     options?: ITransactionOptions
   ): Promise<void>
+
+  findByWorkspaceIdAndTeamIdAndUserIds(
+    props: FindTeamMembersByWorkspaceIdAndTeamIdAndUserIdsProps,
+    options?: ITransactionOptions
+  ): Promise<TeamMember[]>
+
+  saveMany(entities: TeamMember[], options?: ITransactionOptions): Promise<void>
 }
 
 export const TEAM_MEMBER_REPOSITORY = Symbol('TeamMemberRepository')
