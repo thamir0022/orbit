@@ -10,8 +10,7 @@ import OrbitLogo from '@/shared/ui/orbit-logo'
 import { useSignInFlow } from '../model/use-sign-in-flow'
 import { SignInStepEmail } from './sign-in-step-email'
 import { SignInStepPassword } from './sign-in-step-password'
-import { WorkspaceSelectionDialog } from '@/widgets/workspace/ui/workspace-select-dialog'
-// import { WorkspaceSelectionDialog } from '@/features/workspace/select-workspace/ui/workspace-selection-dialog'
+import { WorkspaceSelectionDialog } from '@/widgets/workspace'
 
 export function SignInForm() {
   const { state, form, actions } = useSignInFlow()
