@@ -91,7 +91,7 @@ export class TeamController {
       description,
       avatarUrl,
       leadId,
-      createdBy: auth.userId,
+      actorId: auth.userId,
     })
   }
 

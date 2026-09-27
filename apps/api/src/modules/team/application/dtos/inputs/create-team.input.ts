@@ -4,5 +4,5 @@ export interface CreateTeamInput {
   readonly description?: string
   readonly avatarUrl?: string
   readonly leadId?: string
-  readonly createdBy: string
+  readonly actorId: string
 }
