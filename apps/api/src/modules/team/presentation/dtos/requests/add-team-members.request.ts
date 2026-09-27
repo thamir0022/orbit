@@ -10,7 +10,7 @@ import {
 
 export class AddTeamMembersRequest {
   @ApiProperty({
-    description: 'User IDs to add to the team',
+    description: 'Member IDs to add to the team',
     type: [String],
     format: 'uuid',
     example: [
@@ -26,20 +26,20 @@ export class AddTeamMembersRequest {
     return input.map((id: unknown) => (typeof id === 'string' ? id.trim() : id))
   })
   @IsArray({
-    message: 'User IDs must be an array',
+    message: 'Member IDs must be an array',
   })
   @ArrayMinSize(1, {
-    message: 'At least one user ID is required',
+    message: 'At least one member ID is required',
   })
   @ArrayMaxSize(100, {
-    message: 'You can add at most 100 users at a time',
+    message: 'You can add at most 100 members at a time',
   })
   @ArrayUnique({
-    message: 'User IDs must be unique',
+    message: 'Member IDs must be unique',
   })
   @IsUUID('7', {
     each: true,
-    message: 'Each user ID must be a valid UUID v7',
+    message: 'Each member ID must be a valid UUID v7',
   })
   readonly userIds!: string[]
 }

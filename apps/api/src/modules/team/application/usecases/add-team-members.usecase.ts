@@ -66,7 +66,7 @@ export class AddTeamMembersUseCase implements IAddTeamMembersUseCase {
     /**
      * Deduplicate user IDs before querying MongoDB.
      */
-    const userIds = [...new Set(input.userIds)].map((userId) =>
+    const userIds = [...new Set(input.memberIds)].map((userId) =>
       UserId.create(userId)
     )
 

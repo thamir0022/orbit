@@ -174,7 +174,7 @@ export class TeamController {
       workspaceId: auth.workspaceId!,
       teamId,
       actorId: auth.userId,
-      userIds: req.userIds,
+      memberIds: req.userIds,
     })
   }
 
