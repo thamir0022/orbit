@@ -1,10 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 const GUEST_ONLY_ROUTES = ['/sign-in', '/sign-up', '/password-reset'] as const
-const PUBLIC_ROUTES = ['/invite'] as const
-const AUTH_REDIRECT_URL = '/workspaces'
 
-function isMatchedPath(pathname: string, routes: readonly string[]) {
+const PUBLIC_ROUTES = ['/invite'] as const
+
+const AUTH_REDIRECT_URL = '/workspaces'
+const SIGN_IN_URL = '/sign-in'
+
+function isMatchedPath(pathname: string, routes: readonly string[]): boolean {
   return routes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   )
@@ -12,15 +15,23 @@ function isMatchedPath(pathname: string, routes: readonly string[]) {
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+
   const refreshToken = request.cookies.get('refresh_token')?.value
 
   const isAuthenticated = Boolean(refreshToken)
 
-  if (isMatchedPath(pathname, PUBLIC_ROUTES)) return NextResponse.next()
+  /**
+   * Public routes don't require authentication.
+   */
+  if (isMatchedPath(pathname, PUBLIC_ROUTES)) {
+    return NextResponse.next()
+  }
 
+  /**
+   * Authenticated users should not access guest-only routes.
+   */
   const isGuestOnlyRoute = isMatchedPath(pathname, GUEST_ONLY_ROUTES)
 
-  // Authenticated users should not access guest-only routes
   if (isGuestOnlyRoute) {
     if (isAuthenticated) {
       return NextResponse.redirect(new URL(AUTH_REDIRECT_URL, request.url))
@@ -29,9 +40,12 @@ export function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Unauthenticated users should not access protected routes
+  /**
+   * Protected routes require both access and refresh tokens.
+   */
   if (!isAuthenticated) {
-    const signInUrl = new URL('/sign-in', request.url)
+    const signInUrl = new URL(SIGN_IN_URL, request.url)
+
     signInUrl.searchParams.set('redirecturl', pathname)
 
     return NextResponse.redirect(signInUrl)
