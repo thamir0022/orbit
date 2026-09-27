@@ -1,2 +1,2 @@
 export * from './ui/workspace-layout'
-export * from './ui/workspace-selection-view'
+export * from './ui/workspace-select-view'
