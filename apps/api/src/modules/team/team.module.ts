@@ -27,6 +27,7 @@ import { GET_TEAM_MEMBERS } from './application/usecases/get-team-members.interf
 import { GetTeamMembersUseCase } from './application/usecases/get-team-members.usecase'
 import { REMOVE_TEAM_MEMBER } from './application/usecases/remove-team-member.interface'
 import { RemoveTeamMemberUseCase } from './application/usecases/remove-team-member.usecase'
+import { TEAM_REPOSITORY } from './application/ports/team-repository.port'
 
 @Module({
   imports: [
@@ -79,5 +80,6 @@ import { RemoveTeamMemberUseCase } from './application/usecases/remove-team-memb
     },
   ],
   controllers: [TeamController],
+  exports: [TEAM_REPOSITORY],
 })
 export class TeamModule {}
