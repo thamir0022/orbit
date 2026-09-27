@@ -124,3 +124,13 @@ export class WorkspaceMemberNotFoundException extends DomainException {
     })
   }
 }
+
+export class WorkspaceMemberNotActiveException extends DomainException {
+  constructor() {
+    super({
+      code: 'MEMBER_NOT_ACTIVE',
+      message: 'Workspace member not active',
+      statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+    })
+  }
+}

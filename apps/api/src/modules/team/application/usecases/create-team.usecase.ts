@@ -1,5 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 
+import { ITransactionManager, TRANSACTION_MANAGER } from '@/shared/application'
+
 import {
   WorkspaceId,
   WorkspaceMemberStatus,
@@ -11,6 +13,12 @@ import {
   WORKSPACE_MEMBER_REPOSITORY,
   WORKSPACE_REPOSITORY,
 } from '@/modules/workspace/application'
+import {
+  WorkspaceMemberNotActiveException,
+  WorkspaceMemberNotFoundException,
+  WorkspaceNotActiveException,
+  WorkspaceNotFoundException,
+} from '@/modules/workspace/domain/exceptions/workspace.exception'
 import { UserId } from '@/modules/user/domain'
 
 import { Team } from '../../domain/entities/team.entity'
@@ -22,24 +30,18 @@ import {
   TeamNotFoundException,
 } from '../../domain/exceptions'
 
-import { TeamRepository, TEAM_REPOSITORY } from '../ports/team-repository.port'
 import {
-  TeamMemberRepository,
   TEAM_MEMBER_REPOSITORY,
+  TeamMemberRepository,
 } from '../ports/team-member-repository.port'
 import {
-  TeamQueryRepository,
   TEAM_QUERY_REPOSITORY,
+  TeamQueryRepository,
 } from '../ports/team-query-repository.port'
-import { CreateTeamInput, CreateTeamOutput } from '../dtos'
+import { TEAM_REPOSITORY, TeamRepository } from '../ports/team-repository.port'
+
+import { type CreateTeamInput, type CreateTeamOutput } from '../dtos'
 import { ICreateTeamUseCase } from './create-team.interface'
-
-import { ITransactionManager, TRANSACTION_MANAGER } from '@/shared/application'
-
-import {
-  WorkspaceNotActiveException,
-  WorkspaceNotFoundException,
-} from '@/modules/workspace/domain/exceptions/workspace.exception'
 
 @Injectable()
 export class CreateTeamUseCase implements ICreateTeamUseCase {
@@ -65,9 +67,11 @@ export class CreateTeamUseCase implements ICreateTeamUseCase {
 
   async execute(input: CreateTeamInput): Promise<CreateTeamOutput> {
     const workspaceId = WorkspaceId.create(input.workspaceId)
+    const actorId = UserId.create(input.actorId)
+    const leadId = input.leadId ? UserId.create(input.leadId) : null
 
     /**
-     * Validate workspace.
+     * Validate workspace state.
      */
     const workspace = await this.workspaceRepository.findById(workspaceId)
 
@@ -80,9 +84,8 @@ export class CreateTeamUseCase implements ICreateTeamUseCase {
     }
 
     /**
-     * Validate team name.
+     * Early duplicate check.
      *
-     * This is only an early/friendly check.
      * The database unique index remains the final
      * concurrency guarantee.
      */
@@ -96,27 +99,65 @@ export class CreateTeamUseCase implements ICreateTeamUseCase {
     }
 
     /**
-     * Validate lead before starting the transaction.
+     * Merge lead + requested members so the workspace membership
+     * validation only requires a single bulk query.
      */
-    const leadId = input.leadId ? UserId.create(input.leadId) : null
+    const requestedUserIds = [
+      ...new Set([
+        ...(input.memberIds ?? []),
+        ...(input.leadId ? [input.leadId] : []),
+      ]),
+    ].map((userId) => UserId.create(userId))
 
+    const workspaceMembers =
+      requestedUserIds.length > 0
+        ? await this.workspaceMemberRepository.findMembersByWorkspaceIdAndUserIds(
+            {
+              workspaceId,
+              userIds: requestedUserIds,
+            }
+          )
+        : []
+
+    const workspaceMemberMap = new Map(
+      workspaceMembers.map((member) => [member.userId.value, member])
+    )
+
+    /**
+     * Validate the lead explicitly because the lead has
+     * dedicated business rules and error semantics.
+     */
     if (leadId) {
-      const workspaceMember = await this.workspaceMemberRepository.findMember({
-        workspaceId,
-        memberId: leadId,
-      })
+      const leadMember = workspaceMemberMap.get(leadId.value)
 
-      if (!workspaceMember) {
+      if (!leadMember) {
         throw new TeamLeadNotWorkspaceMemberException()
       }
 
-      if (workspaceMember.status !== WorkspaceMemberStatus.ACTIVE) {
+      if (leadMember.status !== WorkspaceMemberStatus.ACTIVE) {
         throw new TeamLeadNotActiveWorkspaceMemberException()
       }
     }
 
     /**
-     * Create both the Team and the initial TeamMember atomically.
+     * Validate every explicitly requested team member.
+     * All requested members must be existing active
+     * workspace members.
+     */
+    for (const userId of input.memberIds ?? []) {
+      const member = workspaceMemberMap.get(userId)
+
+      if (!member) {
+        throw new WorkspaceMemberNotFoundException()
+      }
+
+      if (member.status !== WorkspaceMemberStatus.ACTIVE) {
+        throw new WorkspaceMemberNotActiveException()
+      }
+    }
+
+    /**
+     * Create the team and its initial memberships atomically.
      */
     const team = await this.transactionManager.executeTransaction(
       async (session) => {
@@ -126,24 +167,28 @@ export class CreateTeamUseCase implements ICreateTeamUseCase {
           description: input.description,
           avatarUrl: input.avatarUrl,
           leadId: leadId?.value,
-          createdBy: input.actorId,
+          createdBy: actorId.value,
         })
 
-        await this.teamRepository.save(newTeam, { session })
+        await this.teamRepository.save(newTeam, {
+          session,
+        })
 
         /**
-         * A team lead is automatically added as
-         * the first team member.
+         * Create unique memberships from the requested users.
+         * The lead is automatically included as a member.
          */
-        if (leadId) {
-          const teamMember = TeamMember.create({
-            workspaceId,
-            teamId: newTeam.id,
-            userId: leadId,
-            addedBy: UserId.create(input.actorId),
-          })
+        if (requestedUserIds.length > 0) {
+          const teamMembers = requestedUserIds.map((userId) =>
+            TeamMember.create({
+              workspaceId,
+              teamId: newTeam.id,
+              userId,
+              addedBy: actorId,
+            })
+          )
 
-          await this.teamMemberRepository.save(teamMember, { session })
+          await this.teamMemberRepository.saveMany(teamMembers, { session })
         }
 
         return newTeam
@@ -151,8 +196,9 @@ export class CreateTeamUseCase implements ICreateTeamUseCase {
     )
 
     /**
-     * Read through the query repository after the
-     * transaction has committed.
+     * Read the committed aggregate through the optimized
+     * query repository so the response contains the
+     * client-facing projection.
      */
     const result = await this.teamQueryRepository.findByWorkspaceIdAndId({
       workspaceId,
