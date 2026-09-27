@@ -5,6 +5,13 @@ import {
   SprintModel,
   SprintSchema,
 } from './infrastructure/persistance/mongoose/schemas/sprint.schema'
+import {
+  CREATE_SPRINT_USE_CASE,
+  CreateSprintUseCase,
+} from './application/usecases/create-sprint'
+import { SprintController } from './presentation/http/controllers/sprint.controller'
+import { TeamModule } from '../team/team.module'
+import { WorkspaceModule } from '../workspace/workspace.module'
 
 @Module({
   imports: [
@@ -14,7 +21,16 @@ import {
         schema: SprintSchema,
       },
     ]),
+    TeamModule,
+    WorkspaceModule,
   ],
-  providers: [...sprintProviders],
+  controllers: [SprintController],
+  providers: [
+    ...sprintProviders,
+    {
+      provide: CREATE_SPRINT_USE_CASE,
+      useClass: CreateSprintUseCase,
+    },
+  ],
 })
 export class SprintModule {}
