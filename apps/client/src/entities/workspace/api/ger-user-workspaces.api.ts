@@ -8,8 +8,7 @@ interface GetUserWorkspacesResponse {
 
 export async function getUserWorkspacesApi() {
   const res = await httpClient.get<GetUserWorkspacesResponse>(
-    API_ROUTES.WORKSPACES.ALL,
-    { skipAuthHandling: true }
+    API_ROUTES.WORKSPACES.ALL
   )
 
   return res
