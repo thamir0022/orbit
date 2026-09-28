@@ -12,6 +12,10 @@ import {
 import { SprintController } from './presentation/http/controllers/sprint.controller'
 import { TeamModule } from '../team/team.module'
 import { WorkspaceModule } from '../workspace/workspace.module'
+import {
+  GET_SPRINTS_USE_CASE,
+  GetSprintsUseCase,
+} from './application/usecases/get-sprints'
 
 @Module({
   imports: [
@@ -30,6 +34,10 @@ import { WorkspaceModule } from '../workspace/workspace.module'
     {
       provide: CREATE_SPRINT_USE_CASE,
       useClass: CreateSprintUseCase,
+    },
+    {
+      provide: GET_SPRINTS_USE_CASE,
+      useClass: GetSprintsUseCase,
     },
   ],
 })

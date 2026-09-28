@@ -1,2 +1,4 @@
 export { CreateSprintRequest } from './requests/create-sprint.request'
 export { CreateSprintResponse } from './responses/create-sprint.response'
+export { GetSprintsQuery } from './requests/get-sprints.query'
+export { GetSprintsResponse } from './responses/get-sprints.response'
