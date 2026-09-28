@@ -5,6 +5,7 @@ import {
   Inject,
   Param,
   Post,
+  Put,
   Query,
 } from '@nestjs/common'
 import {
@@ -18,6 +19,8 @@ import {
   GetSprintResponse,
   GetSprintsQuery,
   GetSprintsResponse,
+  UpdateSprintRequest,
+  UpdateSprintResponse,
 } from '../dtos'
 import { AuthContext } from '@/shared/domain/types'
 import {
@@ -28,6 +31,10 @@ import {
   GET_SPRINT_USE_CASE,
   IGetSprintUseCase,
 } from '../../../application/usecases/get-sprint'
+import {
+  IUpdateSprintUseCase,
+  UPDATE_SPRINT_USE_CASE,
+} from '../../../application/usecases/update-sprint'
 
 @Controller('sprints')
 export class SprintController {
@@ -37,7 +44,9 @@ export class SprintController {
     @Inject(GET_SPRINTS_USE_CASE)
     private readonly getSprintsUseCase: IGetSprintsUseCase,
     @Inject(GET_SPRINT_USE_CASE)
-    private readonly getSprintUseCase: IGetSprintUseCase
+    private readonly getSprintUseCase: IGetSprintUseCase,
+    @Inject(UPDATE_SPRINT_USE_CASE)
+    private readonly updateSprintUseCase: IUpdateSprintUseCase
   ) {}
 
   @Post()
@@ -106,6 +115,26 @@ export class SprintController {
       workspaceId: auth.workspaceId!,
       sprintId,
       teamId,
+    })
+  }
+
+  @Put(':sprintId')
+  async updateSprint(
+    @CurrentAuth() auth: AuthContext,
+    @Param('sprintId') sprintId: string,
+    @Body() req: UpdateSprintRequest
+  ): Promise<UpdateSprintResponse> {
+    const { teamId, name, goal, description, startDate, endDate } = req
+
+    return this.updateSprintUseCase.execute({
+      workspaceId: auth.workspaceId!,
+      teamId,
+      sprintId,
+      name,
+      goal,
+      description,
+      startDate,
+      endDate,
     })
   }
 }

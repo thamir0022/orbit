@@ -20,6 +20,10 @@ import {
   GET_SPRINT_USE_CASE,
   GetSprintUseCase,
 } from './application/usecases/get-sprint'
+import {
+  UPDATE_SPRINT_USE_CASE,
+  UpdateSprintUseCase,
+} from './application/usecases/update-sprint'
 
 @Module({
   imports: [
@@ -46,6 +50,10 @@ import {
     {
       provide: GET_SPRINT_USE_CASE,
       useClass: GetSprintUseCase,
+    },
+    {
+      provide: UPDATE_SPRINT_USE_CASE,
+      useClass: UpdateSprintUseCase,
     },
   ],
 })
