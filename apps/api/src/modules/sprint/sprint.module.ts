@@ -16,6 +16,10 @@ import {
   GET_SPRINTS_USE_CASE,
   GetSprintsUseCase,
 } from './application/usecases/get-sprints'
+import {
+  GET_SPRINT_USE_CASE,
+  GetSprintUseCase,
+} from './application/usecases/get-sprint'
 
 @Module({
   imports: [
@@ -38,6 +42,10 @@ import {
     {
       provide: GET_SPRINTS_USE_CASE,
       useClass: GetSprintsUseCase,
+    },
+    {
+      provide: GET_SPRINT_USE_CASE,
+      useClass: GetSprintUseCase,
     },
   ],
 })
