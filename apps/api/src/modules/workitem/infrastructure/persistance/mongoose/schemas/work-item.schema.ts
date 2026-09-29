@@ -1,17 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
-import { Schema as MongooseSchema } from 'mongoose'
+import { HydratedDocument, Schema as MongooseSchema } from 'mongoose'
 
 import { WorkItemPriority } from '../../../../domain/enums/work-item-priority.enum'
 import { WorkItemStatus } from '../../../../domain/enums/work-item-status.enum'
 import { WorkItemType } from '../../../../domain/enums/work-item-type.enum'
 
-export type WorkItemDocument = WorkItemSchema & Document
+export type WorkItemDocument = HydratedDocument<WorkItemModel>
 
 @Schema({
   collection: 'work_items',
   versionKey: false,
 })
-export class WorkItemSchema {
+export class WorkItemModel {
   @Prop({
     type: MongooseSchema.Types.UUID,
     required: true,
@@ -186,10 +186,9 @@ export class WorkItemSchema {
   deletedAt!: Date | null
 }
 
-export const WorkItemSchemaDefinition =
-  SchemaFactory.createForClass(WorkItemSchema)
+export const WorkItemSchema = SchemaFactory.createForClass(WorkItemModel)
 
-WorkItemSchemaDefinition.index(
+WorkItemSchema.index(
   {
     workspaceId: 1,
     key: 1,
@@ -200,7 +199,7 @@ WorkItemSchemaDefinition.index(
   }
 )
 
-WorkItemSchemaDefinition.index(
+WorkItemSchema.index(
   {
     projectId: 1,
     number: 1,
@@ -211,7 +210,7 @@ WorkItemSchemaDefinition.index(
   }
 )
 
-WorkItemSchemaDefinition.index(
+WorkItemSchema.index(
   {
     workspaceId: 1,
     projectId: 1,
@@ -222,7 +221,7 @@ WorkItemSchemaDefinition.index(
   }
 )
 
-WorkItemSchemaDefinition.index(
+WorkItemSchema.index(
   {
     workspaceId: 1,
     teamId: 1,
@@ -233,7 +232,7 @@ WorkItemSchemaDefinition.index(
   }
 )
 
-WorkItemSchemaDefinition.index(
+WorkItemSchema.index(
   {
     workspaceId: 1,
     teamId: 1,
@@ -244,7 +243,7 @@ WorkItemSchemaDefinition.index(
   }
 )
 
-WorkItemSchemaDefinition.index(
+WorkItemSchema.index(
   {
     workspaceId: 1,
     parentId: 1,
@@ -254,7 +253,7 @@ WorkItemSchemaDefinition.index(
   }
 )
 
-WorkItemSchemaDefinition.index(
+WorkItemSchema.index(
   {
     workspaceId: 1,
     assigneeId: 1,
@@ -264,7 +263,7 @@ WorkItemSchemaDefinition.index(
   }
 )
 
-WorkItemSchemaDefinition.index(
+WorkItemSchema.index(
   {
     workspaceId: 1,
     createdAt: -1,
