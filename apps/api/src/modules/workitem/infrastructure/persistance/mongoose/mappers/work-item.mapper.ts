@@ -7,6 +7,7 @@ import { WorkspaceId } from '@/modules/workspace/domain'
 import { WorkItem } from '../../../../domain/entities/work-item.entity'
 import { WorkItemId } from '../../../../domain/value-objects/work-item-id.vo'
 import { WorkItemDocument } from '../schemas/work-item.schema'
+import { WorkItemKey } from '@/modules/workitem/domain/value-objects/work-item-key.vo'
 
 export class WorkItemMapper {
   static toDomain(document: WorkItemDocument): WorkItem {
@@ -19,7 +20,7 @@ export class WorkItemMapper {
 
       type: document.type,
 
-      key: document.key,
+      key: WorkItemKey.create(document.key),
       number: document.number,
 
       title: document.title,
@@ -67,7 +68,7 @@ export class WorkItemMapper {
 
       type: workItem.type,
 
-      key: workItem.key,
+      key: workItem.key.value,
       number: workItem.number,
 
       title: workItem.title,
