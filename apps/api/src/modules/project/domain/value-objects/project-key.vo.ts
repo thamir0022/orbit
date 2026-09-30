@@ -1,38 +1,37 @@
 import { ValueObject } from '@/shared/domain'
+import { ProjectKeyInvalidException } from '../exceptions/project-key-invalid.exception'
 
-interface ProjectKeyProps {
+interface WorkItemProps {
   value: string
 }
 
-/**
- * ProjectKey Value Object
- *
- * Examples:
- * ORB
- * CRM
- * API
- * MOBILE
- */
-export class ProjectKey extends ValueObject<ProjectKeyProps> {
-  private static readonly REGEX = /^[A-Z][A-Z0-9]{1,9}$/
+export class ProjectKey extends ValueObject<WorkItemProps> {
+  private static readonly PATTERN = /^[A-Z][A-Z0-9]{1,9}$/
+  private static readonly MAX_LENGTH = 10
 
-  private constructor(props: ProjectKeyProps) {
-    super(props)
+  private constructor(value: WorkItemProps) {
+    super(value)
+  }
+
+  static create(value: string): ProjectKey {
+    const normalizedValue = value.trim().toUpperCase()
+
+    if (
+      !normalizedValue ||
+      normalizedValue.length > ProjectKey.MAX_LENGTH ||
+      !ProjectKey.PATTERN.test(normalizedValue)
+    ) {
+      throw new ProjectKeyInvalidException()
+    }
+
+    return new ProjectKey({ value: normalizedValue })
+  }
+
+  static fromString(value: string): ProjectKey {
+    return ProjectKey.create(value)
   }
 
   get value(): string {
     return this.props.value
-  }
-
-  static create(key: string): ProjectKey {
-    const value = key.trim().toUpperCase()
-
-    if (!this.REGEX.test(value)) {
-      throw new Error(
-        'Project key must contain 2-10 uppercase letters or numbers and start with a letter.'
-      )
-    }
-
-    return new ProjectKey({ value })
   }
 }
