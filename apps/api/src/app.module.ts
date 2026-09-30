@@ -17,6 +17,7 @@ import { ProjectModule } from './modules/project/project.module'
 import { createObserveModule } from '@nestjs/observe'
 import { TeamModule } from './modules/team/team.module'
 import { SprintModule } from './modules/sprint/sprint.module'
+import { WorkItemModule } from './modules/workitem/work-item.module'
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule()
 @Module({
@@ -42,6 +43,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule()
     ProjectModule,
     TeamModule,
     SprintModule,
+    WorkItemModule,
 
     // NestJs Observability
     ObserveModule.forRootAsync({
