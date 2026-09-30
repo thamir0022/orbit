@@ -10,6 +10,7 @@ import {
 } from './infrastructure/schemas/project.schema'
 import { GET_PROJECTS } from './application/usecases/get-projects.interface'
 import { GetProjectsUseCase } from './application/usecases/get-projects.usecase'
+import { PROJECT_REPOSITORY } from './application/repositories/project.repository.interface'
 
 @Module({
   imports: [
@@ -23,5 +24,6 @@ import { GetProjectsUseCase } from './application/usecases/get-projects.usecase'
     { provide: CREATE_PROJECT, useClass: CreateProjectUseCase },
     { provide: GET_PROJECTS, useClass: GetProjectsUseCase },
   ],
+  exports: [PROJECT_REPOSITORY],
 })
 export class ProjectModule {}
