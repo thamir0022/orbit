@@ -5,6 +5,10 @@ import {
   WorkItemSchema,
 } from './infrastructure/persistance/mongoose/schemas/work-item.schema'
 import { WorkItemProviders } from './infrastructure/providers/work-item.provider'
+import {
+  WorkItemCounterModel,
+  WorkItemCounterSchema,
+} from './infrastructure/persistance/mongoose/schemas/work-item-counter.schema'
 
 @Module({
   imports: [
@@ -12,6 +16,10 @@ import { WorkItemProviders } from './infrastructure/providers/work-item.provider
       {
         name: WorkItemModel.name,
         schema: WorkItemSchema,
+      },
+      {
+        name: WorkItemCounterModel.name,
+        schema: WorkItemCounterSchema,
       },
     ]),
   ],
