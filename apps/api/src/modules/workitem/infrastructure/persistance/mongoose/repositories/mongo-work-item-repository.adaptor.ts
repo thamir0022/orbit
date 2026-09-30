@@ -6,7 +6,7 @@ import {
   FindWorkItemsByWorkspaceIdAndParentIdProps,
   WorkItemRepository,
 } from '../../../../application/ports/work-item-repository.port'
-import { WorkItemDocument, WorkItemSchema } from '../schemas/work-item.schema'
+import { WorkItemDocument, WorkItemModel } from '../schemas/work-item.schema'
 import { Model } from 'mongoose'
 import { WorkItemMapper } from '../mappers/work-item.mapper'
 import { WorkItemId } from '../../../../domain/value-objects/work-item-id.vo'
@@ -15,7 +15,7 @@ import { WorkItem } from '../../../../domain/entities/work-item.entity'
 
 export class MongoWorkItemRepository implements WorkItemRepository {
   constructor(
-    @InjectModel(WorkItemSchema.name)
+    @InjectModel(WorkItemModel.name)
     private readonly workItemModel: Model<WorkItemDocument>
   ) {}
 
