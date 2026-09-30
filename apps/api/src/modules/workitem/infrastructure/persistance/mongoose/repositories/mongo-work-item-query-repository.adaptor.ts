@@ -15,7 +15,7 @@ import {
   WorkItemListQueryResult,
 } from '../../../../application/ports/work-item-query-repository.port'
 import { WorkItemListItemOutput } from '../../../../application/contracts/work-item-list-item.output'
-import { WorkItemDocument, WorkItemSchema } from '../schemas/work-item.schema'
+import { WorkItemDocument, WorkItemModel } from '../schemas/work-item.schema'
 
 interface WorkItemListAggregationResult {
   items: WorkItemListItemOutput[]
@@ -32,7 +32,7 @@ interface WorkItemListAggregationResult {
  */
 export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
   constructor(
-    @InjectModel(WorkItemSchema.name)
+    @InjectModel(WorkItemModel.name)
     private readonly workItemModel: Model<WorkItemDocument>
   ) {}
 
