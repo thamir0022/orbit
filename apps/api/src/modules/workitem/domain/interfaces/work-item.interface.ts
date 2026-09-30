@@ -8,6 +8,7 @@ import { WorkItemPriority } from '../enums/work-item-priority.enum'
 import { WorkItemStatus } from '../enums/work-item-status.enum'
 import { WorkItemType } from '../enums/work-item-type.enum'
 import { WorkItemId } from '../value-objects/work-item-id.vo'
+import { WorkItemKey } from '../value-objects/work-item-key.vo'
 
 export interface WorkItemProps {
   readonly id: WorkItemId
@@ -18,7 +19,7 @@ export interface WorkItemProps {
 
   readonly type: WorkItemType
 
-  readonly key: string
+  readonly key: WorkItemKey
   readonly number: number
 
   readonly title: string
@@ -54,7 +55,7 @@ export interface CreateWorkItemProps {
 
   readonly type?: WorkItemType
 
-  readonly key: string
+  readonly key: WorkItemKey
   readonly number: number
 
   readonly title: string

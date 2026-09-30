@@ -1,13 +1,6 @@
-import { ProjectId } from '@/modules/project/domain'
-import { SprintId } from '@/modules/sprint/domain'
-import { TeamId } from '@/modules/team/domain'
-import { UserId } from '@/modules/user/domain'
-import { WorkspaceId } from '@/modules/workspace/domain'
-
 import { WorkItemPriority } from '../../domain/enums/work-item-priority.enum'
 import { WorkItemStatus } from '../../domain/enums/work-item-status.enum'
 import { WorkItemType } from '../../domain/enums/work-item-type.enum'
-import { WorkItemId } from '../../domain/value-objects/work-item-id.vo'
 
 /**
  * Application-layer representation of a WorkItem.
@@ -17,11 +10,11 @@ import { WorkItemId } from '../../domain/value-objects/work-item-id.vo'
  * internal mutable implementation.
  */
 export interface WorkItemContract {
-  readonly id: WorkItemId
+  readonly id: string
 
-  readonly workspaceId: WorkspaceId
-  readonly projectId: ProjectId
-  readonly teamId: TeamId
+  readonly workspaceId: string
+  readonly projectId: string
+  readonly teamId: string
 
   readonly type: WorkItemType
 
@@ -32,15 +25,15 @@ export interface WorkItemContract {
   readonly description?: string
   readonly acceptanceCriteria: readonly string[]
 
-  readonly parentId: WorkItemId | null
+  readonly parentId: string | null
 
   readonly status: WorkItemStatus
   readonly priority: WorkItemPriority | null
 
-  readonly sprintId: SprintId | null
-  readonly assigneeId: UserId | null
+  readonly sprintId: string | null
+  readonly assigneeId: string | null
 
-  readonly createdBy: UserId
+  readonly createdBy: string
 
   readonly storyPoints: number | null
 

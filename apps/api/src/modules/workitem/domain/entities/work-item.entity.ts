@@ -26,13 +26,14 @@ import {
   WorkItemProps,
 } from '../interfaces/work-item.interface'
 import { WorkItemId } from '../value-objects/work-item-id.vo'
+import { WorkItemKey } from '../value-objects/work-item-key.vo'
 
 export class WorkItem extends AggregateRoot<WorkItemId> {
   private readonly _workspaceId: WorkspaceId
   private readonly _projectId: ProjectId
   private readonly _teamId: TeamId
 
-  private readonly _key: string
+  private readonly _key: WorkItemKey
   private readonly _number: number
 
   private _type: WorkItemType
@@ -406,7 +407,7 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
     return this._type
   }
 
-  get key(): string {
+  get key(): WorkItemKey {
     return this._key
   }
 
