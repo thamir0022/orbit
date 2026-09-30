@@ -13,3 +13,4 @@ export { WorkItemProjectMismatchException } from './work-item-project-mismatch.e
 export { WorkItemSelfParentException } from './work-item-self-parent.exception'
 export { WorkItemTitleNotAllowedException } from './work-item-title-not-allowed.exception'
 export { WorkItemEstimationNotAllowedException } from './work-item-estimation-not-allowed.exception'
+export { WorkItemKeyInvalidException } from './work-item-key-invalid.exception'
