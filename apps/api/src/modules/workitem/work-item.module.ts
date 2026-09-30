@@ -9,6 +9,12 @@ import {
   WorkItemCounterModel,
   WorkItemCounterSchema,
 } from './infrastructure/persistance/mongoose/schemas/work-item-counter.schema'
+import { WorkItemController } from './presentation/http/controllers/work-item.controller'
+import { ProjectModule } from '../project/project.module'
+import {
+  CREATE_WORK_ITEM_USE_CASE,
+  CreateWorkItemUseCase,
+} from './application/usecases/create-work-item'
 
 @Module({
   imports: [
@@ -22,7 +28,15 @@ import {
         schema: WorkItemCounterSchema,
       },
     ]),
+    ProjectModule,
   ],
-  providers: [...WorkItemProviders],
+  providers: [
+    ...WorkItemProviders,
+    {
+      provide: CREATE_WORK_ITEM_USE_CASE,
+      useClass: CreateWorkItemUseCase,
+    },
+  ],
+  controllers: [WorkItemController],
 })
 export class WorkItemModule {}
