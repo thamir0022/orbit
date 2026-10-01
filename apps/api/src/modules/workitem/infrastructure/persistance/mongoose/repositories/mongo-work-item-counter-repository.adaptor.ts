@@ -34,13 +34,11 @@ export class MongoWorkItemCounterRepository implements WorkItemCounterRepository
         },
         $setOnInsert: {
           projectId: projectId.value,
-          currentNumber: 0,
           createdAt: now,
         },
       },
       {
         upsert: true,
-        new: true,
         returnDocument: 'after',
       }
     )
