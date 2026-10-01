@@ -3,22 +3,22 @@ import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common'
 import {
   CreateProjectRequest,
   CreateProjectResponse,
-  GetProjectsRequest,
+  GetProjectsQuery,
   GetProjectsResponse,
 } from '../dtos'
 
 import {
-  GET_PROJECTS,
+  GET_PROJECTS_USE_CASE,
   type IGetProjectsUseCase,
-} from '../../application/usecases/get-projects.interface'
-
-import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
-import { AuthContext } from '@/shared/domain/types'
+} from '../../application/usecases/get-projects/get-projects.interface'
 
 import {
   CREATE_PROJECT_USE_CASE,
   ICreateProjectUseCase,
 } from '../../application/usecases/create-project'
+
+import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
+import { AuthContext } from '@/shared/domain/types'
 
 @Controller('projects')
 export class ProjectController {
@@ -26,7 +26,7 @@ export class ProjectController {
     @Inject(CREATE_PROJECT_USE_CASE)
     private readonly createProjectUseCase: ICreateProjectUseCase,
 
-    @Inject(GET_PROJECTS)
+    @Inject(GET_PROJECTS_USE_CASE)
     private readonly getProjectsUseCase: IGetProjectsUseCase
   ) {}
 
@@ -63,15 +63,59 @@ export class ProjectController {
   @Get('')
   async getProjects(
     @CurrentAuth('workspaceId') workspaceId: string,
-    @Query() query: GetProjectsRequest
+    @Query() query: GetProjectsQuery
   ): Promise<GetProjectsResponse> {
+    const {
+      type,
+      types,
+      stage,
+      stages,
+      priority,
+      priorities,
+      status,
+      statuses,
+      leadId,
+      search,
+      startDateFrom,
+      startDateTo,
+      targetEndDateFrom,
+      targetEndDateTo,
+      page,
+      limit,
+      sortField,
+      sortOrder,
+    } = query
+
     return this.getProjectsUseCase.execute({
       workspaceId,
-      name: query.name,
-      key: query.key,
-      type: query.type,
-      priority: query.priority,
-      status: query.status,
+
+      type,
+      types,
+
+      stage,
+      stages,
+
+      priority,
+      priorities,
+
+      status,
+      statuses,
+
+      leadId,
+
+      search,
+
+      startDateFrom,
+      startDateTo,
+
+      targetEndDateFrom,
+      targetEndDateTo,
+
+      page,
+      limit,
+
+      sortField,
+      sortOrder,
     })
   }
 }
