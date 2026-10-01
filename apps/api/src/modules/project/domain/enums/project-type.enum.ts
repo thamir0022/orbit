@@ -1,18 +1,13 @@
 /**
- * Represents the category of a project.
+ * Represents the business context or organizational purpose of a project.
  */
 export enum ProjectType {
-  WEB = 'web',
-  MOBILE = 'mobile',
-  BACKEND = 'backend',
-  FRONTEND = 'frontend',
-  FULL_STACK = 'full-stack',
-  DESKTOP = 'desktop',
-  API = 'api',
-  INFRASTRUCTURE = 'infrastructure',
-  DEVOPS = 'devops',
-  DATA = 'data',
-  AI = 'ai',
   PRODUCT = 'product',
+  CLIENT = 'client',
+  INTERNAL = 'internal',
+  PLATFORM = 'platform',
+  INFRASTRUCTURE = 'infrastructure',
+  EXPERIMENT = 'experiment',
+  RESEARCH = 'research',
   OTHER = 'other',
 }
