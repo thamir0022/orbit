@@ -19,6 +19,8 @@ import {
 
 import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
 import { AuthContext } from '@/shared/domain/types'
+import { ResponseMessage } from '@/shared/presentation/decorators/response-message.decorator'
+import { ProjectResponseMessage } from '../enums/response-messages.enum'
 
 @Controller('projects')
 export class ProjectController {
@@ -31,6 +33,7 @@ export class ProjectController {
   ) {}
 
   @Post('')
+  @ResponseMessage(ProjectResponseMessage.PROJECT_CREATED)
   async createProject(
     @CurrentAuth() auth: AuthContext,
     @Body() request: CreateProjectRequest
@@ -61,6 +64,7 @@ export class ProjectController {
   }
 
   @Get('')
+  @ResponseMessage(ProjectResponseMessage.PROJECTS_FETCHED)
   async getProjects(
     @CurrentAuth('workspaceId') workspaceId: string,
     @Query() query: GetProjectsQuery
