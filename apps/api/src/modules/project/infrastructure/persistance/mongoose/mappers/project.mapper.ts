@@ -1,10 +1,10 @@
 import { UserId } from '@/modules/user/domain'
 import { WorkspaceId } from '@/modules/workspace/domain'
 
-import { Project } from '../../../domain/entities/project.entity'
-import { ProjectProps } from '../../../domain/interfaces/project.props'
-import { ProjectId } from '../../../domain/value-objects/project-id.vo'
-import { ProjectKey } from '../../../domain/value-objects/project-key.vo'
+import { Project } from '../../../../domain/entities/project.entity'
+import { ProjectProps } from '../../../../domain/interfaces/project.props'
+import { ProjectId } from '../../../../domain/value-objects/project-id.vo'
+import { ProjectKey } from '../../../../domain/value-objects/project-key.vo'
 
 import { ProjectDocument } from '../schemas/project.schema'
 

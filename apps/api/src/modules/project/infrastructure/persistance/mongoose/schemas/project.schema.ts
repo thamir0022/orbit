@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose'
 
-import { ProjectPriority } from '../../../domain/enums/project-priority.enum'
-import { ProjectStage } from '../../../domain/enums/project-stage.enum'
-import { ProjectStatus } from '../../../domain/enums/project-status.enum'
-import { ProjectType } from '../../../domain/enums/project-type.enum'
+import { ProjectPriority } from '../../../../domain/enums/project-priority.enum'
+import { ProjectStage } from '../../../../domain/enums/project-stage.enum'
+import { ProjectStatus } from '../../../../domain/enums/project-status.enum'
+import { ProjectType } from '../../../../domain/enums/project-type.enum'
 
 export type ProjectDocument = HydratedDocument<ProjectModel>
 

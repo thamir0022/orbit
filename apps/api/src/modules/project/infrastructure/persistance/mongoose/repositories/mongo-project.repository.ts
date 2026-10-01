@@ -5,14 +5,14 @@ import { Model } from 'mongoose'
 import {
   FindProjectByWorkspaceIdAndKeyProps,
   ProjectRepository,
-} from '../../../application/ports/project-repository.port'
+} from '../../../../application/ports/project-repository.port'
 import { ProjectDocument, ProjectModel } from '../schemas/project.schema'
 
 import { ITransactionOptions } from '@/shared/application'
 
-import { ProjectId } from '../../../domain'
-import { Project } from '../../../domain/entities/project.entity'
-import { ProjectMapper } from '../../../application/mappers/project.mapper'
+import { ProjectId } from '../../../../domain'
+import { Project } from '../../../../domain/entities/project.entity'
+import { ProjectMapper } from '../mappers/project.mapper'
 
 @Injectable()
 export class MongoProjectRepository implements ProjectRepository {
