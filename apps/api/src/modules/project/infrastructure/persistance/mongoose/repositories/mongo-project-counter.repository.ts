@@ -4,11 +4,11 @@ import { Model } from 'mongoose'
 import { ITransactionOptions } from '@/shared/application'
 import { WorkspaceId } from '@/modules/workspace/domain'
 
-import { ProjectCounterRepository } from '../../application/ports/project-counter-repository.port'
 import {
   ProjectCounterDocument,
   ProjectCounterModel,
 } from '../schemas/project-counter.schema'
+import { ProjectCounterRepository } from '../../../../application/ports/project-counter-repository.port'
 
 export class MongoProjectCounterRepository implements ProjectCounterRepository {
   constructor(
