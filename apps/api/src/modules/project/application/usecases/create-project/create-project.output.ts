@@ -1,4 +1,4 @@
-import { ProjectDto } from '../../model/project.dto'
+import { ProjectDto } from '../../contracts/project.contract'
 
 export interface CreateProjectOutput {
   project: ProjectDto

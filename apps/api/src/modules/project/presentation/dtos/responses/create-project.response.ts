@@ -1,5 +1,9 @@
-import { ProjectDto } from '@/modules/project/application/model/project.dto'
+import { ProjectListItemOutput } from '../../../application/contracts/project-list-item.output'
+
+/**
+ * Create Project Response
+ */
 
 export class CreateProjectResponse {
-  project!: ProjectDto
+  readonly project!: ProjectListItemOutput
 }

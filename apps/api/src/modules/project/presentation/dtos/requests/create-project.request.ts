@@ -1,59 +1,33 @@
 import { Type } from 'class-transformer'
+
+import { ProjectPriority } from '../../../domain/enums/project-priority.enum'
+import { ProjectStage } from '../../../domain/enums/project-stage.enum'
+import { ProjectType } from '../../../domain/enums/project-type.enum'
+
 import {
-  ArrayMaxSize,
-  IsArray,
   IsDate,
   IsEnum,
   IsOptional,
   IsString,
   IsUrl,
   IsUUID,
-  Length,
-  Matches,
   MaxLength,
   MinLength,
-  ValidateNested,
 } from 'class-validator'
 
-import { ProjectPriority, ProjectType } from '@/modules/project/domain/enums'
-
-export class ProjectResourceDto {
-  @IsString()
-  @MaxLength(100)
-  readonly name!: string
-
-  @IsUrl({
-    require_protocol: true,
-  })
-  @MaxLength(2048)
-  readonly url!: string
-}
-
+/**
+ * Create Project Request
+ */
 export class CreateProjectRequest {
   @IsString()
   @MinLength(3)
   @MaxLength(100)
   readonly name!: string
 
-  @IsString()
-  @Length(2, 10)
-  @Matches(/^[A-Z][A-Z0-9]*$/, {
-    message:
-      'Project key must start with a letter and contain only uppercase letters and numbers.',
-  })
-  readonly key!: string
-
   @IsOptional()
   @IsString()
   @MaxLength(1000)
   readonly description?: string
-
-  @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(20)
-  @ValidateNested({ each: true })
-  @Type(() => ProjectResourceDto)
-  readonly resources?: ProjectResourceDto[]
 
   @IsOptional()
   @IsUrl({
@@ -77,10 +51,14 @@ export class CreateProjectRequest {
   readonly type?: ProjectType
 
   @IsOptional()
+  @IsEnum(ProjectStage)
+  readonly stage?: ProjectStage
+
+  @IsOptional()
   @IsEnum(ProjectPriority)
   readonly priority?: ProjectPriority
 
   @IsOptional()
-  @IsUUID('4')
+  @IsUUID('7')
   readonly leadId?: string
 }
