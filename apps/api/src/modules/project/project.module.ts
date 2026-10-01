@@ -20,11 +20,22 @@ import {
   GET_PROJECTS_USE_CASE,
   GetProjectsUseCase,
 } from './application/usecases/get-projects'
+import {
+  ProjectCounterModel,
+  ProjectCounterSchema,
+} from './infrastructure/persistance/mongoose/schemas/project-counter.schema'
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: ProjectModel.name, schema: ProjectSchema },
+      {
+        name: ProjectModel.name,
+        schema: ProjectSchema,
+      },
+      {
+        name: ProjectCounterModel.name,
+        schema: ProjectCounterSchema,
+      },
     ]),
   ],
   controllers: [ProjectController],
