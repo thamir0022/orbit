@@ -1,8 +1,18 @@
-import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+} from '@nestjs/common'
 
 import {
   CreateProjectRequest,
   CreateProjectResponse,
+  GetProjectResponse,
   GetProjectsQuery,
   GetProjectsResponse,
 } from '../dtos'
@@ -21,6 +31,10 @@ import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decor
 import { AuthContext } from '@/shared/domain/types'
 import { ResponseMessage } from '@/shared/presentation/decorators/response-message.decorator'
 import { ProjectResponseMessage } from '../enums/response-messages.enum'
+import {
+  GET_PROJECT_USE_CASE,
+  IGetProjectUseCase,
+} from '../../application/usecases/get-project'
 
 @Controller('projects')
 export class ProjectController {
@@ -29,7 +43,10 @@ export class ProjectController {
     private readonly createProjectUseCase: ICreateProjectUseCase,
 
     @Inject(GET_PROJECTS_USE_CASE)
-    private readonly getProjectsUseCase: IGetProjectsUseCase
+    private readonly getProjectsUseCase: IGetProjectsUseCase,
+
+    @Inject(GET_PROJECT_USE_CASE)
+    private readonly getProjectUseCase: IGetProjectUseCase
   ) {}
 
   @Post('')
@@ -120,6 +137,18 @@ export class ProjectController {
 
       sortField,
       sortOrder,
+    })
+  }
+
+  @Get(':projectId')
+  @ResponseMessage(ProjectResponseMessage.PROJECT_FETCHED)
+  async getProject(
+    @CurrentAuth('workspaceId') workspaceId: string,
+    @Param('projectId', new ParseUUIDPipe({ version: '7' })) projectId: string
+  ): Promise<GetProjectResponse> {
+    return this.getProjectUseCase.execute({
+      workspaceId,
+      projectId,
     })
   }
 }

@@ -24,6 +24,10 @@ import {
   ProjectCounterModel,
   ProjectCounterSchema,
 } from './infrastructure/persistance/mongoose/schemas/project-counter.schema'
+import {
+  GET_PROJECT_USE_CASE,
+  GetProjectUseCase,
+} from './application/usecases/get-project'
 
 @Module({
   imports: [
@@ -41,8 +45,18 @@ import {
   controllers: [ProjectController],
   providers: [
     ...Projectproviders,
-    { provide: CREATE_PROJECT_USE_CASE, useClass: CreateProjectUseCase },
-    { provide: GET_PROJECTS_USE_CASE, useClass: GetProjectsUseCase },
+    {
+      provide: CREATE_PROJECT_USE_CASE,
+      useClass: CreateProjectUseCase,
+    },
+    {
+      provide: GET_PROJECTS_USE_CASE,
+      useClass: GetProjectsUseCase,
+    },
+    {
+      provide: GET_PROJECT_USE_CASE,
+      useClass: GetProjectUseCase,
+    },
   ],
   exports: [PROJECT_REPOSITORY],
 })
