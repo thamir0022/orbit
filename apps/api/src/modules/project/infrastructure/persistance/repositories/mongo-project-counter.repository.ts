@@ -4,7 +4,7 @@ import { Model } from 'mongoose'
 import { ITransactionOptions } from '@/shared/application'
 import { WorkspaceId } from '@/modules/workspace/domain'
 
-import { ProjectCounterRepository } from '../../application/repositories/project-counter.repository.interface'
+import { ProjectCounterRepository } from '../../application/ports/project-counter-repository.port'
 import {
   ProjectCounterDocument,
   ProjectCounterModel,
