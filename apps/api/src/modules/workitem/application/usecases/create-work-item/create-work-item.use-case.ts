@@ -1,9 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
 
-import {
-  IProjectRepository,
-  PROJECT_REPOSITORY,
-} from '@/modules/project/application/repositories/project.repository.interface'
 import { ProjectId } from '@/modules/project/domain'
 import { ProjectNotFoundException } from '@/modules/project/domain/exceptions'
 import { WorkspaceId } from '@/modules/workspace/domain'
@@ -12,6 +8,10 @@ import { WorkItem } from '../../../domain/entities/work-item.entity'
 import { WorkItemKey } from '../../../domain/value-objects/work-item-key.vo'
 import { WorkItemNotFoundException } from '../../../domain/exceptions'
 
+import {
+  PROJECT_REPOSITORY,
+  ProjectRepository,
+} from '@/modules/project/application/ports/project-repository.port'
 import {
   WORK_ITEM_COUNTER_REPOSITORY,
   WorkItemCounterRepository,
@@ -38,7 +38,7 @@ import {
 export class CreateWorkItemUseCase implements ICreateWorkItemUseCase {
   constructor(
     @Inject(PROJECT_REPOSITORY)
-    private readonly projectRepository: IProjectRepository,
+    private readonly projectRepository: ProjectRepository,
 
     @Inject(WORK_ITEM_COUNTER_REPOSITORY)
     private readonly workItemCounterRepository: WorkItemCounterRepository,
