@@ -1,5 +1,5 @@
-import { ProjectDto } from '../../contracts/project.contract'
+import { ProjectListItemOutput } from '../../contracts/project-list-item.output'
 
 export interface CreateProjectOutput {
-  project: ProjectDto
+  project: ProjectListItemOutput
 }
