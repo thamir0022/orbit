@@ -104,6 +104,7 @@ export class ProjectModel {
   @Prop({
     type: MongooseSchema.Types.UUID,
     index: true,
+    ref: 'users',
   })
   leadId?: string
 
@@ -132,6 +133,7 @@ export class ProjectModel {
   @Prop({
     required: true,
     type: MongooseSchema.Types.UUID,
+    ref: 'users',
   })
   createdBy!: string
 
