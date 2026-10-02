@@ -4,10 +4,11 @@ import { WorkspaceId } from '@/modules/workspace/domain'
 
 import { Project } from '../../domain/entities/project.entity'
 import { ProjectId } from '../../domain/value-objects/project-id.vo'
+import { ProjectKey } from '../../domain/value-objects/project-key.vo'
 
 export interface FindProjectByWorkspaceIdAndKeyProps {
   readonly workspaceId: WorkspaceId
-  readonly key: string
+  readonly key: ProjectKey
 }
 
 export interface ProjectRepository extends IBaseRepository<Project, ProjectId> {

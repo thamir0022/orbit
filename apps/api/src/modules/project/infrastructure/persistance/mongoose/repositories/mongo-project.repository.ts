@@ -45,7 +45,7 @@ export class MongoProjectRepository implements ProjectRepository {
   ): Promise<Project | null> {
     const query = this.projectModel.findOne({
       workspaceId: props.workspaceId.value,
-      key: props.key,
+      key: props.key.value,
       deletedAt: null,
     })
 
