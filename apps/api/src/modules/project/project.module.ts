@@ -33,6 +33,10 @@ import {
   UpdateProjectUseCase,
 } from './application/usecases/update-project'
 import { WorkspaceModule } from '../workspace/workspace.module'
+import {
+  DELETE_PROJECT_USE_CASE,
+  DeleteProjectUseCase,
+} from './application/usecases/delete-project'
 
 @Module({
   imports: [
@@ -67,6 +71,10 @@ import { WorkspaceModule } from '../workspace/workspace.module'
     {
       provide: UPDATE_PROJECT_USE_CASE,
       useClass: UpdateProjectUseCase,
+    },
+    {
+      provide: DELETE_PROJECT_USE_CASE,
+      useClass: DeleteProjectUseCase,
     },
   ],
   exports: [PROJECT_REPOSITORY],

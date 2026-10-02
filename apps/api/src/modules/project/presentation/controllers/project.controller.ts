@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
@@ -43,6 +44,10 @@ import {
   IUpdateProjectUseCase,
   UPDATE_PROJECT_USE_CASE,
 } from '../../application/usecases/update-project'
+import {
+  DELETE_PROJECT_USE_CASE,
+  IDeleteProjectUseCase,
+} from '../../application/usecases/delete-project'
 
 @Controller('projects')
 export class ProjectController {
@@ -57,7 +62,10 @@ export class ProjectController {
     private readonly getProjectUseCase: IGetProjectUseCase,
 
     @Inject(UPDATE_PROJECT_USE_CASE)
-    private readonly updateProjectUseCase: IUpdateProjectUseCase
+    private readonly updateProjectUseCase: IUpdateProjectUseCase,
+
+    @Inject(DELETE_PROJECT_USE_CASE)
+    private readonly deleteProjectUseCase: IDeleteProjectUseCase
   ) {}
 
   @Post('')
@@ -200,6 +208,19 @@ export class ProjectController {
 
       startDate,
       targetEndDate,
+    })
+  }
+
+  @Delete(':projectKey')
+  @ResponseMessage(ProjectResponseMessage.PROJECT_DELETED)
+  async deleteProject(
+    @CurrentAuth() auth: AuthContext,
+    @Param('projectKey') projectKey: string
+  ): Promise<void> {
+    return this.deleteProjectUseCase.execute({
+      workspaceId: auth.workspaceId!,
+      projectKey,
+      actorId: auth.userId,
     })
   }
 }
