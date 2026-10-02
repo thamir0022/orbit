@@ -11,6 +11,7 @@ import { WorkItemStatus } from '../../domain/enums/work-item-status.enum'
 import { WorkItemType } from '../../domain/enums/work-item-type.enum'
 import { WorkItemId } from '../../domain/value-objects/work-item-id.vo'
 import { WorkItemListItemOutput } from '../contracts/work-item-list-item.output'
+import { ProjectKey } from '@/modules/project/domain/value-objects/project-key.vo'
 
 export type WorkItemQuerySortField =
   | 'key'
@@ -99,6 +100,11 @@ export interface FindWorkItemByWorkspaceIdAndProjectIdAndIdQueryProps {
   readonly workItemId: WorkItemId
 }
 
+export interface FindWorkItemByWorkspaceIdAndKeyProps {
+  readonly workspaceId: WorkspaceId
+  readonly key: ProjectKey
+}
+
 /**
  * Paginated work item query result.
  */
@@ -122,6 +128,11 @@ export interface WorkItemQueryRepository {
     props: FindWorkItemsQueryProps,
     options?: ITransactionOptions
   ): Promise<WorkItemListQueryResult>
+
+  findByWorkspaceIdAndKey(
+    props: FindWorkItemByWorkspaceIdAndKeyProps,
+    options?: ITransactionOptions
+  ): Promise<WorkItemListItemOutput>
 
   findByWorkspaceIdAndProjectIdAndId(
     props: FindWorkItemByWorkspaceIdAndProjectIdAndIdQueryProps,

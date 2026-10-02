@@ -13,6 +13,7 @@ import {
   WorkItemQueryRepository,
   WorkItemQuerySortField,
   WorkItemListQueryResult,
+  FindWorkItemByWorkspaceIdAndKeyProps,
 } from '../../../../application/ports/work-item-query-repository.port'
 import { WorkItemListItemOutput } from '../../../../application/contracts/work-item-list-item.output'
 import { WorkItemDocument, WorkItemModel } from '../schemas/work-item.schema'
@@ -97,6 +98,38 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
       limit,
       hasNextPage: skip + limit < total,
     }
+  }
+
+  async findByWorkspaceIdAndKey(
+    props: FindWorkItemByWorkspaceIdAndKeyProps,
+    options: ITransactionOptions
+  ): Promise<WorkItemListItemOutput> {
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          workspaceId: new UUID(props.workspaceId.value),
+          key: props.key.value,
+          deletedAt: null,
+        },
+      },
+
+      ...this.buildUserEnrichmentStages(),
+
+      {
+        $project: this.buildListProjectionStage(),
+      },
+
+      {
+        $limit: 1,
+      },
+    ]
+
+    const [result] = await this.executeAggregation<WorkItemListItemOutput>(
+      pipeline,
+      options
+    )
+
+    return result ?? null
   }
 
   async findByWorkspaceIdAndProjectIdAndId(
