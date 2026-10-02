@@ -1,12 +1,20 @@
 import { Inject, Injectable } from '@nestjs/common'
 
-import { Project } from '@/modules/project/domain/entities/project.entity'
-import { ProjectKey } from '@/modules/project/domain/value-objects/project-key.vo'
-import { WorkspaceId } from '@/modules/workspace/domain'
 import { UserId } from '@/modules/user/domain'
+import { Project } from '@/modules/project/domain/entities/project.entity'
+import { ProjectNotFoundException } from '@/modules/project/domain/exceptions'
+import { ProjectKey } from '@/modules/project/domain/value-objects/project-key.vo'
+import {
+  IWorkspaceMemberRepository,
+  WORKSPACE_MEMBER_REPOSITORY,
+} from '@/modules/workspace/application'
+import { WorkspaceId } from '@/modules/workspace/domain'
+import { ITransactionManager, TRANSACTION_MANAGER } from '@/shared/application'
 
-import { ProjectNotFoundException } from '../../../domain/exceptions'
-
+import {
+  PROJECT_COUNTER_REPOSITORY,
+  ProjectCounterRepository,
+} from '../../ports/project-counter-repository.port'
 import {
   PROJECT_QUERY_REPOSITORY,
   ProjectQueryRepository,
@@ -15,16 +23,11 @@ import {
   PROJECT_REPOSITORY,
   ProjectRepository,
 } from '../../ports/project-repository.port'
-import {
-  PROJECT_COUNTER_REPOSITORY,
-  ProjectCounterRepository,
-} from '../../ports/project-counter-repository.port'
-
-import { ITransactionManager, TRANSACTION_MANAGER } from '@/shared/application'
 
 import { CreateProjectInput } from './create-project.input'
-import { ICreateProjectUseCase } from './create-project.interface'
 import { CreateProjectOutput } from './create-project.output'
+import { ICreateProjectUseCase } from './create-project.interface'
+import { LeadIsNotAWorkspaceMemberException } from '../../../domain/exceptions'
 
 @Injectable()
 export class CreateProjectUseCase implements ICreateProjectUseCase {
@@ -38,41 +41,51 @@ export class CreateProjectUseCase implements ICreateProjectUseCase {
     @Inject(PROJECT_QUERY_REPOSITORY)
     private readonly projectQueryRepository: ProjectQueryRepository,
 
+    @Inject(WORKSPACE_MEMBER_REPOSITORY)
+    private readonly workspaceMemberRepository: IWorkspaceMemberRepository,
+
     @Inject(TRANSACTION_MANAGER)
-    private readonly transactionManger: ITransactionManager
+    private readonly transactionManager: ITransactionManager
   ) {}
 
   async execute(input: CreateProjectInput): Promise<CreateProjectOutput> {
-    const { workspaceId: workspaceIdValue, ...projectProps } = input
+    const workspaceId = WorkspaceId.create(input.workspaceId)
+    const actorId = UserId.create(input.actorId)
 
-    // Convert primitive input values into domain value objects.
-    const workspaceId = WorkspaceId.create(workspaceIdValue)
-
-    const project = await this.transactionManger.executeTransaction(
+    const project = await this.transactionManager.executeTransaction(
       async (session) => {
         const number = await this.projectCounterRepository.nextNumber(
           workspaceId,
-          {
-            session,
-          }
+          { session }
         )
 
-        const projectKey = ProjectKey.generate(projectProps.name, number)
+        const projectKey = ProjectKey.generate(input.name, number)
 
-        const leadId = UserId.create(projectProps.leadId)
-        const actorId = UserId.create(projectProps.actorId)
+        const leadId =
+          input.leadId !== undefined && input.leadId !== null
+            ? UserId.create(input.leadId)
+            : undefined
+
+        if (leadId) {
+          const member = await this.workspaceMemberRepository.findMember({
+            workspaceId,
+            memberId: leadId,
+          })
+
+          if (!member) {
+            throw new LeadIsNotAWorkspaceMemberException()
+          }
+        }
 
         const project = Project.create({
-          ...projectProps,
-
+          ...input,
           workspaceId,
-          leadId,
           key: projectKey,
-
+          leadId,
           createdBy: actorId,
         })
 
-        await this.projectRepository.save(project)
+        await this.projectRepository.save(project, { session })
 
         return project
       }
@@ -80,7 +93,7 @@ export class CreateProjectUseCase implements ICreateProjectUseCase {
 
     const result = await this.projectQueryRepository.findByWorkspaceIdAndId({
       workspaceId: project.workspaceId,
-      projectId: project.projectId,
+      projectId: project.id,
     })
 
     if (!result) {
