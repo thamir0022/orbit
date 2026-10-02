@@ -19,10 +19,10 @@ export interface UpdateProjectProps {
   readonly priority?: ProjectPriority
 
   // Project ownership
-  readonly leadId?: UserId
+  readonly leadId?: UserId | null
 
   // Project lifecycle
   readonly status?: ProjectStatus
-  readonly startDate?: Date
-  readonly targetEndDate?: Date
+  readonly startDate?: Date | null
+  readonly targetEndDate?: Date | null
 }
