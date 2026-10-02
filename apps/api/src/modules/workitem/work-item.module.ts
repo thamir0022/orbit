@@ -15,6 +15,10 @@ import {
   CREATE_WORK_ITEM_USE_CASE,
   CreateWorkItemUseCase,
 } from './application/usecases/create-work-item'
+import {
+  GET_WORK_ITEMS_USE_CASE,
+  GetWorkItemsUseCase,
+} from './application/usecases/get-workitems'
 
 @Module({
   imports: [
@@ -35,6 +39,10 @@ import {
     {
       provide: CREATE_WORK_ITEM_USE_CASE,
       useClass: CreateWorkItemUseCase,
+    },
+    {
+      provide: GET_WORK_ITEMS_USE_CASE,
+      useClass: GetWorkItemsUseCase,
     },
   ],
   controllers: [WorkItemController],
