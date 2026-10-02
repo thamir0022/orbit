@@ -8,11 +8,21 @@ import { ProjectType } from '../enums/project-type.enum'
  * Update method props
  */
 export interface UpdateProjectProps {
-  readonly type: ProjectType
-  readonly stage: ProjectStage
-  readonly priority: ProjectPriority
-  readonly status: ProjectStatus
-  readonly leadId: UserId
-  readonly startDate: Date
-  readonly targetEndDate: Date
+  // Project metadata
+  readonly name?: string
+  readonly description?: string
+  readonly avatarUrl?: string
+
+  // Project classification
+  readonly type?: ProjectType
+  readonly stage?: ProjectStage
+  readonly priority?: ProjectPriority
+
+  // Project ownership
+  readonly leadId?: UserId
+
+  // Project lifecycle
+  readonly status?: ProjectStatus
+  readonly startDate?: Date
+  readonly targetEndDate?: Date
 }

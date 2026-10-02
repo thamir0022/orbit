@@ -172,6 +172,18 @@ export class Project extends AggregateRoot<ProjectId> {
   update(props: UpdateProjectProps): void {
     this.ensureNotDeleted()
 
+    if (props.name !== undefined) {
+      this._name = props.name
+    }
+
+    if (props.description !== undefined) {
+      this._description = props.description
+    }
+
+    if (props.avatarUrl !== undefined) {
+      this._avatarUrl = props.avatarUrl
+    }
+
     if (props.type !== undefined) {
       this._type = props.type
     }
