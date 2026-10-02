@@ -27,6 +27,10 @@ import {
   DELETE_WORK_ITEM_USE_CASE,
   DeleteWorkItemUseCase,
 } from './application/usecases/delete-workitem'
+import {
+  UPDATE_WORK_ITEM_USE_CASE,
+  UpdateWorkItemUseCase,
+} from './application/usecases/update-workitem'
 
 @Module({
   imports: [
@@ -59,6 +63,10 @@ import {
     {
       provide: DELETE_WORK_ITEM_USE_CASE,
       useClass: DeleteWorkItemUseCase,
+    },
+    {
+      provide: UPDATE_WORK_ITEM_USE_CASE,
+      useClass: UpdateWorkItemUseCase,
     },
   ],
   controllers: [WorkItemController],

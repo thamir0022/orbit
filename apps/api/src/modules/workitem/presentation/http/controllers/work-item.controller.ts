@@ -5,6 +5,7 @@ import {
   Get,
   Inject,
   Param,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common'
@@ -21,6 +22,8 @@ import {
   GetWorkItemResponse,
   GetWorkItemsQuery,
   GetWorkItemsResponse,
+  UpdateWorkItemRequest,
+  UpdateWorkItemResponse,
 } from '../dtos'
 
 import {
@@ -41,6 +44,10 @@ import {
   DELETE_WORK_ITEM_USE_CASE,
   IDeleteWorkItemUseCase,
 } from '../../../application/usecases/delete-workitem'
+import {
+  IUpdateWorkItemUseCase,
+  UPDATE_WORK_ITEM_USE_CASE,
+} from '../../../application/usecases/update-workitem'
 
 @Controller('work-items')
 export class WorkItemController {
@@ -55,7 +62,10 @@ export class WorkItemController {
     private readonly getWorkItemUseCase: IGetWorkItemUseCase,
 
     @Inject(DELETE_WORK_ITEM_USE_CASE)
-    private readonly deleteWorkItemUseCase: IDeleteWorkItemUseCase
+    private readonly deleteWorkItemUseCase: IDeleteWorkItemUseCase,
+
+    @Inject(UPDATE_WORK_ITEM_USE_CASE)
+    private readonly updateWorkItemUseCase: IUpdateWorkItemUseCase
   ) {}
 
   @Post()
@@ -120,6 +130,20 @@ export class WorkItemController {
     return this.getWorkItemUseCase.execute({
       workspaceId,
       key: param.key,
+    })
+  }
+
+  @Patch(':key')
+  @ResponseMessage(WorkItemResponseMessage.WORKITEM_UPDATED)
+  async updateWorkItem(
+    @CurrentAuth('workspaceId') workspaceId: string,
+    @Param('key') key: string,
+    @Body() request: UpdateWorkItemRequest
+  ): Promise<UpdateWorkItemResponse> {
+    return this.updateWorkItemUseCase.execute({
+      workspaceId,
+      key,
+      ...request,
     })
   }
 
