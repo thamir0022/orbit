@@ -1,22 +1,41 @@
 import {
-  CREATE_WORK_ITEM_USE_CASE,
-  ICreateWorkItemUseCase,
-} from '@/modules/workitem/application/usecases/create-work-item'
-import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common'
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common'
+
+import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
+import { AuthContext } from '@/shared/domain/types'
+import { ResponseMessage } from '@/shared/presentation/decorators/response-message.decorator'
+import { WorkItemResponseMessage } from '../enums/response-message.enum'
+
 import {
   CreateWorkItemRequest,
   CreateWorkItemResponse,
+  GetWorkItemRequest,
+  GetWorkItemResponse,
   GetWorkItemsQuery,
   GetWorkItemsResponse,
 } from '../dtos'
-import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
-import { AuthContext } from '@/shared/domain/types'
+
+import {
+  CREATE_WORK_ITEM_USE_CASE,
+  ICreateWorkItemUseCase,
+} from '../../../application/usecases/create-work-item'
+
 import {
   GET_WORK_ITEMS_USE_CASE,
   IGetWorkItemsUseCase,
 } from '../../../application/usecases/get-workitems'
-import { ResponseMessage } from '@/shared/presentation/decorators/response-message.decorator'
-import { WorkItemResponseMessage } from '../enums/response-message.enum'
+
+import {
+  GET_WORK_ITEM_USE_CASE,
+  IGetWorkItemUseCase,
+} from '../../../application/usecases/get-workitem'
 
 @Controller('work-items')
 export class WorkItemController {
@@ -25,7 +44,10 @@ export class WorkItemController {
     private readonly createWorkItemUseCase: ICreateWorkItemUseCase,
 
     @Inject(GET_WORK_ITEMS_USE_CASE)
-    private readonly getWorkItemsUseCase: IGetWorkItemsUseCase
+    private readonly getWorkItemsUseCase: IGetWorkItemsUseCase,
+
+    @Inject(GET_WORK_ITEM_USE_CASE)
+    private readonly getWorkItemUseCase: IGetWorkItemUseCase
   ) {}
 
   @Post()
@@ -78,6 +100,17 @@ export class WorkItemController {
     return this.getWorkItemsUseCase.execute({
       workspaceId,
       ...query,
+    })
+  }
+
+  @Get(':key')
+  async getWorkItem(
+    @CurrentAuth('workspaceId') workspaceId: string,
+    @Param() param: GetWorkItemRequest
+  ): Promise<GetWorkItemResponse> {
+    return this.getWorkItemUseCase.execute({
+      workspaceId,
+      key: param.key,
     })
   }
 }
