@@ -5,6 +5,7 @@ import {
   Inject,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common'
@@ -15,6 +16,8 @@ import {
   GetProjectResponse,
   GetProjectsQuery,
   GetProjectsResponse,
+  UpdateProjectRequest,
+  UpdateProjectResponse,
 } from '../dtos'
 
 import {
@@ -36,6 +39,11 @@ import {
   IGetProjectUseCase,
 } from '../../application/usecases/get-project'
 
+import {
+  IUpdateProjectUseCase,
+  UPDATE_PROJECT_USE_CASE,
+} from '../../application/usecases/update-project'
+
 @Controller('projects')
 export class ProjectController {
   constructor(
@@ -46,7 +54,10 @@ export class ProjectController {
     private readonly getProjectsUseCase: IGetProjectsUseCase,
 
     @Inject(GET_PROJECT_USE_CASE)
-    private readonly getProjectUseCase: IGetProjectUseCase
+    private readonly getProjectUseCase: IGetProjectUseCase,
+
+    @Inject(UPDATE_PROJECT_USE_CASE)
+    private readonly updateProjectUseCase: IUpdateProjectUseCase
   ) {}
 
   @Post('')
@@ -149,6 +160,46 @@ export class ProjectController {
     return this.getProjectUseCase.execute({
       workspaceId,
       projectId,
+    })
+  }
+
+  @Patch(':projectKey')
+  @ResponseMessage(ProjectResponseMessage.PROJECT_UPDATED)
+  async updateProject(
+    @CurrentAuth('workspaceId') workspaceId: string,
+    @Param('projectKey') projectkey: string,
+    @Body() request: UpdateProjectRequest
+  ): Promise<UpdateProjectResponse> {
+    const {
+      name,
+      description,
+      avatarUrl,
+      type,
+      stage,
+      priority,
+      status,
+      leadId,
+      startDate,
+      targetEndDate,
+    } = request
+
+    return this.updateProjectUseCase.execute({
+      workspaceId,
+      key: projectkey,
+
+      name,
+      description,
+      avatarUrl,
+
+      type,
+      stage,
+      priority,
+      status,
+
+      leadId,
+
+      startDate,
+      targetEndDate,
     })
   }
 }

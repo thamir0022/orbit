@@ -28,6 +28,11 @@ import {
   GET_PROJECT_USE_CASE,
   GetProjectUseCase,
 } from './application/usecases/get-project'
+import {
+  UPDATE_PROJECT_USE_CASE,
+  UpdateProjectUseCase,
+} from './application/usecases/update-project'
+import { WorkspaceModule } from '../workspace/workspace.module'
 
 @Module({
   imports: [
@@ -41,6 +46,8 @@ import {
         schema: ProjectCounterSchema,
       },
     ]),
+
+    WorkspaceModule,
   ],
   controllers: [ProjectController],
   providers: [
@@ -56,6 +63,10 @@ import {
     {
       provide: GET_PROJECT_USE_CASE,
       useClass: GetProjectUseCase,
+    },
+    {
+      provide: UPDATE_PROJECT_USE_CASE,
+      useClass: UpdateProjectUseCase,
     },
   ],
   exports: [PROJECT_REPOSITORY],
