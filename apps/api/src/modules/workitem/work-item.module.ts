@@ -23,6 +23,10 @@ import {
   GET_WORK_ITEM_USE_CASE,
   GetWorkItemUseCase,
 } from './application/usecases/get-workitem'
+import {
+  DELETE_WORK_ITEM_USE_CASE,
+  DeleteWorkItemUseCase,
+} from './application/usecases/delete-workitem'
 
 @Module({
   imports: [
@@ -51,6 +55,10 @@ import {
     {
       provide: GET_WORK_ITEM_USE_CASE,
       useClass: GetWorkItemUseCase,
+    },
+    {
+      provide: DELETE_WORK_ITEM_USE_CASE,
+      useClass: DeleteWorkItemUseCase,
     },
   ],
   controllers: [WorkItemController],

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
@@ -36,6 +37,10 @@ import {
   GET_WORK_ITEM_USE_CASE,
   IGetWorkItemUseCase,
 } from '../../../application/usecases/get-workitem'
+import {
+  DELETE_WORK_ITEM_USE_CASE,
+  IDeleteWorkItemUseCase,
+} from '../../../application/usecases/delete-workitem'
 
 @Controller('work-items')
 export class WorkItemController {
@@ -47,7 +52,10 @@ export class WorkItemController {
     private readonly getWorkItemsUseCase: IGetWorkItemsUseCase,
 
     @Inject(GET_WORK_ITEM_USE_CASE)
-    private readonly getWorkItemUseCase: IGetWorkItemUseCase
+    private readonly getWorkItemUseCase: IGetWorkItemUseCase,
+
+    @Inject(DELETE_WORK_ITEM_USE_CASE)
+    private readonly deleteWorkItemUseCase: IDeleteWorkItemUseCase
   ) {}
 
   @Post()
@@ -104,6 +112,7 @@ export class WorkItemController {
   }
 
   @Get(':key')
+  @ResponseMessage(WorkItemResponseMessage.WORKITEM_FETCHED)
   async getWorkItem(
     @CurrentAuth('workspaceId') workspaceId: string,
     @Param() param: GetWorkItemRequest
@@ -111,6 +120,18 @@ export class WorkItemController {
     return this.getWorkItemUseCase.execute({
       workspaceId,
       key: param.key,
+    })
+  }
+
+  @Delete(':key')
+  @ResponseMessage(WorkItemResponseMessage.WORKITEM_DELETED)
+  async deleteWorkItem(
+    @CurrentAuth('workspaceId') workspaceId: string,
+    @Param('key') key: string
+  ) {
+    return this.deleteWorkItemUseCase.execute({
+      workspaceId,
+      key,
     })
   }
 }
