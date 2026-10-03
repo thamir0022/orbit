@@ -13,6 +13,7 @@ import {
   CREATE_DOCUMENT_USE_CASE,
   CreateDocumentUseCase,
 } from './application/usecases/create-document'
+import { WorkspaceModule } from '../workspace/workspace.module'
 
 @Module({
   imports: [
@@ -22,6 +23,8 @@ import {
         schema: DocumentSchema,
       },
     ]),
+
+    WorkspaceModule,
   ],
   controllers: [DocumentController],
   providers: [
