@@ -1,5 +1,15 @@
-import { ProjectsPage } from '@/widgets/project/ui/projects-page'
+'use client'
 
-export default function Page() {
-  return <ProjectsPage />
+import { useParams } from 'next/navigation'
+
+import { ProjectsPage } from '@/_pages/projects/ui/projects-page'
+
+const Projects = () => {
+  const params = useParams<{
+    slug: string
+  }>()
+
+  return <ProjectsPage workspaceSlug={params.slug} />
 }
+
+export default Projects

@@ -29,7 +29,7 @@ import {
   PROJECT_TYPE_OPTIONS,
   type CreateProjectInput,
   type ProjectResource,
-} from '@/entities/project/model/types'
+} from '@/entities/project/model/project.types'
 import { useCreateWorkspaceProject } from '@/entities/project/model/project.queries'
 
 type FormValues = {
