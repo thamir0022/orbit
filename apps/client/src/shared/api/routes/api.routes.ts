@@ -52,7 +52,7 @@ export const API_ROUTES = {
   },
 
   PROJECTS: {
-    ALL: `/projects`,
+    LIST: `/projects`,
     PROJECT: (projectId: string) => `/projects/${projectId}`,
   },
 } as const

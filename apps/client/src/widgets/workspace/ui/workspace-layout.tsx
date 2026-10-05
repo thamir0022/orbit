@@ -49,5 +49,9 @@ export const WorkSpaceLayout = ({
     )
   }
 
-  return <div className="min-h-full">{children}</div>
+  return (
+    <div className="flex h-full min-h-0 min-w-0 w-full flex-1 overflow-hidden">
+      {children}
+    </div>
+  )
 }
