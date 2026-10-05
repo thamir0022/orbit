@@ -1,15 +1,9 @@
-'use client'
-
-import { useParams } from 'next/navigation'
-
 import { ProjectsPage } from '@/_pages/projects/ui/projects-page'
 
-const Projects = () => {
-  const params = useParams<{
-    slug: string
-  }>()
+const Projects = async ({ params }: { params: Promise<{ slug: string }> }) => {
+  const { slug } = await params
 
-  return <ProjectsPage workspaceSlug={params.slug} />
+  return <ProjectsPage workspaceSlug={slug} />
 }
 
 export default Projects
