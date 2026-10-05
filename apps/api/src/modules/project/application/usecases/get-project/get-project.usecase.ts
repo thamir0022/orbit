@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common'
 
 import { WorkspaceId } from '@/modules/workspace/domain'
-import { ProjectId } from '@/modules/project/domain'
-import { ProjectNotFoundException } from '@/modules/project/domain/exceptions'
+
+import { ProjectKey } from '../../../domain/value-objects/project-key.vo'
+import { ProjectNotFoundException } from '../../../domain/exceptions'
 
 import {
   PROJECT_QUERY_REPOSITORY,
@@ -25,11 +26,11 @@ export class GetProjectUseCase implements IGetProjectUseCase {
 
   async execute(input: GetProjectInput): Promise<GetProjectOutput> {
     const workspaceId = WorkspaceId.create(input.workspaceId)
-    const projectId = ProjectId.create(input.projectId)
+    const key = ProjectKey.create(input.key)
 
-    const project = await this.projectQueryRepository.findByWorkspaceIdAndId({
+    const project = await this.projectQueryRepository.findByWorkspaceIdAndKey({
       workspaceId,
-      projectId,
+      key,
     })
 
     if (!project) {

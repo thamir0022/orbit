@@ -5,7 +5,6 @@ import {
   Get,
   Inject,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -159,15 +158,15 @@ export class ProjectController {
     })
   }
 
-  @Get(':projectId')
+  @Get(':key')
   @ResponseMessage(ProjectResponseMessage.PROJECT_FETCHED)
   async getProject(
     @CurrentAuth('workspaceId') workspaceId: string,
-    @Param('projectId', new ParseUUIDPipe({ version: '7' })) projectId: string
+    @Param('key') key: string
   ): Promise<GetProjectResponse> {
     return this.getProjectUseCase.execute({
       workspaceId,
-      projectId,
+      key,
     })
   }
 

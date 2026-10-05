@@ -3,5 +3,5 @@
  */
 export interface GetProjectInput {
   readonly workspaceId: string
-  readonly projectId: string
+  readonly key: string
 }
