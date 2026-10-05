@@ -91,9 +91,9 @@ export class CreateProjectUseCase implements ICreateProjectUseCase {
       }
     )
 
-    const result = await this.projectQueryRepository.findByWorkspaceIdAndId({
+    const result = await this.projectQueryRepository.findByWorkspaceIdAndKey({
       workspaceId: project.workspaceId,
-      projectId: project.id,
+      key: project.key,
     })
 
     if (!result) {
