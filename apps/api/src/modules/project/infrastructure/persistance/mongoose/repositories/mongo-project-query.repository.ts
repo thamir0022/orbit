@@ -7,7 +7,7 @@ import { WorkspaceId } from '@/modules/workspace/domain'
 
 import { ProjectListItemOutput } from '../../../../application/contracts/project-list-item.output'
 import {
-  FindProjectByWorkspaceIdAndIdQueryProps,
+  FindProjectByWorkspaceIdAndKeyQueryProps,
   FindProjectsQueryProps,
   ProjectQueryFilterProps,
   ProjectQueryRepository,
@@ -144,15 +144,15 @@ export class MongoProjectQueryRepository implements ProjectQueryRepository {
     }
   }
 
-  async findByWorkspaceIdAndId(
-    props: FindProjectByWorkspaceIdAndIdQueryProps,
+  async findByWorkspaceIdAndKey(
+    props: FindProjectByWorkspaceIdAndKeyQueryProps,
     options?: ITransactionOptions
   ): Promise<ProjectListItemOutput | null> {
     const pipeline: PipelineStage[] = [
       {
         $match: {
           workspaceId: new UUID(props.workspaceId.value),
-          id: new UUID(props.projectId.value),
+          key: props.key.value,
           deletedAt: null,
         },
       },
