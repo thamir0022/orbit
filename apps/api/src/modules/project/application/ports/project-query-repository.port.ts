@@ -7,8 +7,8 @@ import { ProjectPriority } from '../../domain/enums/project-priority.enum'
 import { ProjectStage } from '../../domain/enums/project-stage.enum'
 import { ProjectStatus } from '../../domain/enums/project-status.enum'
 import { ProjectType } from '../../domain/enums/project-type.enum'
-import { ProjectId } from '../../domain/value-objects/project-id.vo'
 import { ProjectListItemOutput } from '../contracts/project-list-item.output'
+import { ProjectKey } from '../../domain/value-objects/project-key.vo'
 
 export type ProjectQuerySortField =
   | 'name'
@@ -84,9 +84,9 @@ export interface FindProjectsQueryProps {
 /**
  * Query parameters for retrieving a specific project.
  */
-export interface FindProjectByWorkspaceIdAndIdQueryProps {
+export interface FindProjectByWorkspaceIdAndKeyQueryProps {
   workspaceId: WorkspaceId
-  projectId: ProjectId
+  key: ProjectKey
 }
 
 /**
@@ -112,8 +112,8 @@ export interface ProjectQueryRepository {
     options?: ITransactionOptions
   ): Promise<ProjectListQueryResult>
 
-  findByWorkspaceIdAndId(
-    props: FindProjectByWorkspaceIdAndIdQueryProps,
+  findByWorkspaceIdAndKey(
+    props: FindProjectByWorkspaceIdAndKeyQueryProps,
     options?: ITransactionOptions
   ): Promise<ProjectListItemOutput | null>
 }
