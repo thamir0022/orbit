@@ -96,9 +96,9 @@ export class UpdateProjectUseCase implements IUpdateProjectUseCase {
       await this.projectRepository.save(project, { session })
     })
 
-    const result = await this.projectQueryRepository.findByWorkspaceIdAndId({
+    const result = await this.projectQueryRepository.findByWorkspaceIdAndKey({
       workspaceId,
-      projectId: project.id,
+      key: project.key,
     })
 
     if (!result) {
