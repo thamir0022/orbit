@@ -7,8 +7,10 @@ import {
   ArrowLeft,
   CalendarDays,
   ChevronDown,
+  EllipsisVertical,
   PanelRightClose,
   PanelRightOpen,
+  Trash,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -69,6 +71,14 @@ import {
   parseDateValue,
   toDateTimeLocalValue,
 } from '../lib/update-project.utils'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu'
+
+import { DeleteProjectButton } from '@/features/delete-project'
 
 interface UpdateProjectFormProps {
   readonly project: Project
@@ -580,6 +590,27 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
                     )}
                   />
                 </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      type="button"
+                      size="icon-sm"
+                      variant="ghost"
+                      aria-label="Project actions"
+                    >
+                      <EllipsisVertical aria-hidden="true" />
+                    </Button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <DeleteProjectButton
+                        projectKey={project.key}
+                        projectName={project.name}
+                      />
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </CardHeader>
 
