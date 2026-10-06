@@ -25,7 +25,7 @@ export function AppSidebar({
   const { open } = useSidebar()
 
   return (
-    <Sidebar className="h-full border-r" variant={variant} collapsible="icon">
+    <Sidebar className="text-foreground h-full border-r" variant={variant} collapsible="icon">
       <SidebarHeader>
         <OrbitLogo variant={open ? 'logo_and_brand_name' : 'logo'} />
         <NavWorkspaces />
