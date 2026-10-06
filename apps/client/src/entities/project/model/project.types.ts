@@ -46,10 +46,14 @@ export interface Project {
   readonly name: string
   readonly key: string
 
+  readonly description?: string
+  readonly avatarUrl?: string | null
   readonly type: ProjectType
   readonly stage: ProjectStage
   readonly priority: ProjectPriority
   readonly status: ProjectStatus
+
+  readonly createdBy: ProjectLead
 
   readonly lead?: ProjectLead | null
 
@@ -70,4 +74,23 @@ export interface ProjectPagination {
 export interface GetProjectsResponse {
   readonly projects: Project[]
   readonly pagination: ProjectPagination
+}
+
+export interface UpdateProjectInput {
+  workspaceId: string
+  key: string
+
+  name?: string
+  description?: string
+  avatarUrl?: string
+
+  type?: ProjectType
+  stage?: ProjectStage
+  priority?: ProjectPriority
+  status?: ProjectStatus
+
+  leadId?: string | null
+
+  startDate?: Date | null
+  targetEndDate?: Date | null
 }
