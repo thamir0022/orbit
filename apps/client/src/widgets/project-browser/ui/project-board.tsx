@@ -138,7 +138,7 @@ export const ProjectBoard = ({
                   statusProjects.map((project) => (
                     <Link
                       key={project.id}
-                      href={`/${workspaceSlug}/projects/${project.key}`}
+                      href={`/${workspaceSlug}/projects/${project.key}/overview`}
                       className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
                       <Card className="gap-0 py-0 transition-colors hover:border-foreground/20">

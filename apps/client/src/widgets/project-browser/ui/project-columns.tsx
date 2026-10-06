@@ -100,7 +100,7 @@ export const createProjectColumns = ({
 
         return (
           <Link
-            href={`/${workspaceSlug}/projects/${project.key}`}
+            href={`/${workspaceSlug}/projects/${project.key}/overview`}
             className="flex min-w-0 items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Avatar className="size-8 shrink-0 rounded-md" aria-hidden="true">
