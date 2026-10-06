@@ -54,6 +54,8 @@ import { ProjectList } from './project-list'
 import { ProjectPagination } from './project-pagination'
 
 import { ProjectSkeleton } from './project-skeleton'
+import { CreateProjectDialog } from '@/features/create-project'
+import { Button } from '@/shared/ui/button'
 
 interface ProjectBrowserProps {
   readonly workspaceSlug: string
@@ -193,10 +195,6 @@ export const ProjectBrowser = ({ workspaceSlug }: ProjectBrowserProps) => {
       <div className="flex shrink-0 items-start justify-between gap-4">
         <div className="min-w-0">
           <h1 className="text-xl font-semibold tracking-tight">Projects</h1>
-
-          <p className="mt-1 text-sm">
-            Manage and track your workspace projects.
-          </p>
         </div>
 
         <ToggleGroup
@@ -245,7 +243,7 @@ export const ProjectBrowser = ({ workspaceSlug }: ProjectBrowserProps) => {
 
           <Separator
             orientation="vertical"
-            className="hidden h-6 shrink-0 sm:block"
+            className="hidden h-7 my-auto shrink-0 sm:block"
           />
 
           <ProjectFilters
@@ -290,7 +288,7 @@ export const ProjectBrowser = ({ workspaceSlug }: ProjectBrowserProps) => {
         >
           {isFetching && <Spinner className="size-3.5" aria-hidden="true" />}
 
-          <span>{pagination?.total ?? 0} projects</span>
+          <CreateProjectDialog/>
         </div>
       </div>
 
