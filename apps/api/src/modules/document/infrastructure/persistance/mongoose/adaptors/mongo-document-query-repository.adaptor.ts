@@ -64,6 +64,8 @@ export class MongoDocumentQueryRepository implements DocumentQueryRepository {
           id: 1,
           title: 1,
 
+          content: 1,
+
           owner: {
             id: '$ownerUser.id',
             displayName: '$ownerUser.displayName',
@@ -110,6 +112,8 @@ export class MongoDocumentQueryRepository implements DocumentQueryRepository {
 
           id: 1,
           title: 1,
+
+          content: 1,
 
           owner: {
             id: '$ownerUser.id',
