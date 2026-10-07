@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { UserSummaryResponseDto } from '@/shared/presentation/dtos/responses/user-summary.response'
 
 import { DocumentListItemOutput } from '../../../../application/contracts/document-list-item.output'
+import { DocumentContent } from '../../../../domain/interfaces/document.interface'
 
 /**
  * HTTP response representation of a document.
@@ -23,6 +24,11 @@ export class DocumentResponse implements DocumentListItemOutput {
     example: 'Authentication Architecture',
   })
   title!: string
+
+  @ApiProperty({
+    description: 'Document content',
+  })
+  content!: DocumentContent
 
   @ApiProperty({
     description: 'User who owns the document',

@@ -9,11 +9,16 @@ import { documentProviders } from './infrastructure/providers/document.providers
 
 import { DocumentController } from './presentation/http/controllers/document.controller'
 
+import { WorkspaceModule } from '../workspace/workspace.module'
+
 import {
   CREATE_DOCUMENT_USE_CASE,
   CreateDocumentUseCase,
 } from './application/usecases/create-document'
-import { WorkspaceModule } from '../workspace/workspace.module'
+import {
+  GET_DOCUMENT_USE_CASE,
+  GetDocumentUseCase,
+} from './application/usecases/get-document'
 
 @Module({
   imports: [
@@ -32,6 +37,10 @@ import { WorkspaceModule } from '../workspace/workspace.module'
     {
       provide: CREATE_DOCUMENT_USE_CASE,
       useClass: CreateDocumentUseCase,
+    },
+    {
+      provide: GET_DOCUMENT_USE_CASE,
+      useClass: GetDocumentUseCase,
     },
   ],
 })

@@ -1,2 +1,4 @@
 export { CreateDocumentRequest } from './requests/create-document.request'
 export { CreateDocumentResponse } from './responses/create-document.response'
+export { GetDocumentRequest } from './requests/get-document.request'
+export { GetDocumentResponse } from './responses/get-document.response'
