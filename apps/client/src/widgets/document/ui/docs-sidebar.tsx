@@ -93,7 +93,7 @@ export function DocsSidebar({ isOpen, onClose }: DocsSidebarProps) {
         </header>
 
         <ScrollArea className="min-h-0 flex-1">
-          <div className="w-full px-2 py-4">
+          <div className="w-full p-2">
             <Link href={newDocumentPath}>
               <Button variant="ghost" size="lg" className="px-6 w-full">
                 <Plus className="size-4" />
