@@ -23,6 +23,10 @@ import {
   UPDATE_DOCUMENT_USE_CASE,
   UpdateDocumentUseCase,
 } from './application/usecases/update-document'
+import {
+  DELETE_DOCUMENT_USE_CASE,
+  DeleteDocumentUseCase,
+} from './application/usecases/delete-document'
 
 @Module({
   imports: [
@@ -49,6 +53,10 @@ import {
     {
       provide: UPDATE_DOCUMENT_USE_CASE,
       useClass: UpdateDocumentUseCase,
+    },
+    {
+      provide: DELETE_DOCUMENT_USE_CASE,
+      useClass: DeleteDocumentUseCase,
     },
   ],
 })

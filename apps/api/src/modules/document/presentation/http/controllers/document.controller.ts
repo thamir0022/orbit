@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
@@ -29,6 +30,10 @@ import {
   IUpdateDocumentUseCase,
   UPDATE_DOCUMENT_USE_CASE,
 } from '../../../application/usecases/update-document'
+import {
+  DELETE_DOCUMENT_USE_CASE,
+  IDeleteDocumentUseCase,
+} from '../../../application/usecases/delete-document'
 
 @Controller('documents')
 export class DocumentController {
@@ -40,7 +45,10 @@ export class DocumentController {
     private readonly getDocumentUseCase: IGetDocumentUseCase,
 
     @Inject(UPDATE_DOCUMENT_USE_CASE)
-    private readonly updateDocumentUseCase: IUpdateDocumentUseCase
+    private readonly updateDocumentUseCase: IUpdateDocumentUseCase,
+
+    @Inject(DELETE_DOCUMENT_USE_CASE)
+    private readonly deleteDocumentUseCase: IDeleteDocumentUseCase
   ) {}
 
   @Post()
@@ -84,6 +92,18 @@ export class DocumentController {
       documentId,
       title,
       content,
+    })
+  }
+
+  @Delete(':documentId')
+  async deleteDocument(
+    @CurrentAuth() auth: AuthContext,
+    @Param('documentId') documentId: string
+  ): Promise<void> {
+    return this.deleteDocumentUseCase.execute({
+      workspaceId: auth.workspaceId!,
+      actorId: auth.userId,
+      documentId,
     })
   }
 }
