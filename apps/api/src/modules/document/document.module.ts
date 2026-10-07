@@ -19,6 +19,10 @@ import {
   GET_DOCUMENT_USE_CASE,
   GetDocumentUseCase,
 } from './application/usecases/get-document'
+import {
+  UPDATE_DOCUMENT_USE_CASE,
+  UpdateDocumentUseCase,
+} from './application/usecases/update-document'
 
 @Module({
   imports: [
@@ -41,6 +45,10 @@ import {
     {
       provide: GET_DOCUMENT_USE_CASE,
       useClass: GetDocumentUseCase,
+    },
+    {
+      provide: UPDATE_DOCUMENT_USE_CASE,
+      useClass: UpdateDocumentUseCase,
     },
   ],
 })

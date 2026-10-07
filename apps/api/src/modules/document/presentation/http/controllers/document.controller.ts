@@ -1,18 +1,34 @@
-import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common'
+
+import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
+import { AuthContext } from '@/shared/domain/types'
+
+import {
+  CreateDocumentRequest,
+  UpdateDocumentRequest,
+  UpdateDocumentResponse,
+} from '../dtos'
 
 import {
   CREATE_DOCUMENT_USE_CASE,
   ICreateDocumentUseCase,
 } from '../../../application/usecases/create-document'
-import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
-import { AuthContext } from '@/shared/domain/types'
-
-import { CreateDocumentRequest } from '../dtos'
-
 import {
   GET_DOCUMENT_USE_CASE,
   IGetDocumentUseCase,
 } from '../../../application/usecases/get-document'
+import {
+  IUpdateDocumentUseCase,
+  UPDATE_DOCUMENT_USE_CASE,
+} from '../../../application/usecases/update-document'
 
 @Controller('documents')
 export class DocumentController {
@@ -21,7 +37,10 @@ export class DocumentController {
     private readonly createDocumentUseCase: ICreateDocumentUseCase,
 
     @Inject(GET_DOCUMENT_USE_CASE)
-    private readonly getDocumentUseCase: IGetDocumentUseCase
+    private readonly getDocumentUseCase: IGetDocumentUseCase,
+
+    @Inject(UPDATE_DOCUMENT_USE_CASE)
+    private readonly updateDocumentUseCase: IUpdateDocumentUseCase
   ) {}
 
   @Post()
@@ -48,6 +67,23 @@ export class DocumentController {
       workspaceId: auth.workspaceId!,
       documentId,
       actorId: auth.userId,
+    })
+  }
+
+  @Patch(':documentId')
+  async updateDocument(
+    @CurrentAuth() auth: AuthContext,
+    @Param('documentId') documentId: string,
+    @Body() request: UpdateDocumentRequest
+  ): Promise<UpdateDocumentResponse> {
+    const { title, content } = request
+
+    return this.updateDocumentUseCase.execute({
+      workspaceId: auth.workspaceId!,
+      actorId: auth.userId,
+      documentId,
+      title,
+      content,
     })
   }
 }
