@@ -14,6 +14,7 @@ import { AuthContext } from '@/shared/domain/types'
 
 import {
   CreateDocumentRequest,
+  GetDocumentsResponse,
   UpdateDocumentRequest,
   UpdateDocumentResponse,
 } from '../dtos'
@@ -34,6 +35,10 @@ import {
   DELETE_DOCUMENT_USE_CASE,
   IDeleteDocumentUseCase,
 } from '../../../application/usecases/delete-document'
+import {
+  GET_DOCUMENTS_USE_CASE,
+  IGetDocumentsUseCase,
+} from '@/modules/document/application/usecases/get-documents'
 
 @Controller('documents')
 export class DocumentController {
@@ -48,7 +53,10 @@ export class DocumentController {
     private readonly updateDocumentUseCase: IUpdateDocumentUseCase,
 
     @Inject(DELETE_DOCUMENT_USE_CASE)
-    private readonly deleteDocumentUseCase: IDeleteDocumentUseCase
+    private readonly deleteDocumentUseCase: IDeleteDocumentUseCase,
+
+    @Inject(GET_DOCUMENTS_USE_CASE)
+    private readonly getDocumentsUseCase: IGetDocumentsUseCase
   ) {}
 
   @Post()
@@ -104,6 +112,16 @@ export class DocumentController {
       workspaceId: auth.workspaceId!,
       actorId: auth.userId,
       documentId,
+    })
+  }
+
+  @Get()
+  async getDocuments(
+    @CurrentAuth() auth: AuthContext
+  ): Promise<GetDocumentsResponse> {
+    return this.getDocumentsUseCase.execute({
+      workspaceId: auth.workspaceId!,
+      actorId: auth.userId,
     })
   }
 }
