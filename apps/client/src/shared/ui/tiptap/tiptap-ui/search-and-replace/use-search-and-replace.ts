@@ -7,7 +7,7 @@ import type { FindAndReplaceStorage } from '@tiptap/extension-find-and-replace'
 import { useTiptapEditor } from '@/shared/hooks/use-tiptap-editor'
 
 // --- Icons ---
-import { SearchIcon } from '@/components/tiptap-icons/search-icon'
+import { SearchIcon } from '../../tiptap-icons/search-icon'
 
 // --- Lib ---
 import { isExtensionAvailable } from '@/shared/lib/tiptap/tiptap-utils'

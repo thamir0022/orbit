@@ -1,57 +1,57 @@
-"use client"
+'use client'
 
-import { forwardRef, useCallback, useEffect, useRef } from "react"
-import { useHotkeys } from "react-hotkeys-hook"
+import { forwardRef, useCallback, useEffect, useRef } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 // --- Hooks ---
-import { useComposedRef } from "@/shared/hooks/use-composed-ref"
+import { useComposedRef } from '@/shared/hooks/use-composed-ref'
 
 // --- Icons ---
-import { ArrowRightIcon } from "@/components/tiptap-icons/arrow-right-icon"
-import { CaseSensitiveIcon } from "@/components/tiptap-icons/case-sensitive-icon"
-import { ChevronDownIcon } from "@/components/tiptap-icons/chevron-down-icon"
-import { ChevronUpIcon } from "@/components/tiptap-icons/chevron-up-icon"
-import { CloseIcon } from "@/components/tiptap-icons/close-icon"
-import { ExternalLinkIcon } from "@/components/tiptap-icons/external-link-icon"
-import { SearchIcon } from "@/components/tiptap-icons/search-icon"
-import { WholeWordIcon } from "@/components/tiptap-icons/whole-word-icon"
+import { ArrowRightIcon } from '../../tiptap-icons/arrow-right-icon'
+import { CaseSensitiveIcon } from '../../tiptap-icons/case-sensitive-icon'
+import { ChevronDownIcon } from '../../tiptap-icons/chevron-down-icon'
+import { ChevronUpIcon } from '../../tiptap-icons/chevron-up-icon'
+import { CloseIcon } from '../../tiptap-icons/close-icon'
+import { ExternalLinkIcon } from '../../tiptap-icons/external-link-icon'
+import { SearchIcon } from '../../tiptap-icons/search-icon'
+import { WholeWordIcon } from '../../tiptap-icons/whole-word-icon'
 
 // --- Lib ---
-import { cn } from "@/shared/lib/tiptap/tiptap-utils"
+import { cn } from '@/shared/lib/tiptap/tiptap-utils'
 
 // --- Tiptap UI ---
-import type { UseSearchAndReplaceConfig } from "@/components/tiptap-ui/search-and-replace"
+import type { UseSearchAndReplaceConfig } from '../../tiptap-ui/search-and-replace'
 import {
   NEXT_RESULT_SHORTCUT_KEY,
   PREVIOUS_RESULT_SHORTCUT_KEY,
   SEARCH_AND_REPLACE_SHORTCUT_KEY,
   useSearchAndReplace,
-} from "@/components/tiptap-ui/search-and-replace"
+} from '../../tiptap-ui/search-and-replace'
 
 // --- UI Primitives ---
-import type { ButtonProps } from "@/components/tiptap-ui-primitive/button"
-import { Button } from "@/components/tiptap-ui-primitive/button"
-import { ButtonGroup } from "@/components/tiptap-ui-primitive/button-group"
+import type { ButtonProps } from '../../tiptap-ui-primitive/button'
+import { Button } from '../../tiptap-ui-primitive/button'
+import { ButtonGroup } from '../../tiptap-ui-primitive/button-group'
 import {
   Card,
   CardBody,
   CardFooter,
   CardHeader,
-} from "@/components/tiptap-ui-primitive/card"
+} from '../../tiptap-ui-primitive/card'
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-} from "@/components/tiptap-ui-primitive/input-group"
-import { Separator } from "@/components/tiptap-ui-primitive/separator"
-import { Switch } from "@/components/tiptap-ui-primitive/switch"
+} from '../../tiptap-ui-primitive/input-group'
+import { Separator } from '../../tiptap-ui-primitive/separator'
+import { Switch } from '../../tiptap-ui-primitive/switch'
 
 // --- Styles ---
-import "@/components/tiptap-ui/search-and-replace/search-and-replace.scss"
+import '../../tiptap-ui/search-and-replace/search-and-replace.scss'
 
 export interface SearchAndReplaceProps
   extends
-    Omit<React.HTMLAttributes<HTMLDivElement>, "children">,
+    Omit<React.HTMLAttributes<HTMLDivElement>, 'children'>,
     UseSearchAndReplaceConfig {
   /**
    * Whether the panel is active. While `false` the panel stays mounted but
@@ -95,17 +95,17 @@ function isModKey(event: React.KeyboardEvent): boolean {
 }
 
 const REGEX_DOCS_URL =
-  "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions"
+  'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions'
 
 const REGEX_SEARCH_EXAMPLES = [
-  { label: "Any middle letter:", pattern: "c.t" },
-  { label: "Either term:", pattern: "cat|tiptap" },
-  { label: "Uppercase or lowercase C:", pattern: "[Cc]at" },
+  { label: 'Any middle letter:', pattern: 'c.t' },
+  { label: 'Either term:', pattern: 'cat|tiptap' },
+  { label: 'Uppercase or lowercase C:', pattern: '[Cc]at' },
 ]
 
 const REGEX_REPLACE_EXAMPLES = [
-  { pattern: "TipTap|tiptap|TIPTAP", replacement: "Tiptap" },
-  { pattern: "(cat|tiptap)", replacement: '"$1"' },
+  { pattern: 'TipTap|tiptap|TIPTAP', replacement: 'Tiptap' },
+  { pattern: '(cat|tiptap)', replacement: '"$1"' },
 ]
 
 /**
@@ -169,7 +169,7 @@ export const SearchAndReplaceButton = forwardRef<
   )
 })
 
-SearchAndReplaceButton.displayName = "SearchAndReplaceButton"
+SearchAndReplaceButton.displayName = 'SearchAndReplaceButton'
 
 /**
  * Search and replace panel for Tiptap editors.
@@ -287,13 +287,13 @@ export const SearchAndReplace = forwardRef<
     // the caret and other inputs keep their arrows; inside the panel the
     // panel's own key handler takes over.
     useHotkeys(
-      "up,down",
+      'up,down',
       (event) => {
         const target = event.target instanceof Node ? event.target : null
         if (panelRef.current?.contains(target)) return
 
         event.preventDefault()
-        if (event.key === "ArrowDown") {
+        if (event.key === 'ArrowDown') {
           goToNext()
         } else {
           goToPrevious()
@@ -342,7 +342,7 @@ export const SearchAndReplace = forwardRef<
 
     const handlePanelKeyDown = useCallback(
       (event: React.KeyboardEvent<HTMLDivElement>) => {
-        if (event.key === "Escape") {
+        if (event.key === 'Escape') {
           if (onClose) {
             event.preventDefault()
             event.stopPropagation()
@@ -356,7 +356,7 @@ export const SearchAndReplace = forwardRef<
         // Handled at the panel so a focused button navigates too (and the
         // page doesn't scroll instead).
         if (
-          (event.key === "ArrowDown" || event.key === "ArrowUp") &&
+          (event.key === 'ArrowDown' || event.key === 'ArrowUp') &&
           !event.shiftKey &&
           !event.altKey &&
           !isModKey(event) &&
@@ -364,7 +364,7 @@ export const SearchAndReplace = forwardRef<
           canNavigate
         ) {
           event.preventDefault()
-          if (event.key === "ArrowDown") {
+          if (event.key === 'ArrowDown') {
             goToNext()
           } else {
             goToPrevious()
@@ -378,14 +378,14 @@ export const SearchAndReplace = forwardRef<
         if (isModKey(event) && event.shiftKey && !event.altKey) {
           const key = event.key.toLowerCase()
 
-          if (key === "f" && canNavigate) {
+          if (key === 'f' && canNavigate) {
             event.preventDefault()
             event.stopPropagation()
             goToNext()
             return
           }
 
-          if (key === "d" && canNavigate) {
+          if (key === 'd' && canNavigate) {
             event.preventDefault()
             event.stopPropagation()
             goToPrevious()
@@ -398,7 +398,7 @@ export const SearchAndReplace = forwardRef<
     const handleSearchKeyDown = useCallback(
       (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (
-          event.key === "Enter" &&
+          event.key === 'Enter' &&
           !event.shiftKey &&
           !isModKey(event) &&
           !event.nativeEvent.isComposing &&
@@ -414,7 +414,7 @@ export const SearchAndReplace = forwardRef<
     const handleReplaceKeyDown = useCallback(
       (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (
-          event.key === "Enter" &&
+          event.key === 'Enter' &&
           !event.shiftKey &&
           !isModKey(event) &&
           !event.nativeEvent.isComposing &&
@@ -433,8 +433,8 @@ export const SearchAndReplace = forwardRef<
 
     return (
       <Card
-        className={cn("tiptap-search-replace", className)}
-        data-open={open ? "true" : "false"}
+        className={cn('tiptap-search-replace', className)}
+        data-open={open ? 'true' : 'false'}
         role="dialog"
         aria-label="Search and replace"
         onKeyDown={handlePanelKeyDown}
@@ -707,7 +707,7 @@ export const SearchAndReplace = forwardRef<
   }
 )
 
-SearchAndReplace.displayName = "SearchAndReplace"
+SearchAndReplace.displayName = 'SearchAndReplace'
 
 /**
  * Alias of `SearchAndReplace` for contexts where the panel is embedded as

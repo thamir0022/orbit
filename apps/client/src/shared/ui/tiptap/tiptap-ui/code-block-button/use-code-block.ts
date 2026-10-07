@@ -18,7 +18,7 @@ import {
 } from '@/shared/lib/tiptap/tiptap-utils'
 
 // --- Icons ---
-import { CodeBlockIcon } from '@/components/tiptap-icons/code-block-icon'
+import { CodeBlockIcon } from '../../tiptap-icons/code-block-icon'
 
 export const CODE_BLOCK_SHORTCUT_KEY = 'mod+alt+c'
 

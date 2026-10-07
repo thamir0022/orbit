@@ -7,16 +7,13 @@ import { parseShortcutKeys } from '@/shared/lib/tiptap/tiptap-utils'
 import { useTiptapEditor } from '@/shared/hooks/use-tiptap-editor'
 
 // --- UI Primitives ---
-import type { ButtonProps } from '@/components/tiptap-ui-primitive/button'
-import { Button } from '@/components/tiptap-ui-primitive/button'
-import { Badge } from '@/components/tiptap-ui-primitive/badge'
+import type { ButtonProps } from '../../tiptap-ui-primitive/button'
+import { Button } from '../../tiptap-ui-primitive/button'
+import { Badge } from '../../tiptap-ui-primitive/badge'
 
 // --- Tiptap UI ---
-import type {
-  ListType,
-  UseListConfig,
-} from '@/components/tiptap-ui/list-button'
-import { LIST_SHORTCUT_KEYS, useList } from '@/components/tiptap-ui/list-button'
+import type { ListType, UseListConfig } from '../../tiptap-ui/list-button'
+import { LIST_SHORTCUT_KEYS, useList } from '../../tiptap-ui/list-button'
 
 export interface ListButtonProps
   extends Omit<ButtonProps, 'type'>, UseListConfig {

@@ -1,4 +1,4 @@
-import '@/components/tiptap-ui-primitive/separator/separator.scss'
+import '../../tiptap-ui-primitive/separator/separator.scss'
 import { cn } from '@/shared/lib/tiptap/tiptap-utils'
 
 export type Orientation = 'horizontal' | 'vertical'

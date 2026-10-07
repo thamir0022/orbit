@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import {
   cloneElement,
@@ -9,7 +9,7 @@ import {
   useMemo,
   useState,
   version,
-} from "react"
+} from 'react'
 import {
   useFloating,
   autoUpdate,
@@ -27,8 +27,8 @@ import {
   type UseFloatingReturn,
   type ReferenceType,
   FloatingDelayGroup,
-} from "@floating-ui/react"
-import "@/components/tiptap-ui-primitive/tooltip/tooltip.scss"
+} from '@floating-ui/react'
+import '../../tiptap-ui-primitive/tooltip/tooltip.scss'
 
 interface TooltipProviderProps {
   children: React.ReactNode
@@ -44,7 +44,7 @@ interface TooltipProviderProps {
 
 interface TooltipTriggerProps extends Omit<
   React.HTMLProps<HTMLElement>,
-  "ref"
+  'ref'
 > {
   asChild?: boolean
   children: React.ReactNode
@@ -52,11 +52,11 @@ interface TooltipTriggerProps extends Omit<
 
 interface TooltipContentProps extends Omit<
   React.HTMLProps<HTMLDivElement>,
-  "ref"
+  'ref'
 > {
   children?: React.ReactNode
   portal?: boolean
-  portalProps?: Omit<React.ComponentProps<typeof FloatingPortal>, "children">
+  portalProps?: Omit<React.ComponentProps<typeof FloatingPortal>, 'children'>
 }
 
 interface TooltipContextValue extends UseFloatingReturn<ReferenceType> {
@@ -72,12 +72,12 @@ interface TooltipContextValue extends UseFloatingReturn<ReferenceType> {
 
 function useTooltip({
   initialOpen = false,
-  placement = "top",
+  placement = 'top',
   open: controlledOpen,
   onOpenChange: setControlledOpen,
   delay = 600,
   closeDelay = 0,
-}: Omit<TooltipProviderProps, "children"> = {}) {
+}: Omit<TooltipProviderProps, 'children'> = {}) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState<boolean>(initialOpen)
 
   const open = controlledOpen ?? uncontrolledOpen
@@ -91,8 +91,8 @@ function useTooltip({
     middleware: [
       offset(4),
       flip({
-        crossAxis: placement.includes("-"),
-        fallbackAxisSideDirection: "start",
+        crossAxis: placement.includes('-'),
+        fallbackAxisSideDirection: 'start',
         padding: 4,
       }),
       shift({ padding: 4 }),
@@ -114,7 +114,7 @@ function useTooltip({
     enabled: controlledOpen == null,
   })
   const dismiss = useDismiss(context)
-  const role = useRole(context, { role: "tooltip" })
+  const role = useRole(context, { role: 'tooltip' })
 
   const interactions = useInteractions([hover, focus, dismiss, role])
 
@@ -135,7 +135,7 @@ function useTooltipContext() {
   const context = useContext(TooltipContext)
 
   if (context == null) {
-    throw new Error("Tooltip components must be wrapped in <TooltipProvider />")
+    throw new Error('Tooltip components must be wrapped in <TooltipProvider />')
   }
 
   return context
@@ -178,7 +178,7 @@ export const TooltipTrigger = forwardRef<HTMLElement, TooltipTriggerProps>(
 
     if (asChild && isValidElement(children)) {
       const dataAttributes = {
-        "data-tooltip-state": context.open ? "open" : "closed",
+        'data-tooltip-state': context.open ? 'open' : 'closed',
       }
 
       return cloneElement(
@@ -186,7 +186,7 @@ export const TooltipTrigger = forwardRef<HTMLElement, TooltipTriggerProps>(
         context.getReferenceProps({
           ref,
           ...props,
-          ...(typeof children.props === "object" ? children.props : {}),
+          ...(typeof children.props === 'object' ? children.props : {}),
           ...dataAttributes,
         })
       )
@@ -195,7 +195,7 @@ export const TooltipTrigger = forwardRef<HTMLElement, TooltipTriggerProps>(
     return (
       <button
         ref={ref}
-        data-tooltip-state={context.open ? "open" : "closed"}
+        data-tooltip-state={context.open ? 'open' : 'closed'}
         {...context.getReferenceProps(props)}
       >
         {children}
@@ -236,6 +236,6 @@ export const TooltipContent = forwardRef<HTMLDivElement, TooltipContentProps>(
   }
 )
 
-Tooltip.displayName = "Tooltip"
-TooltipTrigger.displayName = "TooltipTrigger"
-TooltipContent.displayName = "TooltipContent"
+Tooltip.displayName = 'Tooltip'
+TooltipTrigger.displayName = 'TooltipTrigger'
+TooltipContent.displayName = 'TooltipContent'

@@ -5,7 +5,7 @@ import type { Editor } from '@tiptap/react'
 import { useTiptapEditor } from '@/shared/hooks/use-tiptap-editor'
 
 // --- Icons ---
-import { LinkIcon } from '@/components/tiptap-icons/link-icon'
+import { LinkIcon } from '../../tiptap-icons/link-icon'
 
 // --- Lib ---
 import {

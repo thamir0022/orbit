@@ -1,7 +1,7 @@
-import { memo } from "react"
-import { ChevronDownIcon } from "@/components/tiptap-icons/chevron-down-icon"
+import { memo } from 'react'
+import { ChevronDownIcon } from '../tiptap-icons/chevron-down-icon'
 
-type SvgProps = React.ComponentPropsWithoutRef<"svg">
+type SvgProps = React.ComponentPropsWithoutRef<'svg'>
 
 export const ChevronUpIcon = memo(
   ({ className, style, ...props }: SvgProps) => {
@@ -9,8 +9,8 @@ export const ChevronUpIcon = memo(
       <ChevronDownIcon
         className={className}
         style={{
-          transform: "rotate(180deg)",
-          transformOrigin: "50% 50%",
+          transform: 'rotate(180deg)',
+          transformOrigin: '50% 50%',
           ...style,
         }}
         {...props}
@@ -19,4 +19,4 @@ export const ChevronUpIcon = memo(
   }
 )
 
-ChevronUpIcon.displayName = "ChevronUpIcon"
+ChevronUpIcon.displayName = 'ChevronUpIcon'

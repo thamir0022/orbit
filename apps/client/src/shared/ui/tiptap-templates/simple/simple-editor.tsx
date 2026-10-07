@@ -16,53 +16,53 @@ import { FindAndReplace } from '@tiptap/extension-find-and-replace'
 import { Selection } from '@tiptap/extensions'
 
 // --- UI Primitives ---
-import { Button } from '@/components/tiptap-ui-primitive/button'
-import { Spacer } from '@/components/tiptap-ui-primitive/spacer'
+import { Button } from '../../tiptap/tiptap-ui-primitive/button'
+import { Spacer } from '../../tiptap/tiptap-ui-primitive/spacer'
 import {
   Toolbar,
   ToolbarGroup,
   ToolbarSeparator,
-} from '@/components/tiptap-ui-primitive/toolbar'
+} from '../../tiptap/tiptap-ui-primitive/toolbar'
 
 // --- Tiptap Node ---
-import { ImageUploadNode } from '@/components/tiptap-node/image-upload-node/image-upload-node-extension'
-import { HorizontalRule } from '@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension'
-import '@/components/tiptap-node/blockquote-node/blockquote-node.scss'
-import '@/components/tiptap-node/code-block-node/code-block-node.scss'
-import '@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss'
-import '@/components/tiptap-node/list-node/list-node.scss'
-import '@/components/tiptap-node/image-node/image-node.scss'
-import '@/components/tiptap-node/heading-node/heading-node.scss'
-import '@/components/tiptap-node/paragraph-node/paragraph-node.scss'
+import { ImageUploadNode } from '../../tiptap/tiptap-node/image-upload-node/image-upload-node-extension'
+import { HorizontalRule } from '../../tiptap/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension'
+import '../../tiptap/tiptap-node/blockquote-node/blockquote-node.scss'
+import '../../tiptap/tiptap-node/code-block-node/code-block-node.scss'
+import '../../tiptap/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss'
+import '../../tiptap/tiptap-node/list-node/list-node.scss'
+import '../../tiptap/tiptap-node/image-node/image-node.scss'
+import '../../tiptap/tiptap-node/heading-node/heading-node.scss'
+import '../../tiptap/tiptap-node/paragraph-node/paragraph-node.scss'
 
 // --- Tiptap UI ---
-import { HeadingDropdownMenu } from '@/components/tiptap-ui/heading-dropdown-menu'
-import { ImageUploadButton } from '@/components/tiptap-ui/image-upload-button'
-import { ListDropdownMenu } from '@/components/tiptap-ui/list-dropdown-menu'
-import { BlockquoteButton } from '@/components/tiptap-ui/blockquote-button'
-import { CodeBlockButton } from '@/components/tiptap-ui/code-block-button'
+import { HeadingDropdownMenu } from '../../tiptap/tiptap-ui/heading-dropdown-menu'
+import { ImageUploadButton } from '../../tiptap/tiptap-ui/image-upload-button'
+import { ListDropdownMenu } from '../../tiptap/tiptap-ui/list-dropdown-menu'
+import { BlockquoteButton } from '../../tiptap/tiptap-ui/blockquote-button'
+import { CodeBlockButton } from '../../tiptap/tiptap-ui/code-block-button'
 import {
   ColorHighlightPopover,
   ColorHighlightPopoverContent,
   ColorHighlightPopoverButton,
-} from '@/components/tiptap-ui/color-highlight-popover'
+} from '../../tiptap/tiptap-ui/color-highlight-popover'
 import {
   LinkPopover,
   LinkContent,
   LinkButton,
-} from '@/components/tiptap-ui/link-popover'
-import { MarkButton } from '@/components/tiptap-ui/mark-button'
-import { TextAlignButton } from '@/components/tiptap-ui/text-align-button'
-import { UndoRedoButton } from '@/components/tiptap-ui/undo-redo-button'
+} from '../../tiptap/tiptap-ui/link-popover'
+import { MarkButton } from '../../tiptap/tiptap-ui/mark-button'
+import { TextAlignButton } from '../../tiptap/tiptap-ui/text-align-button'
+import { UndoRedoButton } from '../../tiptap/tiptap-ui/undo-redo-button'
 import {
   SearchAndReplace,
   SearchAndReplaceButton,
-} from '@/components/tiptap-ui/search-and-replace'
+} from '../../tiptap/tiptap-ui/search-and-replace'
 
 // --- Icons ---
-import { ArrowLeftIcon } from '@/components/tiptap-icons/arrow-left-icon'
-import { HighlighterIcon } from '@/components/tiptap-icons/highlighter-icon'
-import { LinkIcon } from '@/components/tiptap-icons/link-icon'
+import { ArrowLeftIcon } from '../../tiptap/tiptap-icons/arrow-left-icon'
+import { HighlighterIcon } from '../../tiptap/tiptap-icons/highlighter-icon'
+import { LinkIcon } from '../../tiptap/tiptap-icons/link-icon'
 
 // --- Hooks ---
 import { useIsBreakpoint } from '@/shared/hooks/use-is-breakpoint'

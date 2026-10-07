@@ -55,6 +55,11 @@ export const API_ROUTES = {
     LIST: `/projects`,
     BY_KEY: (key: string) => `/projects/${encodeURIComponent(key)}`,
   },
+
+  DOCUMENTS: {
+    LIST: '/projects',
+    BY_ID: (id: string) => `/documents/${encodeURIComponent(id)}`,
+  },
 } as const
 
 // Export types for your routes

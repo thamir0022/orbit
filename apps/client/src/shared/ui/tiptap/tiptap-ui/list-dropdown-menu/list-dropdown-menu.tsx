@@ -1,29 +1,29 @@
-import { forwardRef, useCallback, useState, type ForwardedRef } from "react"
-import { type Editor } from "@tiptap/react"
+import { forwardRef, useCallback, useState, type ForwardedRef } from 'react'
+import { type Editor } from '@tiptap/react'
 
 // --- Hooks ---
-import { useTiptapEditor } from "@/shared/hooks/use-tiptap-editor"
+import { useTiptapEditor } from '@/shared/hooks/use-tiptap-editor'
 
 // --- Icons ---
-import { ChevronDownIcon } from "@/components/tiptap-icons/chevron-down-icon"
+import { ChevronDownIcon } from '../../tiptap-icons/chevron-down-icon'
 
 // --- Tiptap UI ---
-import { ListButton, type ListType } from "@/components/tiptap-ui/list-button"
+import { ListButton, type ListType } from '../../tiptap-ui/list-button'
 
-import { useListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu/use-list-dropdown-menu"
+import { useListDropdownMenu } from '../../tiptap-ui/list-dropdown-menu/use-list-dropdown-menu'
 
 // --- UI Primitives ---
-import type { ButtonProps } from "@/components/tiptap-ui-primitive/button"
-import { Button } from "@/components/tiptap-ui-primitive/button"
+import type { ButtonProps } from '../../tiptap-ui-primitive/button'
+import { Button } from '../../tiptap-ui-primitive/button'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuGroup,
-} from "@/components/tiptap-ui-primitive/dropdown-menu"
+} from '../../tiptap-ui-primitive/dropdown-menu'
 
-export interface ListDropdownMenuProps extends Omit<ButtonProps, "type"> {
+export interface ListDropdownMenuProps extends Omit<ButtonProps, 'type'> {
   /**
    * The Tiptap editor instance.
    */
@@ -50,7 +50,7 @@ export interface ListDropdownMenuProps extends Omit<ButtonProps, "type"> {
 function ListDropdownMenuImpl(
   {
     editor: providedEditor,
-    types = ["bulletList", "orderedList", "taskList"],
+    types = ['bulletList', 'orderedList', 'taskList'],
     hideWhenUnavailable = false,
     onOpenChange,
     modal = true,
@@ -86,7 +86,7 @@ function ListDropdownMenuImpl(
         <Button
           type="button"
           variant="ghost"
-          data-active-state={isActive ? "on" : "off"}
+          data-active-state={isActive ? 'on' : 'off'}
           role="button"
           tabIndex={-1}
           disabled={!canToggle}
@@ -121,6 +121,6 @@ function ListDropdownMenuImpl(
 
 export const ListDropdownMenu = forwardRef(ListDropdownMenuImpl)
 
-ListDropdownMenu.displayName = "ListDropdownMenu"
+ListDropdownMenu.displayName = 'ListDropdownMenu'
 
 export default ListDropdownMenu
