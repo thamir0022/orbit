@@ -1,2 +1,7 @@
 export { CreateDocumentRequest } from './requests/create-document.request'
 export { CreateDocumentResponse } from './responses/create-document.response'
+export { GetDocumentRequest } from './requests/get-document.request'
+export { GetDocumentResponse } from './responses/get-document.response'
+export { UpdateDocumentRequest } from './requests/update-document.request'
+export { UpdateDocumentResponse } from './responses/update-document.response'
+export { DeleteDocumentRequest } from './requests/delete-document.request'
