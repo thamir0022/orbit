@@ -1,4 +1,5 @@
 import { UserSummaryOutput } from '@/shared/application/contracts'
+import { DocumentContent } from '../../domain/interfaces/document.interface'
 
 /**
  * Represents the application-level read projection for a document list item.
@@ -13,6 +14,8 @@ export interface DocumentListItemOutput {
 
   owner: UserSummaryOutput
   createdBy: UserSummaryOutput
+
+  content: DocumentContent
 
   createdAt: Date
   updatedAt: Date
