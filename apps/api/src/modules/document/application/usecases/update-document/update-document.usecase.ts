@@ -91,7 +91,7 @@ export class UpdateDocumentUseCase implements IUpdateDocumentUseCase {
      * Returning "not found" for a non-owner prevents leaking the
      * existence of another user's private document.
      */
-    if (!document || document.ownerId.value !== actorId.value) {
+    if (!document || !document.ownerId.equals(actorId)) {
       throw new DocumentNotFoundException()
     }
 
