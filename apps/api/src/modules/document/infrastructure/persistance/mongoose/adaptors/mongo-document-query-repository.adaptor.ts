@@ -13,6 +13,7 @@ import {
   FindDocumentByWorkspaceIdAndOwnerIdAndIdQueryProps,
 } from '../../../../application/ports/document-query-repository.port'
 import { DocumentDocument, DocumentModel } from '../schemas/document.schema'
+import { DocumentSummaryOutput } from '@/modules/document/application/contracts/document-summary.output'
 
 /**
  * MongoDB read-side implementation for Document queries.
@@ -138,6 +139,37 @@ export class MongoDocumentQueryRepository implements DocumentQueryRepository {
     )
 
     return result ?? null
+  }
+
+  async findSummariesByWorkspaceIdAndOwnerId(
+    workspaceId: WorkspaceId,
+    ownerId: UserId,
+    options?: ITransactionOptions
+  ): Promise<readonly DocumentSummaryOutput[]> {
+    const documents = await this.documentModel
+      .find(
+        {
+          workspaceId: workspaceId.value,
+          ownerId: ownerId.value,
+          deletedAt: null,
+        },
+        {
+          _id: 0,
+          id: 1,
+          title: 1,
+        },
+        {
+          session: options?.session,
+        }
+      )
+      .sort({
+        updatedAt: -1,
+        id: 1,
+      })
+      .lean()
+      .exec()
+
+    return documents
   }
 
   /**

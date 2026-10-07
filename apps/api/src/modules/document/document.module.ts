@@ -27,6 +27,10 @@ import {
   DELETE_DOCUMENT_USE_CASE,
   DeleteDocumentUseCase,
 } from './application/usecases/delete-document'
+import {
+  GET_DOCUMENTS_USE_CASE,
+  GetDocumentsUseCase,
+} from './application/usecases/get-documents'
 
 @Module({
   imports: [
@@ -57,6 +61,10 @@ import {
     {
       provide: DELETE_DOCUMENT_USE_CASE,
       useClass: DeleteDocumentUseCase,
+    },
+    {
+      provide: GET_DOCUMENTS_USE_CASE,
+      useClass: GetDocumentsUseCase,
     },
   ],
 })
