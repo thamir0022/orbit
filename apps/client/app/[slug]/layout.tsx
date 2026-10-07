@@ -27,10 +27,6 @@ const Layout = async ({ children, params }: WorkspaceLayoutProps) => {
 
         <SidebarInset className="min-h-0 min-w-0 overflow-hidden">
           <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col">
-            <header className="flex h-10 shrink-0 items-center px-2">
-              <SidebarTrigger />
-            </header>
-
             <div className="flex min-h-0 min-w-0 flex-1">{children}</div>
           </div>
         </SidebarInset>

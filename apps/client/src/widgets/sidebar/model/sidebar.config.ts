@@ -5,6 +5,7 @@ import {
   Users,
   MessageSquare,
   Settings,
+  Folder,
 } from 'lucide-react'
 
 export const sidebarConfig = {
@@ -23,6 +24,11 @@ export const sidebarConfig = {
       title: 'Teams',
       path: 'tasks',
       icon: CheckSquare,
+    },
+    {
+      title: 'Docs',
+      path: 'docs/new',
+      icon: Folder,
     },
   ],
 

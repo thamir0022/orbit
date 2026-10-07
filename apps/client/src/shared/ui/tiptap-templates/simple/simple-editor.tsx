@@ -1,7 +1,12 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { EditorContent, EditorContext, useEditor } from '@tiptap/react'
+import {
+  EditorContent,
+  EditorContext,
+  JSONContent,
+  useEditor,
+} from '@tiptap/react'
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from '@tiptap/starter-kit'
@@ -69,9 +74,6 @@ import { useIsBreakpoint } from '@/shared/hooks/use-is-breakpoint'
 import { useWindowSize } from '@/shared/hooks/use-window-size'
 import { useCursorVisibility } from '@/shared/hooks/use-cursor-visibility'
 
-// --- Components ---
-import { ThemeToggle } from '@/shared/ui/tiptap-templates/simple/theme-toggle'
-
 // --- Lib ---
 import {
   handleImageUpload,
@@ -79,9 +81,7 @@ import {
 } from '@/shared/lib/tiptap/tiptap-utils'
 
 // --- Styles ---
-import '@/shared/ui/tiptap-templates/simple/simple-editor.scss'
-
-import content from '@/shared/ui/tiptap-templates/simple/data/content.json'
+import './simple-editor.scss'
 
 const SEARCH_AND_REPLACE_SCROLL_OPTIONS: ScrollIntoViewOptions = {
   block: 'center',
@@ -161,10 +161,6 @@ const MainToolbarContent = ({
         <ImageUploadButton text="Add" />
       </ToolbarGroup>
 
-      <Spacer />
-
-      {isMobile && <ToolbarSeparator />}
-
       <ToolbarGroup>
         <SearchAndReplaceButton
           ref={searchAndReplaceButtonRef}
@@ -172,8 +168,11 @@ const MainToolbarContent = ({
           data-active-state={isSearchAndReplaceOpen ? 'on' : 'off'}
           onClick={onSearchAndReplaceClick}
         />
-        <ThemeToggle />
       </ToolbarGroup>
+
+      <Spacer />
+
+      {isMobile && <ToolbarSeparator />}
     </>
   )
 }
@@ -207,7 +206,19 @@ const MobileToolbarContent = ({
   </>
 )
 
-export function SimpleEditor() {
+export interface SimpleEditorProps {
+  readonly content: JSONContent
+  readonly editable?: boolean
+  readonly onContentChange?: (content: JSONContent) => void
+  readonly onBlur?: () => void
+}
+
+export function SimpleEditor({
+  content,
+  editable = true,
+  onContentChange,
+  onBlur,
+}: SimpleEditorProps) {
   const isMobile = useIsBreakpoint()
   const { height } = useWindowSize()
   const [mobileView, setMobileView] = useState<'main' | 'highlighter' | 'link'>(
@@ -259,6 +270,10 @@ export function SimpleEditor() {
       }),
     ],
     content,
+    editable,
+    onUpdate: ({ editor }) => {
+      onContentChange?.(editor.getJSON())
+    },
   })
 
   const rect = useCursorVisibility({
@@ -292,7 +307,10 @@ export function SimpleEditor() {
   }, [closeSearchAndReplace, isSearchAndReplaceOpen, openSearchAndReplace])
 
   return (
-    <div className="simple-editor-wrapper">
+    <div
+      onBlurCapture={onBlur}
+      className="simple-editor-wrapper"
+    >
       <EditorContext.Provider value={{ editor }}>
         <Toolbar
           ref={toolbarRef}

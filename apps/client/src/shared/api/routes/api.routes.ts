@@ -57,7 +57,7 @@ export const API_ROUTES = {
   },
 
   DOCUMENTS: {
-    LIST: '/projects',
+    BASE: '/documents',
     BY_ID: (id: string) => `/documents/${encodeURIComponent(id)}`,
   },
 } as const

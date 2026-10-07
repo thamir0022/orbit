@@ -55,10 +55,7 @@ export const GeneralSettings = ({ initialValues }: GeneralSettingsProps) => {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="mx-auto w-full p-2"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="mx-auto w-full p-2">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-xl font-semibold tracking-tight">
@@ -78,7 +75,7 @@ export const GeneralSettings = ({ initialValues }: GeneralSettingsProps) => {
           <div className="flex min-h-12 items-center justify-between gap-6 py-2">
             <span className="text-sm">Theme</span>
 
-            <ThemeToggle toggleType="toggle" />
+            <ThemeToggle />
           </div>
         </div>
       </section>

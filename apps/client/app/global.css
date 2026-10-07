@@ -4,6 +4,10 @@
 
 @source "../src";
 
+/* Tiptap */
+@import '../src/shared/ui/tiptap/styles/_variables.scss';
+@import '../src/shared/ui/tiptap/styles/_keyframe-animations.scss';
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
