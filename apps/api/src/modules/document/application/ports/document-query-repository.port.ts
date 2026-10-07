@@ -5,6 +5,7 @@ import { WorkspaceId } from '@/modules/workspace/domain'
 
 import { DocumentId } from '../../domain/value-objects/document-id.vo'
 import { DocumentListItemOutput } from '../contracts/document-list-item.output'
+import { DocumentSummaryOutput } from '../contracts/document-summary.output'
 
 /**
  * Defines the query parameters for finding a document owned by a user
@@ -39,6 +40,18 @@ export interface DocumentQueryRepository {
     props: FindDocumentByWorkspaceIdAndOwnerIdAndIdQueryProps,
     options?: ITransactionOptions
   ): Promise<DocumentListItemOutput | null>
+
+  /**
+   * Finds lightweight document summaries owned by a user within a workspace.
+   *
+   * Intended for document navigation and other contexts where only
+   * the document identifier and title are required.
+   */
+  findSummariesByWorkspaceIdAndOwnerId(
+    workspaceId: WorkspaceId,
+    ownerId: UserId,
+    options?: ITransactionOptions
+  ): Promise<readonly DocumentSummaryOutput[]>
 }
 
 export const DOCUMENT_QUERY_REPOSITORY = Symbol('DocumentQueryRepository')
