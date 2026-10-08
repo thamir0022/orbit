@@ -21,27 +21,9 @@ export const sidebarConfig = {
       icon: FolderKanban,
     },
     {
-      title: 'Teams',
-      path: 'tasks',
-      icon: CheckSquare,
-    },
-    {
       title: 'Docs',
-      path: 'docs/new',
+      path: 'docs',
       icon: Folder,
-    },
-  ],
-
-  collaboration: [
-    {
-      title: 'Team',
-      path: 'team',
-      icon: Users,
-    },
-    {
-      title: 'Messages',
-      path: 'messages',
-      icon: MessageSquare,
     },
   ],
 

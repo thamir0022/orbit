@@ -60,6 +60,10 @@ export const API_ROUTES = {
     BASE: '/documents',
     BY_ID: (id: string) => `/documents/${encodeURIComponent(id)}`,
   },
+  TEAMS: {
+    BASE: '/teams',
+    BY_ID: (id: string) => `/teams/${encodeURIComponent(id)}`,
+  },
 } as const
 
 // Export types for your routes
