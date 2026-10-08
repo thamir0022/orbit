@@ -32,10 +32,9 @@ export class GetTeamsUseCase implements IGetTeamsUseCase {
     if (workspace.status !== WorkspaceStatus.ACTIVE)
       throw new WorkspaceNotActiveException(workspace.status)
 
-    const teams = await this.teamQueryRepo.findByWorkspaceId(workspaceId)
+    const teams =
+      await this.teamQueryRepo.findSummariesByWorkspaceId(workspaceId)
 
-    return {
-      teams,
-    }
+    return { teams }
   }
 }
