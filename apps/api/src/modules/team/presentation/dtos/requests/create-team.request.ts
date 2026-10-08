@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiPropertyOptional } from '@nestjs/swagger'
 import { Transform, TransformFnParams } from 'class-transformer'
 import {
   ArrayMaxSize,
@@ -62,7 +62,7 @@ export class CreateTeamRequest {
   })
   readonly leadId?: string
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Member IDs to add to the team',
     type: [String],
     format: 'uuid',
@@ -78,6 +78,7 @@ export class CreateTeamRequest {
 
     return input.map((id: unknown) => (typeof id === 'string' ? id.trim() : id))
   })
+  @IsOptional()
   @IsArray({
     message: 'Member IDs must be an array',
   })
@@ -94,5 +95,5 @@ export class CreateTeamRequest {
     each: true,
     message: 'Each member ID must be a valid UUID v7',
   })
-  readonly memberIds!: string[]
+  readonly memberIds?: string[]
 }
