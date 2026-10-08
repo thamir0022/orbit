@@ -90,7 +90,7 @@ export function DocsSidebar({ isOpen, onClose }: DocsSidebarProps) {
 
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="icon-sm"
               aria-label="Close documents sidebar"
               aria-controls="docs-sidebar"

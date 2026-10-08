@@ -22,6 +22,7 @@ import {
 } from '@/shared/ui/sidebar'
 
 import { CreateTeamDialog } from '@/features/team/create-team'
+import { useTeamsQuery } from '@/entities/team/api/use-teams-query'
 
 interface TeamNavigationItem {
   readonly id: string
@@ -59,6 +60,8 @@ const TEAM_NAVIGATION_ITEMS = [
 export function NavTeams({ workspaceSlug }: NavTeamsProps) {
   const pathname = usePathname()
 
+  const { data: teams = [], isLoading, isError } = useTeamsQuery()
+
   const activeTeam = TEAM_NAVIGATION_ITEMS.some(
     (team) =>
       pathname === `/${workspaceSlug}/teams/${team.slug}` ||
@@ -93,7 +96,7 @@ export function NavTeams({ workspaceSlug }: NavTeamsProps) {
               />
             </CollapsibleTrigger>
           </SidebarGroupLabel>
-          <CreateTeamDialog size='icon-sm'>
+          <CreateTeamDialog size="icon-sm">
             <Plus aria-hidden="true" />
             <span className="sr-only">Create team</span>
           </CreateTeamDialog>
@@ -103,8 +106,8 @@ export function NavTeams({ workspaceSlug }: NavTeamsProps) {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuSub>
-                {TEAM_NAVIGATION_ITEMS.map((team) => {
-                  const teamUrl = `/${workspaceSlug}/teams/${team.slug}`
+                {teams.map((team) => {
+                  const teamUrl = `/${workspaceSlug}/teams/${team.id}`
 
                   const isActive =
                     pathname === teamUrl || pathname.startsWith(`${teamUrl}/`)

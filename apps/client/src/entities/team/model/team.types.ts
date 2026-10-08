@@ -15,3 +15,9 @@ export enum TeamStatus {
   ACTIVE = 'active',
   ARCHIVED = 'archived',
 }
+
+export interface TeamSummary {
+  readonly id: string
+  readonly name: string
+  readonly avatarUrl?: string
+}
