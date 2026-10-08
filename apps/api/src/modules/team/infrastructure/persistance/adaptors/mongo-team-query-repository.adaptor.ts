@@ -10,6 +10,7 @@ import {
 import { TeamDocument, TeamModel } from '../schemas/team.schema'
 import { WorkspaceId } from '@/modules/workspace/domain'
 import { TeamListItemOutput } from '@/modules/team/application/contracts/team-list-item.output'
+import { TeamSummaryOutput } from '@/modules/team/application/contracts/team-summary.output'
 
 @Injectable()
 export class MongoTeamQueryRepository implements TeamQueryRepository {
@@ -209,5 +210,35 @@ export class MongoTeamQueryRepository implements TeamQueryRepository {
       .exec()
 
     return team ?? null
+  }
+
+  async findSummariesByWorkspaceId(
+    workspaceId: WorkspaceId,
+    options?: ITransactionOptions
+  ): Promise<readonly TeamSummaryOutput[]> {
+    const teams = await this.teamModel
+      .find({
+        workspaceId: workspaceId.value,
+        deletedAt: null,
+      })
+      .select({
+        _id: 0,
+        id: 1,
+        key: 1,
+        name: 1,
+        avatarUrl: 1,
+      })
+      .sort({
+        name: 1,
+      })
+      .session(options?.session ?? null)
+      .lean()
+      .exec()
+
+    return teams.map(({ id, name, avatarUrl }) => ({
+      id,
+      name,
+      avatarUrl,
+    }))
   }
 }
