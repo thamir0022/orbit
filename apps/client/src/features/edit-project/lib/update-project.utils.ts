@@ -9,21 +9,32 @@ import {
 
 import type { UpdateProjectFormValues } from '../model/update-project.schema'
 
-const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+export const formatDateValue = (date: Date): string => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
 
-export const parseDateValue = (value: string): Date | undefined => {
-  const datePart = value.slice(0, 10)
+  return `${year}-${month}-${day}`
+}
 
-  if (!DATE_ONLY_PATTERN.test(datePart)) {
+export const parseDateValue = (value?: string): Date | undefined => {
+  if (!value) {
     return undefined
   }
 
-  const [year, month, day] = datePart.split('-').map(Number)
+  const [year, month, day] = value.slice(0, 10).split('-').map(Number)
+
+  if (
+    !Number.isInteger(year) ||
+    !Number.isInteger(month) ||
+    !Number.isInteger(day)
+  ) {
+    return undefined
+  }
 
   const date = new Date(year, month - 1, day)
 
   if (
-    Number.isNaN(date.getTime()) ||
     date.getFullYear() !== year ||
     date.getMonth() !== month - 1 ||
     date.getDate() !== day
@@ -34,16 +45,32 @@ export const parseDateValue = (value: string): Date | undefined => {
   return date
 }
 
-export const formatDatePart = (date: Date): string => {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
+export const formatDateLabel = (value?: string): string => {
+  if (!value) {
+    return 'Start date'
+  }
 
-  return `${year}-${month}-${day}`
+  const date = parseDateValue(value)
+
+  if (!date) {
+    return 'Start date'
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+  }).format(date)
 }
 
-export const toDateTimeLocalValue = (date: Date): string =>
-  `${formatDatePart(date)}T00:00`
+const toApiDate = (value?: string): Date | undefined => {
+  if (!value) {
+    return undefined
+  }
+
+  const [year, month, day] = value.slice(0, 10).split('-').map(Number)
+
+  return new Date(Date.UTC(year, month - 1, day))
+}
 
 export const buildFieldUpdateInput = (
   field: keyof UpdateProjectFormValues,

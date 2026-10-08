@@ -7,16 +7,22 @@ import {
   ArrowLeft,
   CalendarDays,
   ChevronDown,
+  CircleDashed,
+  CircleGauge,
   EllipsisVertical,
+  MoveRight,
   PanelRightClose,
   PanelRightOpen,
-  Trash,
+  Settings2,
+  Target,
+  Users,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Controller,
   useForm,
+  useWatch,
   type FieldError as ReactHookFormFieldError,
 } from 'react-hook-form'
 
@@ -64,12 +70,12 @@ import {
 } from '../model/update-project.schema'
 import {
   buildFieldUpdateInput,
-  formatDatePart,
   getUpdateProjectDefaultValues,
   getProjectOverviewPath,
   getProjectUserStoriesPath,
   parseDateValue,
-  toDateTimeLocalValue,
+  formatDateLabel,
+  formatDateValue,
 } from '../lib/update-project.utils'
 import {
   DropdownMenu,
@@ -91,6 +97,9 @@ interface ProjectComboboxFieldProps<T extends string> {
   readonly options: readonly T[]
   readonly placeholder: string
   readonly invalid: boolean
+  readonly icon: React.ReactNode
+  readonly side?:
+    'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
   readonly onChange: (value: T) => void
 }
 
@@ -118,145 +127,194 @@ const ProjectComboboxField = <T extends string>({
   options,
   placeholder,
   invalid,
+  icon,
+  side = 'left',
   onChange,
 }: ProjectComboboxFieldProps<T>) => {
   const displayValue = value ? formatEnumLabel(value) : placeholder
 
   return (
-    <Field data-invalid={invalid} className="gap-1">
-      <FieldLabel htmlFor={id} className="text-xs">
-        {label}
-      </FieldLabel>
+    <Combobox
+      items={options}
+      value={value ?? null}
+      onValueChange={(nextValue) => {
+        if (nextValue !== null) {
+          onChange(nextValue)
+        }
+      }}
+      itemToStringValue={(item) => formatEnumLabel(item)}
+    >
+      <ComboboxTrigger
+        render={
+          <Button
+            id={id}
+            type="button"
+            variant="outline"
+            size="sm"
+            className={[
+              'h-8 rounded-full px-2.5',
+              'justify-start gap-1.5',
+              'font-normal',
+              'shadow-none',
+              'hover:bg-accent',
+              'focus-visible:ring-1',
+              invalid ? 'border-destructive' : '',
+            ].join(' ')}
+            aria-label={`${label}: ${displayValue}`}
+            aria-invalid={invalid}
+          >
+            <span aria-hidden="true" className="flex shrink-0 items-center">
+              {icon}
+            </span>
 
-      <Combobox
-        items={options}
-        value={value || null}
-        onValueChange={(nextValue) => {
-          if (nextValue !== null) {
-            onChange(nextValue)
-          }
-        }}
-        itemToStringValue={(item) => formatEnumLabel(item)}
-      >
-        <ComboboxTrigger
-          render={
-            <Button
-              id={id}
-              type="button"
-              variant="ghost"
-              className={[
-                'h-8 w-full justify-between px-2',
-                'font-normal text-sm',
-                'hover:bg-accent',
-                'focus-visible:ring-1',
-                invalid ? 'border-destructive' : '',
-              ].join(' ')}
-              aria-invalid={invalid}
-            />
-          }
-        >
-          <ComboboxValue placeholder={placeholder}>
-            {displayValue}
-          </ComboboxValue>
-        </ComboboxTrigger>
+            <ComboboxValue placeholder={placeholder}>
+              {displayValue}
+            </ComboboxValue>
+          </Button>
+        }
+      />
 
-        <ComboboxContent align="start" side="left">
-          <div className="p-2">
-            <ComboboxInput
-              placeholder={`Search ${label.toLowerCase()}`}
-              showTrigger={false}
-              showClear
-              className="h-8"
-              autoComplete="off"
-            />
-          </div>
+      <ComboboxContent align="start" side={side} className="w-64">
+        <div className="p-2">
+          <ComboboxInput
+            placeholder={`Search ${label.toLowerCase()}`}
+            showTrigger={false}
+            showClear
+            className="h-8"
+            autoComplete="off"
+            aria-label={`Search ${label.toLowerCase()}`}
+          />
+        </div>
 
-          <ComboboxEmpty>No {label.toLowerCase()} found.</ComboboxEmpty>
+        <ComboboxEmpty>No {label.toLowerCase()} found.</ComboboxEmpty>
 
-          <ScrollArea className="h-52">
-            <ComboboxList className="h-full overflow-y-auto">
-              {(option) => (
-                <ComboboxItem key={option} value={option}>
-                  {formatEnumLabel(option)}
-                </ComboboxItem>
-              )}
-            </ComboboxList>
-          </ScrollArea>
-        </ComboboxContent>
-      </Combobox>
-
-      {invalid && <FieldError />}
-    </Field>
+        <ComboboxList className="max-h-52 overflow-y-auto">
+          {(option) => (
+            <ComboboxItem key={option} value={option}>
+              {formatEnumLabel(option)}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
   )
 }
 
-const ProjectDatePickerField = ({
+interface ProjectDateFieldProps {
+  readonly id: string
+  readonly label: string
+  readonly value?: string
+  readonly invalid: boolean
+  readonly minDate?: string
+  readonly maxDate?: string
+  readonly onChange: (value: string) => void
+}
+
+const ProjectDateField = ({
   id,
   label,
   value,
   invalid,
-  error,
+  minDate,
+  maxDate,
   onChange,
-}: ProjectDatePickerFieldProps) => {
+}: ProjectDateFieldProps) => {
   const [open, setOpen] = useState(false)
 
-  const selectedDate = useMemo(() => parseDateValue(value), [value])
+  const selectedDate = parseDateValue(value)
+  const minimumDate = parseDateValue(minDate)
+  const maximumDate = parseDateValue(maxDate)
 
-  const displayValue = selectedDate
-    ? new Intl.DateTimeFormat(undefined, {
-        dateStyle: 'medium',
-      }).format(selectedDate)
-    : ''
+  const bookedDates = [
+    ...(minimumDate ? [{ before: minimumDate }] : []),
+    ...(maximumDate ? [{ after: maximumDate }] : []),
+  ]
 
   return (
-    <Field data-invalid={invalid} className="gap-1">
-      <FieldLabel htmlFor={id} className="text-xs">
-        {label}
-      </FieldLabel>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          id={id}
+          type="button"
+          variant="outline"
+          size="sm"
+          className={[
+            'h-8 rounded-full px-2.5',
+            'justify-start gap-1.5',
+            'font-normal',
+            'shadow-none',
+            'hover:bg-accent',
+            'focus-visible:ring-1',
+            invalid ? 'border-destructive' : '',
+          ].join(' ')}
+          aria-label={
+            value
+              ? `${label}: ${formatDateLabel(value)}`
+              : `Set ${label.toLowerCase()}`
+          }
+          aria-invalid={invalid}
+          aria-haspopup="dialog"
+        >
+          <CalendarDays className="size-3.5 shrink-0" aria-hidden="true" />
 
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            id={id}
-            type="button"
-            variant="ghost"
-            className={[
-              'h-8 w-full justify-start gap-2 px-2',
-              'font-normal text-sm',
-              'hover:bg-accent',
-              invalid ? 'border-destructive' : '',
-            ].join(' ')}
-            aria-invalid={invalid}
-          >
-            <CalendarDays
-              className="size-3.5 shrink-0 opacity-60"
-              aria-hidden="true"
-            />
+          <span>{value ? formatDateLabel(value) : label}</span>
+        </Button>
+      </PopoverTrigger>
 
-            <span className={displayValue ? '' : 'opacity-50'}>
-              {displayValue || 'Set date'}
-            </span>
-          </Button>
-        </PopoverTrigger>
+      <PopoverContent align="start" className="w-auto p-0">
+        <Calendar
+          mode="single"
+          selected={selectedDate}
+          disabled={bookedDates.length > 0 ? bookedDates : undefined}
+          onSelect={(nextDate) => {
+            if (!nextDate) {
+              return
+            }
 
-        <PopoverContent side="left" align="start" className="w-auto p-0">
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={(nextDate) => {
-              onChange(nextDate ? toDateTimeLocalValue(nextDate) : '')
+            onChange(formatDateValue(nextDate))
+            setOpen(false)
+          }}
+        />
 
-              if (nextDate) {
-                setOpen(false)
-              }
-            }}
-            className="rounded-lg border-0"
-          />
-        </PopoverContent>
-      </Popover>
+        {value && (
+          <>
+            <Separator />
 
-      {invalid && error && <FieldError errors={[error]} />}
-    </Field>
+            <div className="p-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="w-full"
+                onClick={() => {
+                  onChange('')
+                  setOpen(false)
+                }}
+              >
+                Clear date
+              </Button>
+            </div>
+          </>
+        )}
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+const ProjectLeadField = ({ id }: { readonly id: string }) => {
+  return (
+    <Button
+      id={id}
+      type="button"
+      variant="outline"
+      size="sm"
+      disabled
+      className="h-8 rounded-full px-2.5 font-normal opacity-100"
+      aria-label="Project lead: No lead assigned"
+    >
+      <Users className="size-3.5 shrink-0" aria-hidden="true" />
+      No lead
+    </Button>
   )
 }
 
@@ -275,7 +333,7 @@ const PropertiesToggle = ({
     <Button
       ref={buttonRef}
       type="button"
-      variant="ghost"
+      variant="outline"
       size="icon-sm"
       aria-label={open ? 'Hide project properties' : 'Show project properties'}
       aria-expanded={open}
@@ -296,6 +354,7 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
   const workspace = useWorkspace()
   const updateProject = useUpdateProjectMutation()
   const pathname = usePathname()
+  const leadId = useId()
 
   const propertiesPanelId = useId()
   const propertiesToggleRef = useRef<HTMLButtonElement | null>(null)
@@ -322,6 +381,7 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
     reset,
     getValues,
     setError,
+    setValue,
     clearErrors,
     trigger,
     formState: { errors },
@@ -442,6 +502,11 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
     field: 'startDate' | 'targetEndDate',
     value: string
   ) => {
+    setValue(field, value, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+
     const isValid = await trigger(field)
 
     if (!isValid) {
@@ -453,8 +518,21 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
 
   const serverError = errors.root?.serverError
 
+  const startDate = useWatch({
+    control,
+    name: 'startDate',
+  })
+
+  const targetEndDate = useWatch({
+    control,
+    name: 'targetEndDate',
+  })
+
+  const startDateId = useId()
+  const targetEndDateId = useId()
+
   return (
-    <div className="mx-auto w-full max-w-7xl md:px-6">
+    <div className="mx-auto w-full max-w-7xl md:p-6">
       {/* Project navigation */}
       <div className="mb-4">
         <div>
@@ -614,6 +692,136 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
               </div>
             </CardHeader>
 
+            <div className="mx-8 flex gap-5">
+              <Controller
+                name="type"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <ProjectComboboxField
+                    id="project-type"
+                    label="Type"
+                    value={field.value}
+                    options={PROJECT_TYPE_OPTIONS}
+                    placeholder="Select type"
+                    invalid={fieldState.invalid}
+                    side="bottom"
+                    icon={<Settings2 className="size-3.5" />}
+                    onChange={(value) => {
+                      field.onChange(value)
+
+                      void handlePropertyChange('type', value)
+                    }}
+                  />
+                )}
+              />
+
+              <Controller
+                name="status"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <ProjectComboboxField
+                    id="project-status"
+                    label="Status"
+                    value={field.value}
+                    options={PROJECT_STATUS_OPTIONS}
+                    side="bottom"
+                    placeholder="Select status"
+                    invalid={fieldState.invalid}
+                    icon={<CircleDashed className="size-3.5" />}
+                    onChange={(value) => {
+                      field.onChange(value)
+
+                      void handlePropertyChange('status', value)
+                    }}
+                  />
+                )}
+              />
+
+              <Controller
+                name="stage"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <ProjectComboboxField
+                    id="project-stage"
+                    label="Stage"
+                    value={field.value}
+                    options={PROJECT_STAGE_OPTIONS}
+                    side="bottom"
+                    placeholder="Select stage"
+                    invalid={fieldState.invalid}
+                    icon={<Target className="size-3.5" />}
+                    onChange={(value) => {
+                      field.onChange(value)
+
+                      void handlePropertyChange('stage', value)
+                    }}
+                  />
+                )}
+              />
+
+              <Controller
+                name="priority"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <ProjectComboboxField
+                    id="project-priority"
+                    label="Priority"
+                    value={field.value}
+                    options={PROJECT_PRIORITY_OPTIONS}
+                    side="bottom"
+                    placeholder="Select priority"
+                    invalid={fieldState.invalid}
+                    icon={<CircleGauge className="size-3.5" />}
+                    onChange={(value) => {
+                      field.onChange(value)
+
+                      void handlePropertyChange('priority', value)
+                    }}
+                  />
+                )}
+              />
+
+              <ProjectLeadField id={leadId} />
+
+              <div className="flex gap-2 items-center">
+                <Controller
+                  name="startDate"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <ProjectDateField
+                      id={startDateId}
+                      label="Start"
+                      value={field.value}
+                      invalid={fieldState.invalid}
+                      maxDate={targetEndDate}
+                      onChange={(value) => {
+                        void handleDateChange('startDate', value)
+                      }}
+                    />
+                  )}
+                />
+
+                <MoveRight size={15} />
+
+                <Controller
+                  name="targetEndDate"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <ProjectDateField
+                      id={targetEndDateId}
+                      label="Target"
+                      value={field.value}
+                      invalid={fieldState.invalid}
+                      minDate={startDate}
+                      onChange={(value) => {
+                        void handleDateChange('targetEndDate', value)
+                      }}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+
             <CardContent className="px-7 pb-8 md:px-8">
               <Controller
                 name="description"
@@ -711,7 +919,7 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
           aria-hidden={!isPropertiesOpen}
           inert={!isPropertiesOpen}
           className={[
-            'min-w-0 overflow-hidden',
+            'h-full min-w-0 overflow-hidden',
             'transition-[opacity,transform]',
             'duration-300 ease-out',
             'motion-reduce:transition-none',
@@ -727,7 +935,7 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
 
             <ScrollArea className="min-h-0 flex-1">
               <CardContent className="space-y-5 p-4 pt-1">
-                <div className="space-y-3.5">
+                <div className="flex flex-none flex-col items-start gap-5">
                   <Controller
                     name="type"
                     control={control}
@@ -739,6 +947,7 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
                         options={PROJECT_TYPE_OPTIONS}
                         placeholder="Select type"
                         invalid={fieldState.invalid}
+                        icon={<Settings2 className="size-3.5" />}
                         onChange={(value) => {
                           field.onChange(value)
 
@@ -759,6 +968,7 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
                         options={PROJECT_STATUS_OPTIONS}
                         placeholder="Select status"
                         invalid={fieldState.invalid}
+                        icon={<CircleDashed className="size-3.5" />}
                         onChange={(value) => {
                           field.onChange(value)
 
@@ -779,6 +989,7 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
                         options={PROJECT_STAGE_OPTIONS}
                         placeholder="Select stage"
                         invalid={fieldState.invalid}
+                        icon={<Target className="size-3.5" />}
                         onChange={(value) => {
                           field.onChange(value)
 
@@ -799,6 +1010,7 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
                         options={PROJECT_PRIORITY_OPTIONS}
                         placeholder="Select priority"
                         invalid={fieldState.invalid}
+                        icon={<CircleGauge className="size-3.5" />}
                         onChange={(value) => {
                           field.onChange(value)
 
@@ -808,94 +1020,42 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
                     )}
                   />
 
-                  <Controller
-                    name="leadId"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <Field
-                        data-invalid={fieldState.invalid}
-                        className="gap-1"
-                      >
-                        <FieldLabel htmlFor="project-lead" className="text-xs">
-                          Lead
-                        </FieldLabel>
-
-                        <Combobox
-                          items={[]}
-                          value={null}
-                          onValueChange={() => undefined}
-                        >
-                          <ComboboxTrigger
-                            render={
-                              <Button
-                                id="project-lead"
-                                type="button"
-                                variant="ghost"
-                                disabled
-                                className="h-8 w-full justify-between px-2 font-normal text-sm"
-                              />
-                            }
-                          >
-                            <ComboboxValue placeholder="No lead assigned">
-                              {project.lead?.displayName ?? 'No lead assigned'}
-                            </ComboboxValue>
-
-                            <ChevronDown
-                              className="size-3.5 shrink-0 opacity-30"
-                              aria-hidden="true"
-                            />
-                          </ComboboxTrigger>
-
-                          <ComboboxContent>
-                            <ComboboxEmpty>
-                              No workspace members available.
-                            </ComboboxEmpty>
-                          </ComboboxContent>
-                        </Combobox>
-
-                        {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
-                        )}
-                      </Field>
-                    )}
-                  />
+                  <ProjectLeadField id={leadId} />
                 </div>
 
                 <Separator />
 
-                <div className="space-y-3.5">
+                <div className="flex items-center gap-2">
                   <Controller
                     name="startDate"
                     control={control}
                     render={({ field, fieldState }) => (
-                      <ProjectDatePickerField
-                        id="project-start-date"
-                        label="Start date"
+                      <ProjectDateField
+                        id={startDateId}
+                        label="Start"
                         value={field.value}
                         invalid={fieldState.invalid}
-                        error={fieldState.error}
+                        maxDate={targetEndDate}
                         onChange={(value) => {
-                          field.onChange(value)
-
                           void handleDateChange('startDate', value)
                         }}
                       />
                     )}
                   />
 
+                  <MoveRight size={15} />
+
                   <Controller
                     name="targetEndDate"
                     control={control}
                     render={({ field, fieldState }) => (
-                      <ProjectDatePickerField
-                        id="project-target-end-date"
-                        label="Target date"
+                      <ProjectDateField
+                        id={targetEndDateId}
+                        label="Target"
                         value={field.value}
                         invalid={fieldState.invalid}
-                        error={fieldState.error}
+                        minDate={startDate}
                         onChange={(value) => {
-                          field.onChange(value)
-
                           void handleDateChange('targetEndDate', value)
                         }}
                       />
