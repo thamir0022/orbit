@@ -190,7 +190,7 @@ export const ProjectBrowser = ({ workspaceSlug }: ProjectBrowserProps) => {
   }
 
   return (
-    <div className="flex min-h-0 min-w-0 w-full flex-1 flex-col gap-5 pt-5">
+    <div className="flex min-h-0 min-w-0 w-full flex-1 flex-col gap-5">
       {/* Header */}
       <div className="flex shrink-0 items-start justify-between gap-4">
         <div className="min-w-0">
@@ -288,13 +288,18 @@ export const ProjectBrowser = ({ workspaceSlug }: ProjectBrowserProps) => {
         >
           {isFetching && <Spinner className="size-3.5" aria-hidden="true" />}
 
-          <CreateProjectDialog/>
+          <CreateProjectDialog />
         </div>
       </div>
 
       {/* Project content */}
       <div className="flex min-h-0 min-w-0 flex-1">
-        <ScrollArea className="h-full w-full min-w-0 rounded-lg border">
+        <ScrollArea
+          className={cn(
+            'h-full w-full min-w-0 rounded-lg border',
+            view === 'list' && 'pr-3'
+          )}
+        >
           {view === 'board' ? (
             <ProjectBoard projects={projects} workspaceSlug={workspaceSlug} />
           ) : (
