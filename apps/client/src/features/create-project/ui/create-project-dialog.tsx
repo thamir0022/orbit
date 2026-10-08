@@ -5,11 +5,11 @@ import { useEffect, useId, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   CalendarDays,
-  CircleDot,
-  GitBranch,
-  Layers3,
+  CircleGauge,
   MoveRight,
   Plus,
+  Settings2,
+  Target,
   Users,
 } from 'lucide-react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
@@ -466,7 +466,7 @@ export const CreateProjectDialog = () => {
                     options={PROJECT_STAGE_OPTIONS}
                     placeholder="Stage"
                     invalid={fieldState.invalid}
-                    icon={<GitBranch className="size-3.5" />}
+                    icon={<Target className="size-3.5" />}
                     onChange={field.onChange}
                   />
                 )}
@@ -483,7 +483,7 @@ export const CreateProjectDialog = () => {
                     options={PROJECT_PRIORITY_OPTIONS}
                     placeholder="No priority"
                     invalid={fieldState.invalid}
-                    icon={<CircleDot className="size-3.5" />}
+                    icon={<CircleGauge className="size-3.5" />}
                     onChange={field.onChange}
                   />
                 )}
@@ -500,7 +500,7 @@ export const CreateProjectDialog = () => {
                     options={PROJECT_TYPE_OPTIONS}
                     placeholder="Type"
                     invalid={fieldState.invalid}
-                    icon={<Layers3 className="size-3.5" />}
+                    icon={<Settings2  className="size-3.5" />}
                     onChange={field.onChange}
                   />
                 )}
