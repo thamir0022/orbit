@@ -35,7 +35,17 @@ export function getDocumentTitleFromContent(content: DocumentContent): string {
     return UNTITLED_DOCUMENT_TITLE
   }
 
-  const title = extractNodeText(firstTextNode).replace(/\s+/g, ' ').trim()
+  const title = extractNodeText(firstTextNode)
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .slice(0, 10)
+    .join(' ')
+    .toLowerCase()
 
-  return title || UNTITLED_DOCUMENT_TITLE
+  if (!title) {
+    return UNTITLED_DOCUMENT_TITLE
+  }
+
+  return `${title.charAt(0).toUpperCase()}${title.slice(1)}`
 }
