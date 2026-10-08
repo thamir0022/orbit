@@ -82,7 +82,7 @@ export class DeleteDocumentUseCase implements IDeleteDocumentUseCase {
      * Returning "not found" for a non-owner avoids exposing the
      * existence of another user's private document.
      */
-    if (!document || document.ownerId.value !== actorId.value) {
+    if (!document || document.ownerId.equals(actorId)) {
       throw new DocumentNotFoundException()
     }
 
