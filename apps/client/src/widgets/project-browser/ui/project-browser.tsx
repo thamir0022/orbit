@@ -190,7 +190,7 @@ export const ProjectBrowser = ({ workspaceSlug }: ProjectBrowserProps) => {
   }
 
   return (
-    <div className="flex min-h-0 min-w-0 w-full flex-1 flex-col gap-5">
+    <div className="flex min-h-0 min-w-0 w-full flex-1 flex-col gap-5 pt-5">
       {/* Header */}
       <div className="flex shrink-0 items-start justify-between gap-4">
         <div className="min-w-0">
