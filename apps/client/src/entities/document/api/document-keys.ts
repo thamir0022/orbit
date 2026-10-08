@@ -13,4 +13,6 @@ export const documentKeys = {
   creates: () => [...documentKeys.all, 'create'] as const,
 
   updates: () => [...documentKeys.all, 'update'] as const,
+
+  deletes: () => [...documentKeys.all, 'delete'] as const,
 }
