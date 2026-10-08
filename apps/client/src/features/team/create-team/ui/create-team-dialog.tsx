@@ -261,7 +261,7 @@ const TeamLeadField = ({
 export const CreateTeamDialog = ({
   children,
   triggerClassName,
-  size
+  size,
 }: CreateTeamDialogProps) => {
   const createTeamMutation = useCreateTeamMutation()
   const [open, setOpen] = useState(false)
@@ -352,9 +352,13 @@ export const CreateTeamDialog = ({
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
         className={cn(
-          'w-full max-w-2xl!',
-          'gap-0 overflow-hidden',
-          'rounded-2xl p-0 shadow-2xl'
+          'w-full h-1/2',
+          'max-w-3xl!',
+          'gap-0',
+          'overflow-hidden',
+          'shadow-2xl',
+          'rounded-2xl',
+          'p-0'
         )}
       >
         <DialogHeader>
@@ -395,11 +399,10 @@ export const CreateTeamDialog = ({
                       aria-required="true"
                       aria-invalid={fieldState.invalid}
                       className={cn(
-                        'field-sizing-content',
-                        'w-fit max-w-full!',
-                        'border-none! bg-transparent!',
                         'text-2xl! font-semibold!',
-                        'focus-visible:ring-0'
+                        'focus-visible:ring-0',
+                        'max-w-full w-fit! border-none!',
+                        'field-sizing-content bg-transparent!'
                       )}
                     />
 
