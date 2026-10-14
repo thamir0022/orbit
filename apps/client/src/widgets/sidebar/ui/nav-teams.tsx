@@ -22,7 +22,7 @@ import {
 } from '@/shared/ui/sidebar'
 
 import { CreateTeamDialog } from '@/features/team/create-team'
-import { useTeamsQuery } from '@/entities/team/api/use-teams-query'
+import { useTeamsQuery } from '@/entities/team'
 
 interface TeamNavigationItem {
   readonly id: string
