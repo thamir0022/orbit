@@ -1,12 +1,14 @@
+import { UserSummary } from '@/shared/types/user-summary'
+
 export interface Team {
   readonly id: string
   readonly workspaceId: string
   readonly name: string
   readonly description?: string
   readonly avatarUrl?: string
-  readonly leadId: string | null
+  readonly lead: UserSummary
   readonly status: TeamStatus
-  readonly createdBy: string
+  readonly createdBy: UserSummary
   readonly createdAt: string
   readonly updatedAt: string
 }

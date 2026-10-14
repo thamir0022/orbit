@@ -1,12 +1,9 @@
-export const teamQueryKeys = {
+export const teamKeys = {
   all: ['teams'] as const,
 
-  lists: () => [...teamQueryKeys.all, 'list'] as const,
+  lists: () => [...teamKeys.all, 'list'] as const,
 
-  list: (workspaceId: string) =>
-    [...teamQueryKeys.lists(), workspaceId] as const,
+  details: () => [...teamKeys.all, 'detail'] as const,
 
-  details: () => [...teamQueryKeys.all, 'detail'] as const,
-
-  detail: (teamId: string) => [...teamQueryKeys.details(), teamId] as const,
+  detail: (teamId: string) => [...teamKeys.details(), teamId] as const,
 }
