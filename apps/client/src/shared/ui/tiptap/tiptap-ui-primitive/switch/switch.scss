@@ -29,17 +29,17 @@
 
   /* Enlarged invisible hit area (after:-inset-x-3 after:-inset-y-2). */
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     inset: -0.5rem -0.75rem;
   }
 
-  &[data-size="default"] {
+  &[data-size='default'] {
     width: 32px;
     height: 18.4px;
   }
 
-  &[data-size="sm"] {
+  &[data-size='sm'] {
     width: 24px;
     height: 14px;
   }
@@ -68,12 +68,12 @@
   transform: translateX(0);
   transition: transform 150ms ease;
 
-  .tiptap-switch[data-size="default"] & {
+  .tiptap-switch[data-size='default'] & {
     width: 16px;
     height: 16px;
   }
 
-  .tiptap-switch[data-size="sm"] & {
+  .tiptap-switch[data-size='sm'] & {
     width: 12px;
     height: 12px;
   }

@@ -1,5 +1,5 @@
 import { API_ROUTES } from '@/shared/api/routes/api.routes'
-import { httpClient } from '@/shared/api/config/http-client' 
+import { httpClient } from '@/shared/api/config/http-client'
 import { User } from '../model/user.types'
 
 export type UpdateProfilePayload = {

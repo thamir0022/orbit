@@ -139,7 +139,7 @@
       --------------------------- CHECK BUTTON --------------------------
       ---------------------------------------------------------------- */
 
-  &[data-variant="check"] {
+  &[data-variant='check'] {
     /* Light mode */
     --tt-button-check-bg-color: var(--tt-gray-light-a-100);
     --tt-button-check-hover-bg-color: var(--white);
@@ -180,8 +180,8 @@
   /* Tertiary currently mirrors ghost. The design system separates the two
      only inside the toggle-switch variant, which this primitive does not
      implement, so both map to the same tokens here. */
-  &[data-style="ghost"],
-  &[data-style="tertiary"] {
+  &[data-style='ghost'],
+  &[data-style='tertiary'] {
     /************************************************** 
         Ghost button background color 
     **************************************************/
@@ -327,7 +327,7 @@
       -------------------------- PRIMARY BUTTON -------------------------
       ---------------------------------------------------------------- */
 
-  &[data-style="primary"] {
+  &[data-style='primary'] {
     /************************************************** 
         Primary button background color 
     **************************************************/
@@ -477,7 +477,7 @@
      mode, following the same inversion as the checked check-button. The
      active / pressed state adopts the brand-tinted selected treatment, so it
      reuses the primary button's active tokens. */
-  &[data-style="secondary"] {
+  &[data-style='secondary'] {
     /**************************************************
         Secondary button background color
     **************************************************/

@@ -24,7 +24,11 @@ const optionalDate = z
 
 export const CreateProjectSchema = z
   .object({
-    name: z.string().trim().min(3, 'Project name should have mininum 3 letters').max(50, 'Project name is too long'),
+    name: z
+      .string()
+      .trim()
+      .min(3, 'Project name should have mininum 3 letters')
+      .max(50, 'Project name is too long'),
 
     description: z.string().trim().optional(),
 

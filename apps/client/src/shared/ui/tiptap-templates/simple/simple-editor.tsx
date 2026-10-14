@@ -307,10 +307,7 @@ export function SimpleEditor({
   }, [closeSearchAndReplace, isSearchAndReplaceOpen, openSearchAndReplace])
 
   return (
-    <div
-      onBlurCapture={onBlur}
-      className="simple-editor-wrapper"
-    >
+    <div onBlurCapture={onBlur} className="simple-editor-wrapper">
       <EditorContext.Provider value={{ editor }}>
         <Toolbar
           ref={toolbarRef}

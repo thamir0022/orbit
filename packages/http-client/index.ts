@@ -1,4 +1,4 @@
 export * from "./src/axios";
 export * from "./src/client";
 export * from "./src/errors";
-export * from './src/types'
+export * from "./src/types";

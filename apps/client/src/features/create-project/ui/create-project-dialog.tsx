@@ -500,7 +500,7 @@ export const CreateProjectDialog = () => {
                     options={PROJECT_TYPE_OPTIONS}
                     placeholder="Type"
                     invalid={fieldState.invalid}
-                    icon={<Settings2  className="size-3.5" />}
+                    icon={<Settings2 className="size-3.5" />}
                     onChange={field.onChange}
                   />
                 )}

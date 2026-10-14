@@ -35,7 +35,6 @@ interface SortableHeaderProps<TValue> {
   readonly column: Column<ProjectTableFeatures, Project, TValue>
 }
 
-
 const SortableHeader = <TValue,>({
   label,
   column,
@@ -45,7 +44,7 @@ const SortableHeader = <TValue,>({
   const nextOrder = column.getNextSortingOrder()
 
   const handleSort = column.getToggleSortingHandler()
-  
+
   const sortLabel =
     nextOrder === 'asc'
       ? `Sort ${label} ascending`

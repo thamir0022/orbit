@@ -20,7 +20,9 @@ const NavWorkspaces = () => {
   const workspace = useWorkspace()
   const { data, isPending } = useUserWorkspaces()
 
-  const workspaces = data?.data.workspaces.filter((w) => w.slug !== workspace?.slug)
+  const workspaces = data?.data.workspaces.filter(
+    (w) => w.slug !== workspace?.slug
+  )
 
   return (
     <SidebarMenu>

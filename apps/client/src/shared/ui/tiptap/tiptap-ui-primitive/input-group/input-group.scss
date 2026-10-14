@@ -32,40 +32,40 @@
 
 /* Height overrides */
 .tiptap-input-group:has(> textarea),
-.tiptap-input-group:has(> [data-align="block-end"]),
-.tiptap-input-group:has(> [data-align="block-start"]) {
+.tiptap-input-group:has(> [data-align='block-end']),
+.tiptap-input-group:has(> [data-align='block-start']) {
   height: auto;
 }
 
 /* Column layout for block-aligned addons */
-.tiptap-input-group:has(> [data-align="block-end"]),
-.tiptap-input-group:has(> [data-align="block-start"]) {
+.tiptap-input-group:has(> [data-align='block-end']),
+.tiptap-input-group:has(> [data-align='block-start']) {
   flex-direction: column;
 }
 
 /* Inner input padding when addons are present */
-.tiptap-input-group:has(> [data-align="inline-end"]) > input {
+.tiptap-input-group:has(> [data-align='inline-end']) > input {
   padding-right: 0.375rem;
 }
-.tiptap-input-group:has(> [data-align="inline-start"]) > input {
+.tiptap-input-group:has(> [data-align='inline-start']) > input {
   padding-left: 0.375rem;
 }
-.tiptap-input-group:has(> [data-align="block-end"]) > input {
+.tiptap-input-group:has(> [data-align='block-end']) > input {
   padding-top: 0.75rem;
 }
-.tiptap-input-group:has(> [data-align="block-start"]) > input {
+.tiptap-input-group:has(> [data-align='block-start']) > input {
   padding-bottom: 0.75rem;
 }
 
 /* Focus */
 .tiptap-input-group:has(
-  [data-slot="tiptap-input-group-control"]:focus-visible
+  [data-slot='tiptap-input-group-control']:focus-visible
 ) {
   border-color: var(--tt-ig-border-focus);
 }
 
 /* Combobox override */
-[data-slot="combobox-content"] .tiptap-input-group:focus-within {
+[data-slot='combobox-content'] .tiptap-input-group:focus-within {
   border-color: inherit;
   box-shadow: none;
 }
@@ -85,7 +85,7 @@
   user-select: none;
 }
 
-.tiptap-input-group-addon > svg:not([class*="size-"]) {
+.tiptap-input-group-addon > svg:not([class*='size-']) {
   width: 1rem;
   height: 1rem;
 }
@@ -94,7 +94,7 @@
   border-radius: calc(9999px - 5px);
 }
 
-.tiptap-input-group[data-disabled="true"] .tiptap-input-group-addon {
+.tiptap-input-group[data-disabled='true'] .tiptap-input-group-addon {
   opacity: 0.5;
 }
 
@@ -159,7 +159,7 @@
   border-radius: calc(9999px - 3px);
   padding: 0 0.375rem;
 }
-.tiptap-input-group-button--xs > svg:not([class*="size-"]) {
+.tiptap-input-group-button--xs > svg:not([class*='size-']) {
   width: 0.875rem;
   height: 0.875rem;
 }
@@ -187,7 +187,7 @@
   color: var(--tt-ig-addon-color);
 }
 
-.tiptap-input-group-text svg:not([class*="size-"]) {
+.tiptap-input-group-text svg:not([class*='size-']) {
   width: 1rem;
   height: 1rem;
 }
@@ -206,7 +206,7 @@
 }
 
 .tiptap-input-group-control:focus-visible,
-.tiptap-input-group-control[aria-invalid="true"],
+.tiptap-input-group-control[aria-invalid='true'],
 .tiptap-input-group-control:disabled {
   background: transparent;
   box-shadow: none;

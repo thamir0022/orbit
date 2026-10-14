@@ -16,9 +16,12 @@ import { GlobalSessionProvider } from '@/widgets/global-session/ui/global-sessio
 
 import { QueryProvider } from './providers/query.provider'
 
-const ralewayHeading = Raleway({subsets:['latin'],variable:'--font-heading'});
+const ralewayHeading = Raleway({
+  subsets: ['latin'],
+  variable: '--font-heading',
+})
 
-const manrope = Manrope({subsets:['latin'],variable:'--font-sans'});
+const manrope = Manrope({ subsets: ['latin'], variable: '--font-sans' })
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -43,7 +46,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-dvh w-full overflow-hidden", "font-sans", manrope.variable, ralewayHeading.variable)}
+      className={cn(
+        'h-dvh w-full overflow-hidden',
+        'font-sans',
+        manrope.variable,
+        ralewayHeading.variable
+      )}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >

@@ -1,46 +1,46 @@
-import type { Node as PMNode } from "@tiptap/pm/model"
-import type { Transaction } from "@tiptap/pm/state"
-import { clsx, type ClassValue } from "clsx"
+import type { Node as PMNode } from '@tiptap/pm/model'
+import type { Transaction } from '@tiptap/pm/state'
+import { clsx, type ClassValue } from 'clsx'
 import {
   AllSelection,
   NodeSelection,
   Selection,
   TextSelection,
-} from "@tiptap/pm/state"
-import { cellAround, CellSelection } from "@tiptap/pm/tables"
+} from '@tiptap/pm/state'
+import { cellAround, CellSelection } from '@tiptap/pm/tables'
 import {
   findParentNodeClosestToPos,
   type Editor,
   type NodeWithPos,
-} from "@tiptap/react"
+} from '@tiptap/react'
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 
 export const MAC_SYMBOLS: Record<string, string> = {
-  mod: "⌘",
-  command: "⌘",
-  meta: "⌘",
-  ctrl: "⌃",
-  control: "⌃",
-  alt: "⌥",
-  option: "⌥",
-  shift: "⇧",
-  backspace: "Del",
-  delete: "⌦",
-  enter: "⏎",
-  escape: "⎋",
-  capslock: "⇪",
+  mod: '⌘',
+  command: '⌘',
+  meta: '⌘',
+  ctrl: '⌃',
+  control: '⌃',
+  alt: '⌥',
+  option: '⌥',
+  shift: '⇧',
+  backspace: 'Del',
+  delete: '⌦',
+  enter: '⏎',
+  escape: '⎋',
+  capslock: '⇪',
 } as const
 
 export const SR_ONLY = {
-  position: "absolute",
-  width: "1px",
-  height: "1px",
+  position: 'absolute',
+  width: '1px',
+  height: '1px',
   padding: 0,
-  margin: "-1px",
-  overflow: "hidden",
-  clip: "rect(0, 0, 0, 0)",
-  whiteSpace: "nowrap",
+  margin: '-1px',
+  overflow: 'hidden',
+  clip: 'rect(0, 0, 0, 0)',
+  whiteSpace: 'nowrap',
   borderWidth: 0,
 } as const
 
@@ -54,8 +54,8 @@ export function cn(...inputs: ClassValue[]): string {
  */
 export function isMac(): boolean {
   return (
-    typeof navigator !== "undefined" &&
-    navigator.platform.toLowerCase().includes("mac")
+    typeof navigator !== 'undefined' &&
+    navigator.platform.toLowerCase().includes('mac')
   )
 }
 
@@ -91,7 +91,7 @@ export const parseShortcutKeys = (props: {
   delimiter?: string
   capitalize?: boolean
 }) => {
-  const { shortcutKeys, delimiter = "+", capitalize = true } = props
+  const { shortcutKeys, delimiter = '+', capitalize = true } = props
 
   if (!shortcutKeys) return []
 
@@ -146,7 +146,7 @@ export function focusNextNode(editor: Editor) {
 
   const paragraphType = state.schema.nodes.paragraph
   if (!paragraphType) {
-    console.warn("No paragraph node type found in schema.")
+    console.warn('No paragraph node type found in schema.')
     return false
   }
 
@@ -167,7 +167,7 @@ export function focusNextNode(editor: Editor) {
  * @returns boolean indicating if the value is a valid number
  */
 export function isValidPosition(pos: number | null | undefined): pos is number {
-  return typeof pos === "number" && pos >= 0
+  return typeof pos === 'number' && pos >= 0
 }
 
 /**
@@ -199,7 +199,7 @@ export function isExtensionAvailable(
   )
 
   if (!found) {
-    const key = names.join(", ")
+    const key = names.join(', ')
 
     if (!warnedMissingExtensions.has(key)) {
       warnedMissingExtensions.add(key)
@@ -377,7 +377,7 @@ export const handleImageUpload = async (
 ): Promise<string> => {
   // Validate file
   if (!file) {
-    throw new Error("No file provided")
+    throw new Error('No file provided')
   }
 
   if (file.size > MAX_FILE_SIZE) {
@@ -390,13 +390,13 @@ export const handleImageUpload = async (
   // with your own upload implementation.
   for (let progress = 0; progress <= 100; progress += 10) {
     if (abortSignal?.aborted) {
-      throw new Error("Upload cancelled")
+      throw new Error('Upload cancelled')
     }
     await new Promise((resolve) => setTimeout(resolve, 500))
     onProgress?.({ progress })
   }
 
-  return "/images/tiptap-ui-placeholder-image.jpg"
+  return '/images/tiptap-ui-placeholder-image.jpg'
 }
 
 type ProtocolOptions = {
@@ -427,22 +427,22 @@ export function isAllowedUri(
   protocols?: ProtocolConfig
 ) {
   const allowedProtocols: string[] = [
-    "http",
-    "https",
-    "ftp",
-    "ftps",
-    "mailto",
-    "tel",
-    "callto",
-    "sms",
-    "cid",
-    "xmpp",
+    'http',
+    'https',
+    'ftp',
+    'ftps',
+    'mailto',
+    'tel',
+    'callto',
+    'sms',
+    'cid',
+    'xmpp',
   ]
 
   if (protocols) {
     protocols.forEach((protocol) => {
       const nextProtocol =
-        typeof protocol === "string" ? protocol : protocol.scheme
+        typeof protocol === 'string' ? protocol : protocol.scheme
 
       if (nextProtocol) {
         allowedProtocols.push(nextProtocol)
@@ -452,11 +452,11 @@ export function isAllowedUri(
 
   return (
     !uri ||
-    uri.replace(ATTR_WHITESPACE, "").match(
+    uri.replace(ATTR_WHITESPACE, '').match(
       new RegExp(
         // eslint-disable-next-line no-useless-escape
-        `^(?:(?:${allowedProtocols.join("|")}):|[^a-z]|[a-z0-9+.\-]+(?:[^a-z+.\-:]|$))`,
-        "i"
+        `^(?:(?:${allowedProtocols.join('|')}):|[^a-z]|[a-z0-9+.\-]+(?:[^a-z+.\-:]|$))`,
+        'i'
       )
     )
   )
@@ -476,7 +476,7 @@ export function sanitizeUrl(
   } catch {
     // If URL creation fails, it's considered invalid
   }
-  return "#"
+  return '#'
 }
 
 /**
@@ -508,7 +508,7 @@ export function updateNodesAttr<A extends string = string, V = unknown>(
       attrName
     ] as V | undefined
     const resolvedNext =
-      typeof next === "function"
+      typeof next === 'function'
         ? (next as (p: V | undefined) => V | undefined)(prevValue)
         : next
 

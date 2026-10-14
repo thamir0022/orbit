@@ -7,6 +7,4 @@ export const generalSettingsSchema = z.object({
   timeFormat: z.enum(['12-hour', '24-hour']),
 })
 
-export type GeneralSettingsFormValues = z.infer<
-  typeof generalSettingsSchema
->
+export type GeneralSettingsFormValues = z.infer<typeof generalSettingsSchema>

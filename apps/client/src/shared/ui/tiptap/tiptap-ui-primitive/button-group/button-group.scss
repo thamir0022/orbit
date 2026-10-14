@@ -4,7 +4,7 @@
   align-items: stretch;
 
   /* nested tiptap-button-group gets a gap */
-  &:has(> [data-slot="tiptap-button-group"]) {
+  &:has(> [data-slot='tiptap-button-group']) {
     gap: 0.125rem;
   }
 
@@ -15,7 +15,7 @@
   }
 
   /* select trigger without explicit width becomes fit-content */
-  & > [data-slot="select-trigger"]:not([class*="w-"]) {
+  & > [data-slot='select-trigger']:not([class*='w-']) {
     width: fit-content;
   }
 
@@ -70,20 +70,20 @@
   align-self: stretch;
 }
 
-.tiptap-button-group-separator[data-orientation="horizontal"] {
+.tiptap-button-group-separator[data-orientation='horizontal'] {
   margin-left: 1px;
   margin-right: 1px;
 }
 
-.tiptap-button-group-separator[data-orientation="horizontal"] {
+.tiptap-button-group-separator[data-orientation='horizontal'] {
   width: auto;
 }
 
-.tiptap-button-group-separator[data-orientation="vertical"] {
+.tiptap-button-group-separator[data-orientation='vertical'] {
   margin-top: 1px;
   margin-bottom: 1px;
 }
 
-.tiptap-button-group-separator[data-orientation="vertical"] {
+.tiptap-button-group-separator[data-orientation='vertical'] {
   height: auto;
 }
