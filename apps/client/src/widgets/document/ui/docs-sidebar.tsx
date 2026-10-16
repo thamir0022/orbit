@@ -61,8 +61,8 @@ export function DocsSidebar({ isOpen, onClose }: DocsSidebarProps) {
       aria-label="Documents sidebar"
       aria-hidden={!isOpen}
       className={cn(
-        'relative flex min-h-0 w-72 shrink-0 flex-col',
-        'overflow-hidden border-r bg-background',
+        'relative flex min-h-0 w-(--sidebar-width) text-sidebar-foreground bg-sidebar shrink-0 flex-col',
+        'overflow-hidden border-r bg-sidebar rounded-4xl shadow-md',
         'transition-[width,border-color]',
         'duration-300 ease-out',
         'motion-reduce:transition-none',
