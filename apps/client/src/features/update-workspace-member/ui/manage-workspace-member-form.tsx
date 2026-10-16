@@ -5,7 +5,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { WorkspaceRole } from '@/entities/role'
 import type { WorkspaceMember } from '@/entities/workspace-member'
-import { formatDateTime } from '@/shared/lib/format-date'
+import { formatDate } from '@/shared/lib/format-date'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent } from '@/shared/ui/card'
 import {
@@ -101,7 +101,7 @@ export function ManageWorkspaceMemberForm({
               <p className="truncate text-sm">{member.email}</p>
               <p className="text-xs">
                 {' '}
-                Joined At {formatDateTime(member.joinedAt)}
+                Joined At {formatDate(member.joinedAt)}
               </p>
             </div>
           </div>

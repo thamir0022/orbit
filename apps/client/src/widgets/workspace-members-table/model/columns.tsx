@@ -6,7 +6,7 @@ import type { WorkspaceRole } from '@/entities/role'
 import type { WorkspaceMember } from '@/entities/workspace-member'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
 import { Badge } from '@/shared/ui/badge'
-import { formatDateTime } from '@/shared/lib/format-date'
+import { formatDate } from '@/shared/lib/format-date'
 
 import { workspaceMembersTableFeatures } from './data-table-features'
 import { MemberActions } from '../ui/member-actions'
@@ -91,7 +91,7 @@ export function getWorkspaceMembersColumns({
 
       cell: ({ getValue }) => (
         <span className="text-sm text-muted-foreground">
-          {formatDateTime(getValue())}
+          {formatDate(getValue())}
         </span>
       ),
     }),
