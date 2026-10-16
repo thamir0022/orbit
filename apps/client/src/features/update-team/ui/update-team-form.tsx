@@ -3,25 +3,22 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowLeft, PanelRightClose, PanelRightOpen } from 'lucide-react'
+import {
+  ArrowLeft,
+  CircleDashed,
+  PanelRightClose,
+  PanelRightOpen,
+} from 'lucide-react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Controller, useForm } from 'react-hook-form'
 
+import { TeamStatus, type Team } from '@/entities/team/model/team.types'
 import { useWorkspace } from '@/entities/workspace/model/workspace.store'
-import type { Team, TeamStatus } from '@/entities/team/model/team.types'
-import {
-  formatTeamDate,
-  formatTeamStatus,
-  getTeamInitials,
-} from '@/entities/team/lib/team.utils'
 
-import { useUpdateTeamMutation } from '../model/use-update-team.mutation'
-import {
-  UpdateTeamSchema,
-  type UpdateTeamFormValues,
-} from '../model/update-team.schema'
-import { getUpdateTeamDefaultValues } from '../lib/update-team.utils'
-
+import { getInitials } from '@/shared/lib/get-initials'
+import { formatDate } from '@/shared/lib/format-date'
+import { cn } from '@/shared/lib/utils'
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
 import { Button } from '@/shared/ui/button'
@@ -29,17 +26,26 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/shared/ui/card'
 import { Field, FieldError, FieldLabel } from '@/shared/ui/field'
 import { Input } from '@/shared/ui/input'
 import { ScrollArea } from '@/shared/ui/scroll-area'
-import { Separator } from '@/shared/ui/separator'
+import { SearchableSelect } from '@/shared/ui/searchable-select'
 import { Spinner } from '@/shared/ui/spinner'
 import { Textarea } from '@/shared/ui/textarea'
-import { usePathname } from 'next/navigation'
+
+import { getUpdateTeamDefaultValues } from '../lib/update-team.utils'
+import { useUpdateTeamMutation } from '../model/use-update-team.mutation'
+import {
+  UpdateTeamSchema,
+  type UpdateTeamFormValues,
+} from '../model/update-team.schema'
 
 interface UpdateTeamFormProps {
   readonly team: Team
 }
 
+const TEAM_STATUS_OPTIONS = Object.values(TeamStatus)
+
 export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
   const workspace = useWorkspace()
+  const pathname = usePathname()
   const updateTeam = useUpdateTeamMutation()
 
   const propertiesPanelId = useId()
@@ -72,6 +78,8 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
     lastSavedValuesRef.current = defaultValues
   }, [defaultValues, reset])
 
+  const teamsPath = workspace?.slug ? `/${workspace.slug}/teams` : '#'
+
   const overviewPath = workspace?.slug
     ? `/${workspace.slug}/teams/${team.id}`
     : '#'
@@ -79,6 +87,11 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
   const membersPath = workspace?.slug
     ? `/${workspace.slug}/teams/${team.id}/members`
     : '#'
+
+  const isOverviewActive = pathname === overviewPath
+
+  const isMembersActive =
+    pathname === membersPath || pathname.startsWith(`${membersPath}/`)
 
   const handlePropertiesToggle = () => {
     setIsPropertiesOpen((current) => !current)
@@ -111,20 +124,15 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
         }),
       })
 
-      const currentValues = getValues()
-
-      const normalizedValue =
-        field === 'name' || field === 'description'
-          ? String(value).trim()
-          : value
-
       const nextValues = {
-        ...currentValues,
-        [field]: normalizedValue,
+        ...getValues(),
+        [field]:
+          field === 'name' || field === 'description'
+            ? String(value).trim()
+            : value,
       } as UpdateTeamFormValues
 
       lastSavedValuesRef.current = nextValues
-
       reset(nextValues)
     } catch (error) {
       setError('root.serverError', {
@@ -145,7 +153,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
     }
 
     const normalizedValue = value.trim()
-    const lastSavedValue = lastSavedValuesRef.current[field]?.trim()
+    const lastSavedValue = lastSavedValuesRef.current[field]?.trim() ?? ''
 
     if (normalizedValue === lastSavedValue) {
       return
@@ -154,19 +162,22 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
     await saveField(field, normalizedValue)
   }
 
+  const handlePropertyChange = async (field: 'status', value: TeamStatus) => {
+    const isValid = await trigger(field)
+
+    if (!isValid) {
+      return
+    }
+
+    await saveField(field, value)
+  }
+
   const serverError = errors.root?.serverError
-
-  const pathname = usePathname()
-
-  const isOverviewActive = pathname === overviewPath
-
-  const isMembersActive =
-    pathname === membersPath || pathname.startsWith(`${membersPath}/`)
 
   return (
     <div className="mx-auto size-full max-w-7xl md:p-6">
       <div className="mb-4">
-        <Link href={workspace?.slug ? `/${workspace.slug}/teams` : '#'}>
+        <Link href={teamsPath}>
           <Button type="button" variant="ghost" size="sm">
             <ArrowLeft className="size-3.5" aria-hidden="true" />
             <span>Teams</span>
@@ -238,29 +249,28 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
       </div>
 
       <div
-        className={[
-          'grid min-w-0 items-start',
-          'grid-cols-1 gap-4',
+        className={cn(
+          'grid min-w-0 grid-cols-1 items-start gap-4',
           'lg:transition-[grid-template-columns,gap]',
           'lg:duration-300 lg:ease-out',
           'motion-reduce:transition-none',
           isPropertiesOpen
             ? 'lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-4'
-            : 'lg:grid-cols-[minmax(0,1fr)_0rem] lg:gap-0',
-        ].join(' ')}
+            : 'lg:grid-cols-[minmax(0,1fr)_0rem] lg:gap-0'
+        )}
       >
         <section aria-label="Team overview" className="min-w-0">
           <Card className="min-h-154 w-full overflow-hidden rounded-2xl shadow-sm">
-            <CardHeader className="p-7 pb-5 md:p-8 md:pb-6">
+            <CardHeader>
               <div className="flex min-w-0 items-center gap-4">
-                <Avatar className="size-16 shrink-0 rounded-xl">
+                <Avatar className="size-16 shrink-0">
                   <AvatarImage
                     src={team.avatarUrl || undefined}
                     alt={team.name}
                   />
 
-                  <AvatarFallback className="rounded-xl text-lg font-medium">
-                    {getTeamInitials(team.name)}
+                  <AvatarFallback className="text-lg font-medium">
+                    {getInitials(team.name)}
                   </AvatarFallback>
                 </Avatar>
 
@@ -273,7 +283,9 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                         data-invalid={fieldState.invalid}
                         className="gap-1"
                       >
-                        <FieldLabel className="sr-only">Team name</FieldLabel>
+                        <FieldLabel htmlFor="team-name" className="sr-only">
+                          Team name
+                        </FieldLabel>
 
                         <Input
                           {...field}
@@ -290,7 +302,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                               event.currentTarget.value
                             )
                           }}
-                          className="w-fit! max-w-full border-none! bg-transparent! text-2xl! font-semibold! focus-visible:ring-0 field-sizing-content"
+                          className="field-sizing-content w-fit! max-w-full border-none! bg-transparent! text-2xl! font-semibold! focus-visible:ring-0"
                         />
 
                         {fieldState.invalid && (
@@ -306,13 +318,38 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
               </div>
             </CardHeader>
 
-            <CardContent className="px-7 pb-8 md:px-8">
+            <CardContent>
+              <div className="mb-3 flex gap-4">
+                <Controller
+                  name="status"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <SearchableSelect
+                      id="team-status"
+                      label="Status"
+                      value={field.value ?? team.status}
+                      options={TEAM_STATUS_OPTIONS}
+                      placeholder="Select status"
+                      invalid={fieldState.invalid}
+                      side="bottom"
+                      icon={
+                        <CircleDashed className="size-3.5" aria-hidden="true" />
+                      }
+                      onChange={(value) => {
+                        field.onChange(value)
+
+                        void handlePropertyChange('status', value)
+                      }}
+                    />
+                  )}
+                />
+              </div>
               <Controller
                 name="description"
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid} className="gap-1">
-                    <FieldLabel className="sr-only">
+                    <FieldLabel htmlFor="team-description" className="sr-only">
                       Team description
                     </FieldLabel>
 
@@ -330,7 +367,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                           event.currentTarget.value
                         )
                       }}
-                      className="min-h-24 max-h-52 bg-transparent!"
+                      className="min-h-24 max-h-52"
                     />
 
                     {fieldState.invalid && (
@@ -341,7 +378,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
               />
             </CardContent>
 
-            <CardFooter className="mt-auto border-t p-7 pt-6 md:px-8 md:pt-6">
+            <CardFooter className="mt-auto border-t">
               <div className="flex w-full items-center justify-between gap-6 text-xs">
                 <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                   <span>Created by</span>
@@ -354,7 +391,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                       />
 
                       <AvatarFallback className="text-[9px]">
-                        {getTeamInitials(team.createdBy.displayName)}
+                        {getInitials(team.createdBy.displayName)}
                       </AvatarFallback>
                     </Avatar>
 
@@ -366,7 +403,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                   <span>at</span>
 
                   <time dateTime={team.createdAt}>
-                    {formatTeamDate(team.createdAt)}
+                    {formatDate(team.createdAt)}
                   </time>
                 </div>
 
@@ -374,7 +411,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                   <span>Last updated at </span>
 
                   <time dateTime={team.updatedAt} className="font-medium">
-                    {formatTeamDate(team.updatedAt)}
+                    {formatDate(team.updatedAt)}
                   </time>
                 </div>
               </div>
@@ -395,15 +432,15 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
           aria-label="Team properties"
           aria-hidden={!isPropertiesOpen}
           inert={!isPropertiesOpen}
-          className={[
+          className={cn(
             'h-full min-w-0 overflow-hidden',
             'transition-[opacity,transform]',
             'duration-300 ease-out',
             'motion-reduce:transition-none',
             isPropertiesOpen
               ? 'translate-x-0 opacity-100'
-              : 'pointer-events-none -translate-x-2 opacity-0',
-          ].join(' ')}
+              : 'pointer-events-none -translate-x-2 opacity-0'
+          )}
         >
           <Card className="flex h-full max-h-[calc(100dvh-7rem)] min-h-0 flex-col overflow-hidden rounded-2xl shadow-sm lg:sticky lg:top-4">
             <CardHeader className="flex shrink-0 flex-row items-center justify-between gap-3">
@@ -412,42 +449,29 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
 
             <ScrollArea className="min-h-0 flex-1">
               <CardContent className="space-y-5 p-4 pt-1">
-                <div className="space-y-1">
-                  <span className="text-xs text-muted-foreground">Status</span>
+                <Controller
+                  name="status"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <SearchableSelect
+                      id="team-status"
+                      label="Status"
+                      value={field.value ?? team.status}
+                      options={TEAM_STATUS_OPTIONS}
+                      placeholder="Select status"
+                      invalid={fieldState.invalid}
+                      side="left"
+                      icon={
+                        <CircleDashed className="size-3.5" aria-hidden="true" />
+                      }
+                      onChange={(value) => {
+                        field.onChange(value)
 
-                  <div className="text-sm font-medium">
-                    {formatTeamStatus(team.status)}
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-2">
-                  <span className="text-xs text-muted-foreground">Lead</span>
-
-                  {team.lead ? (
-                    <div className="flex items-center gap-2">
-                      <Avatar className="size-7">
-                        <AvatarImage
-                          src={team.lead.avatarUrl ?? undefined}
-                          alt=""
-                        />
-
-                        <AvatarFallback className="text-[10px]">
-                          {getTeamInitials(team.lead.displayName)}
-                        </AvatarFallback>
-                      </Avatar>
-
-                      <span className="text-sm font-medium">
-                        {team.lead.displayName}
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">
-                      No lead assigned
-                    </span>
+                        void handlePropertyChange('status', value)
+                      }}
+                    />
                   )}
-                </div>
+                />
               </CardContent>
             </ScrollArea>
           </Card>
