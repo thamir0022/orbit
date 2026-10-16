@@ -18,15 +18,12 @@ import { Badge } from '@/shared/ui/badge'
 
 import { Button } from '@/shared/ui/button'
 
-import {
-  formatEnumLabel,
-  formatProjectDate,
-  getInitials,
-} from '@/entities/project/lib/project.utils'
-
 import type { Project } from '@/entities/project/model/project.types'
 
 import type { ProjectTableFeatures } from '../model/project-table-features'
+import { getInitials } from '@/shared/lib/get-initials'
+import { formatEnumLabel } from '@/shared/lib/format-enum-label'
+import { formatDate } from '@/shared/lib/format-date'
 
 const columnHelper = createColumnHelper<ProjectTableFeatures, Project>()
 
@@ -100,10 +97,10 @@ export const createProjectColumns = ({
         return (
           <Link
             href={`/${workspaceSlug}/projects/${project.key}/overview`}
-            className="flex min-w-0 items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="flex min-w-0 items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            <Avatar className="size-8 shrink-0 rounded-md" aria-hidden="true">
-              <AvatarFallback className="rounded-md text-xs font-medium">
+            <Avatar className="size-8 shrink-0" aria-hidden="true">
+              <AvatarFallback className="text-xs font-medium">
                 {getInitials(project.name)}
               </AvatarFallback>
             </Avatar>
@@ -235,7 +232,11 @@ export const createProjectColumns = ({
         <div className="flex items-center gap-1.5 whitespace-nowrap">
           <CalendarDays className="size-3.5 shrink-0" aria-hidden="true" />
 
-          {formatProjectDate(getValue())}
+          {formatDate(getValue(), {
+            year: '2-digit',
+            month: 'short',
+            weekday: undefined,
+          })}
         </div>
       ),
     }),
@@ -256,7 +257,11 @@ export const createProjectColumns = ({
         <div className="flex items-center gap-1.5 whitespace-nowrap">
           <CalendarDays className="size-3.5 shrink-0" aria-hidden="true" />
 
-          {formatProjectDate(getValue())}
+          {formatDate(getValue(), {
+            year: '2-digit',
+            month: 'short',
+            weekday: undefined,
+          })}
         </div>
       ),
     }),

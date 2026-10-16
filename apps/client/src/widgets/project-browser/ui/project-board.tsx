@@ -9,15 +9,12 @@ import { Card, CardContent } from '@/shared/ui/card'
 import { cn } from '@/shared/lib/utils'
 
 import {
-  formatEnumLabel,
-  formatProjectDate,
-  getInitials,
-} from '@/entities/project/lib/project.utils'
-
-import {
   ProjectStatus,
   type Project,
 } from '@/entities/project/model/project.types'
+import { formatEnumLabel } from '@/shared/lib/format-enum-label'
+import { getInitials } from '@/shared/lib/get-initials'
+import { formatDate } from '@/shared/lib/format-date'
 
 interface ProjectBoardProps {
   readonly projects: readonly Project[]
@@ -145,8 +142,8 @@ export const ProjectBoard = ({
                         <CardContent className="p-3.5">
                           {/* Project identity */}
                           <div className="flex min-w-0 items-center gap-3">
-                            <Avatar className="size-8 shrink-0 rounded-md">
-                              <AvatarFallback className="rounded-md text-xs font-medium">
+                            <Avatar className="size-8 shrink-0">
+                              <AvatarFallback className="text-xs font-medium">
                                 {getInitials(project.name)}
                               </AvatarFallback>
                             </Avatar>
@@ -197,9 +194,10 @@ export const ProjectBoard = ({
                             </div>
 
                             <span className="shrink-0 text-[11px]">
-                              {formatProjectDate(project.targetEndDate, {
+                              {formatDate(project.targetEndDate, {
+                                year: '2-digit',
                                 month: 'short',
-                                day: 'numeric',
+                                weekday: undefined,
                               })}
                             </span>
                           </div>

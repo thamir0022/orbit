@@ -35,8 +35,6 @@ import {
   ProjectType,
 } from '@/entities/project/model/project.types'
 
-import { formatEnumLabel } from '@/entities/project/lib/project.utils'
-
 import { useProjectFilters } from '@/features/project-filters/lib/use-project-filters'
 
 import { ProjectFilters } from '@/features/project-filters/ui/project-filters'
@@ -55,6 +53,7 @@ import { ProjectPagination } from './project-pagination'
 
 import { ProjectSkeleton } from './project-skeleton'
 import { CreateProjectDialog } from '@/features/create-project'
+import { formatEnumLabel } from '@/shared/lib/format-enum-label'
 
 interface ProjectBrowserProps {
   readonly workspaceSlug: string
