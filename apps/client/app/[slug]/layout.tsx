@@ -1,9 +1,6 @@
 import type { ReactNode } from 'react'
 
-import {
-  SidebarInset,
-  SidebarProvider,
-} from '@/shared/ui/sidebar'
+import { SidebarInset, SidebarProvider } from '@/shared/ui/sidebar'
 
 import { AppSidebar } from '@/widgets/sidebar/ui/app-sidebar'
 

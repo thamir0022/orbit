@@ -18,11 +18,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import {
-  Controller,
-  useForm,
-  useWatch,
-} from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 
 import { useWorkspace } from '@/entities/workspace/model/workspace.store'
 import type { Project } from '@/entities/project/model/project.types'

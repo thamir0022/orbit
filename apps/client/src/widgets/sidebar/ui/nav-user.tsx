@@ -9,10 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
-import {
-  SidebarMenu,
-  SidebarMenuItem,
-} from '@/shared/ui/sidebar'
+import { SidebarMenu, SidebarMenuItem } from '@/shared/ui/sidebar'
 import { Avatar, AvatarImage, AvatarFallback } from '@/shared/ui/avatar'
 import {
   BadgeCheckIcon,

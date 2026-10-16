@@ -2,11 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from '@/shared/ui/dialog'
+import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { useSignUpStore } from '../model/sign-up.store'
 import { Stepper } from '@/shared/ui/stepper'
 import { SignUpInitiateStep } from './steps/SignUpInitiateStep'

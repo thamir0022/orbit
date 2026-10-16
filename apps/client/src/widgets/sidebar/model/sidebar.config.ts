@@ -1,9 +1,4 @@
-import {
-  LayoutDashboard,
-  FolderKanban,
-  Settings,
-  Folder,
-} from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Settings, Folder } from 'lucide-react'
 
 export const sidebarConfig = {
   workspace: [

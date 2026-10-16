@@ -1,7 +1,4 @@
-import axios, {
-  type AxiosRequestConfig,
-  type AxiosResponse,
-} from 'axios'
+import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios'
 import { useUserStore } from '@/entities/user/model/user.store'
 import type { UnauthorizedContext } from '@orbit/http-client'
 import { API_ROUTES } from '../routes/api.routes'

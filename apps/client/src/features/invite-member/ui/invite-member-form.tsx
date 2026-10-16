@@ -37,10 +37,7 @@ export function InviteMemberForm({
   errorMessage = null,
   onSubmit,
 }: InviteMemberFormProps) {
-  const {
-    control,
-    handleSubmit,
-  } = useForm<InviteMemberFormData>({
+  const { control, handleSubmit } = useForm<InviteMemberFormData>({
     resolver: zodResolver(inviteMemberSchema),
     defaultValues: {
       email: '',

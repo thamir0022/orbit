@@ -274,7 +274,9 @@ export default function DashboardPage() {
       (item) => item.status === "active",
     ).length;
     const verifiedUsers = users?.filter((item) => item.emailVerified).length;
-    const activeUsers = users?.filter((item) => item.status === "active").length;
+    const activeUsers = users?.filter(
+      (item) => item.status === "active",
+    ).length;
 
     return [
       {
