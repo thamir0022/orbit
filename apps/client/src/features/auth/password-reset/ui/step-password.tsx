@@ -1,7 +1,6 @@
 import { Controller, type Control } from 'react-hook-form'
 import { Button } from '@/shared/ui/button'
-import { Input } from '@/shared/ui/input'
-import { Field, FieldError, FieldLabel } from '@/shared/ui/field'
+import { Field, FieldError } from '@/shared/ui/field'
 import type { ResetPasswordData } from '../model/reset-password.schema'
 import { IoIosArrowBack } from 'react-icons/io'
 import PasswordField from '@/shared/ui/PasswordField'

@@ -25,7 +25,7 @@ export function decodeJwtPayload<T = Record<string, unknown>>(
     )
 
     return JSON.parse(jsonPayload) as T
-  } catch (error) {
+  } catch {
     // Fails safely (returns null) if the token is tampered with or malformed
     return null
   }

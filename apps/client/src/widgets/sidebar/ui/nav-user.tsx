@@ -11,7 +11,6 @@ import {
 } from '@/shared/ui/dropdown-menu'
 import {
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
 } from '@/shared/ui/sidebar'
 import { Avatar, AvatarImage, AvatarFallback } from '@/shared/ui/avatar'
@@ -20,7 +19,6 @@ import {
   BellIcon,
   ChevronsUpDown,
   CreditCardIcon,
-  LogOutIcon,
 } from 'lucide-react'
 import { SignOutButton } from '@/features/auth/sign-out/ui/sign-out-button'
 import { useUser } from '@/entities/user/model/user.store'

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-import { Geist, Geist_Mono, Outfit, Raleway, Manrope } from 'next/font/google'
+import { Geist, Geist_Mono, Raleway, Manrope } from 'next/font/google'
 
 import './global.css'
 

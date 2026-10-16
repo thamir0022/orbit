@@ -11,13 +11,7 @@ import {
 } from '@/shared/ui/dialog'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
-import {
-  Field,
-  FieldContent,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from '@/shared/ui/field'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/ui/field'
 import { SignInFormData, signInSchema } from '../model/sign-in.schema'
 import Link from 'next/link'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -29,7 +23,7 @@ export function SignInModal() {
   const {
     handleSubmit,
     control,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -98,7 +92,7 @@ export function SignInModal() {
         </form>
 
         <p className="text-center text-sm text-muted-foreground">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link
             type="button"
             href="/sign-up"

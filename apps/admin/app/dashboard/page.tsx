@@ -252,7 +252,7 @@ function WorkspacesTable({ workspaces }: { workspaces: WorkspaceItem[] }) {
 
 export default function DashboardPage() {
   const {
-    data: workspacesData,
+    data: workspaces,
     isLoading: isWorkspacesLoading,
     isError: isWorkspacesError,
   } = useQuery({
@@ -261,7 +261,7 @@ export default function DashboardPage() {
   });
 
   const {
-    data: usersData,
+    data: users,
     isLoading: isUsersLoading,
     isError: isUsersError,
   } = useQuery({
@@ -269,26 +269,23 @@ export default function DashboardPage() {
     queryFn: getAllUsersApi,
   });
 
-  const workspaces = workspacesData?.workspaces ?? [];
-  const users = usersData?.users ?? [];
-
   const stats = React.useMemo(() => {
-    const activeWorkspaces = workspaces.filter(
+    const activeWorkspaces = workspaces?.filter(
       (item) => item.status === "active",
     ).length;
-    const verifiedUsers = users.filter((item) => item.emailVerified).length;
-    const activeUsers = users.filter((item) => item.status === "active").length;
+    const verifiedUsers = users?.filter((item) => item.emailVerified).length;
+    const activeUsers = users?.filter((item) => item.status === "active").length;
 
     return [
       {
         title: "Total Users",
-        value: users.length,
+        value: users?.length,
         description: `${verifiedUsers} verified accounts`,
         icon: Users,
       },
       {
         title: "Total Workspaces",
-        value: workspaces.length,
+        value: workspaces?.length,
         description: `${activeWorkspaces} currently active`,
         icon: Building2,
       },
@@ -334,7 +331,7 @@ export default function DashboardPage() {
               <StatCard
                 key={stat.title}
                 title={stat.title}
-                value={stat.value}
+                value={stat.value!}
                 description={stat.description}
                 icon={stat.icon}
               />
@@ -349,8 +346,8 @@ export default function DashboardPage() {
         </Card>
       ) : (
         <div className="grid gap-6 xl:grid-cols-2">
-          <UsersTable users={users} />
-          <WorkspacesTable workspaces={workspaces} />
+          <UsersTable users={users!} />
+          <WorkspacesTable workspaces={workspaces!} />
         </div>
       )}
     </div>

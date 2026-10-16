@@ -60,6 +60,10 @@ export function useSignInFlow() {
 
         const workspaceList = res.data.workspaces ?? []
 
+        if (redirectUrl) {
+          router.replace(redirectUrl)
+        }
+
         if (workspaceList.length === 0) {
           router.replace('/workspaces/new')
           return

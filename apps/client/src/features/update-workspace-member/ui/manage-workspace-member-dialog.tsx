@@ -1,6 +1,6 @@
 'use client'
 
-import type { Role } from '@/entities/role'
+import type { WorkspaceRole } from '@/entities/role'
 import type { WorkspaceMember } from '@/entities/workspace-member'
 import {
   DialogContent,
@@ -15,7 +15,7 @@ import { useState } from 'react'
 
 type ManageWorkspaceMemberDialogProps = {
   member: WorkspaceMember
-  roles: Role[]
+  roles: WorkspaceRole[]
   rolesLoading?: boolean
   onClose: () => void
 }
@@ -39,7 +39,7 @@ export function ManageWorkspaceMemberDialog({
       })
 
       onClose()
-    } catch (error: unknown) {}
+    } catch {}
   }
 
   return (
@@ -47,7 +47,7 @@ export function ManageWorkspaceMemberDialog({
       <DialogHeader>
         <DialogTitle>Manage member</DialogTitle>
         <DialogDescription>
-          Update {member.displayName}'s role and status.
+          Update {member.displayName}&apos;s role and status.
         </DialogDescription>
       </DialogHeader>
 

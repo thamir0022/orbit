@@ -1,4 +1,5 @@
-import type { Editor } from '@tiptap/react'
+import { Editor } from '@tiptap/core'
+
 import { useEffect, useState } from 'react'
 
 type Orientation = 'horizontal' | 'vertical' | 'both'
@@ -69,6 +70,21 @@ export function useMenuNavigation<T>({
   const [selectedIndex, setSelectedIndex] = useState<number>(
     autoSelectFirstItem ? 0 : -1
   )
+  const [previousOptions, setPreviousOptions] = useState({
+    query,
+    autoSelectFirstItem,
+  })
+
+  if (
+    query !== previousOptions.query ||
+    autoSelectFirstItem !== previousOptions.autoSelectFirstItem
+  ) {
+    setPreviousOptions({ query, autoSelectFirstItem })
+
+    if (query) {
+      setSelectedIndex(autoSelectFirstItem ? 0 : -1)
+    }
+  }
 
   useEffect(() => {
     const handleKeyboardNavigation = (event: KeyboardEvent) => {
@@ -190,12 +206,6 @@ export function useMenuNavigation<T>({
     orientation,
     loopOnTab,
   ])
-
-  useEffect(() => {
-    if (query) {
-      setSelectedIndex(autoSelectFirstItem ? 0 : -1)
-    }
-  }, [query, autoSelectFirstItem])
 
   return {
     selectedIndex: items.length ? selectedIndex : undefined,

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import type { Role } from '@/entities/role'
+import type { WorkspaceRole } from '@/entities/role'
 import {
   inviteMemberSchema,
   type InviteMemberFormData,
@@ -20,10 +20,9 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { Loader } from 'lucide-react'
-import { Button } from '@/shared/ui/button'
 
 type InviteMemberFormProps = {
-  roles: Role[]
+  roles: WorkspaceRole[]
   rolesLoading?: boolean
   rolesError?: string | null
   isSubmitting?: boolean
@@ -41,7 +40,6 @@ export function InviteMemberForm({
   const {
     control,
     handleSubmit,
-    formState: { errors },
   } = useForm<InviteMemberFormData>({
     resolver: zodResolver(inviteMemberSchema),
     defaultValues: {
@@ -54,8 +52,6 @@ export function InviteMemberForm({
   useEffect(() => {
     if (!errorMessage) return
   }, [errorMessage])
-
-  const hasRoles = roles.length > 0
 
   return (
     <form

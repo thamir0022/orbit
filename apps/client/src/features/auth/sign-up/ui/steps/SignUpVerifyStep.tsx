@@ -24,7 +24,6 @@ import { useCountdown } from '@/shared/lib/hooks/use-countdown'
 import { SlidingNumber } from '@/shared/ui/sliding-number'
 import { useResendEmailVerificationOtpMutation } from '../../model/use-resend-email-verification-otp.mutation'
 import { Loader } from 'lucide-react'
-import { toast } from 'sonner'
 
 export function SignUpVerifyStep() {
   // 1. Pull state and actions from the global store

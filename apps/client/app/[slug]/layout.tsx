@@ -3,7 +3,6 @@ import type { ReactNode } from 'react'
 import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
 } from '@/shared/ui/sidebar'
 
 import { AppSidebar } from '@/widgets/sidebar/ui/app-sidebar'

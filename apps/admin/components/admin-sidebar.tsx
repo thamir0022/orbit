@@ -1,11 +1,8 @@
-// components/app-sidebar.tsx
 "use client";
 
-import * as React from "react";
 import {
   BarChart3,
   Bell,
-  ChevronRight,
   CreditCard,
   Gauge,
   Shield,

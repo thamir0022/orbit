@@ -50,6 +50,11 @@ interface TooltipTriggerProps extends Omit<
   children: React.ReactNode
 }
 
+interface TooltipTriggerElementProps extends React.HTMLProps<HTMLElement> {
+  ref?: React.Ref<HTMLElement>
+  'data-tooltip-state'?: 'open' | 'closed'
+}
+
 interface TooltipContentProps extends Omit<
   React.HTMLProps<HTMLDivElement>,
   'ref'
@@ -110,9 +115,11 @@ function useTooltip({
       close: closeDelay,
     },
   })
+
   const focus = useFocus(context, {
     enabled: controlledOpen == null,
   })
+
   const dismiss = useDismiss(context)
   const role = useRole(context, { role: 'tooltip' })
 
@@ -167,6 +174,7 @@ export function Tooltip({ children, ...props }: TooltipProviderProps) {
 export const TooltipTrigger = forwardRef<HTMLElement, TooltipTriggerProps>(
   function TooltipTrigger({ children, asChild = false, ...props }, propRef) {
     const context = useTooltipContext()
+
     const childrenRef = isValidElement(children)
       ? parseInt(version, 10) >= 19
         ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -174,22 +182,27 @@ export const TooltipTrigger = forwardRef<HTMLElement, TooltipTriggerProps>(
         : // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (children as any).ref
       : undefined
+
     const ref = useMergeRefs([context.refs.setReference, propRef, childrenRef])
 
     if (asChild && isValidElement(children)) {
+      const child = children as React.ReactElement<TooltipTriggerElementProps>
+
       const dataAttributes = {
         'data-tooltip-state': context.open ? 'open' : 'closed',
-      }
+      } as const
 
-      return cloneElement(
-        children,
-        context.getReferenceProps({
-          ref,
-          ...props,
-          ...(typeof children.props === 'object' ? children.props : {}),
-          ...dataAttributes,
-        })
-      )
+      const referenceProps = context.getReferenceProps({
+        ...props,
+        ...child.props,
+      }) as Partial<TooltipTriggerElementProps>
+
+      // eslint-disable-next-line react-hooks/refs
+      return cloneElement(child, {
+        ...referenceProps,
+        ref,
+        ...dataAttributes,
+      })
     }
 
     return (

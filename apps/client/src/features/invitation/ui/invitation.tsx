@@ -47,7 +47,7 @@ export function InvitationCard({
           </Avatar>
 
           <div className="space-y-2 text-center">
-            <p className="text-sm text-muted-foreground">You've been invited</p>
+            <p className="text-sm text-muted-foreground">You&apos;ve been invited</p>
 
             <h1 className="text-2xl font-semibold tracking-tight">
               Join {invitation.workspaceName}

@@ -62,16 +62,6 @@ export const formatDateLabel = (value?: string): string => {
   }).format(date)
 }
 
-const toApiDate = (value?: string): Date | undefined => {
-  if (!value) {
-    return undefined
-  }
-
-  const [year, month, day] = value.slice(0, 10).split('-').map(Number)
-
-  return new Date(Date.UTC(year, month - 1, day))
-}
-
 export const buildFieldUpdateInput = (
   field: keyof UpdateProjectFormValues,
   value: UpdateProjectFormValues[keyof UpdateProjectFormValues],

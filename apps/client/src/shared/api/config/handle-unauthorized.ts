@@ -1,6 +1,5 @@
 import axios, {
   type AxiosRequestConfig,
-  type AxiosError,
   type AxiosResponse,
 } from 'axios'
 import { useUserStore } from '@/entities/user/model/user.store'

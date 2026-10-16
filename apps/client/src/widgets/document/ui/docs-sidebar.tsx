@@ -151,7 +151,7 @@ export function DocsSidebar({ isOpen, onClose }: DocsSidebarProps) {
                 onRetry={() => void refetch()}
               />
             ) : documents.length === 0 ? (
-              <DocumentSidebarEmpty href={newDocumentPath} />
+              <DocumentSidebarEmpty />
             ) : (
               <DocumentSidebarList
                 documents={documents}
@@ -350,14 +350,10 @@ function DocumentSidebarError({
   )
 }
 
-interface DocumentSidebarEmptyProps {
-  readonly href: string
-}
-
 /**
  * Renders the empty state shown when the user has no documents.
  */
-function DocumentSidebarEmpty({ href }: DocumentSidebarEmptyProps) {
+function DocumentSidebarEmpty() {
   return (
     <div className="min-w-0 px-2 py-8 text-center">
       <p className="text-sm font-medium">No documents yet</p>

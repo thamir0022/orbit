@@ -23,6 +23,7 @@ import {
 
 import { CreateTeamDialog } from '@/features/team/create-team'
 import { useTeamsQuery } from '@/entities/team'
+import { Spinner } from '@/shared/ui/spinner'
 
 interface TeamNavigationItem {
   readonly id: string
@@ -60,7 +61,7 @@ const TEAM_NAVIGATION_ITEMS = [
 export function NavTeams({ workspaceSlug }: NavTeamsProps) {
   const pathname = usePathname()
 
-  const { data: teams = [], isLoading, isError } = useTeamsQuery()
+  const { data: teams = [], isLoading } = useTeamsQuery()
 
   const activeTeam = TEAM_NAVIGATION_ITEMS.some(
     (team) =>
@@ -106,25 +107,29 @@ export function NavTeams({ workspaceSlug }: NavTeamsProps) {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuSub>
-                {teams.map((team) => {
-                  const teamUrl = `/${workspaceSlug}/teams/${team.id}`
+                {isLoading ? (
+                  <Spinner />
+                ) : (
+                  teams.map((team) => {
+                    const teamUrl = `/${workspaceSlug}/teams/${team.id}`
 
-                  const isActive =
-                    pathname === teamUrl || pathname.startsWith(`${teamUrl}/`)
+                    const isActive =
+                      pathname === teamUrl || pathname.startsWith(`${teamUrl}/`)
 
-                  return (
-                    <SidebarMenuSubItem key={team.id}>
-                      <SidebarMenuSubButton asChild isActive={isActive}>
-                        <Link
-                          href={teamUrl}
-                          aria-current={isActive ? 'page' : undefined}
-                        >
-                          <span className="truncate">{team.name}</span>
-                        </Link>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  )
-                })}
+                    return (
+                      <SidebarMenuSubItem key={team.id}>
+                        <SidebarMenuSubButton asChild isActive={isActive}>
+                          <Link
+                            href={teamUrl}
+                            aria-current={isActive ? 'page' : undefined}
+                          >
+                            <span className="truncate">{team.name}</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    )
+                  })
+                )}
               </SidebarMenuSub>
             </SidebarMenu>
           </SidebarGroupContent>

@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { privateHttp } from "./api/http";
+import { privateHttp } from "../lib/http";
 
 const Page = () => {
   const { data, isPending, error } = useQuery({

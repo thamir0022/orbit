@@ -7,11 +7,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
-import type { Role } from '@/entities/role'
+import type { WorkspaceRole } from '@/entities/role'
 
 type FilterWorkspaceMembersByRoleProps = {
   value: string
-  roles: Role[]
+  roles: WorkspaceRole[]
   isLoading?: boolean
   onChange: (value: string) => void
 }

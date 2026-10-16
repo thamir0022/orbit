@@ -43,7 +43,7 @@ export const InviteMemberDialog = () => {
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger>
         <Button>
           <LuUserRoundPlus />
           Invite
@@ -65,7 +65,7 @@ export const InviteMemberDialog = () => {
         />
 
         <DialogFooter>
-          <DialogClose asChild>
+          <DialogClose>
             <Button variant="outline" type="submit">
               Cancel
             </Button>

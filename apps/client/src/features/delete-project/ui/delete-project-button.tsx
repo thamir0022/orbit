@@ -5,8 +5,6 @@ import { useState } from 'react'
 import { AlertCircle, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
-import { useWorkspace } from '@/entities/workspace/model/workspace.store'
-
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import {
   AlertDialog,

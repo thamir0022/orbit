@@ -1,6 +1,4 @@
-// src/features/admin-dashboard/api/dashboard.api.ts
-import axios from "axios";
-import { axiosInstance } from "@/lib/axios.instance";
+import { httpClient } from "@/lib/http";
 
 export type ApiResponse<T> = {
   success: boolean;
@@ -58,26 +56,12 @@ export interface UsersPayload {
   };
 }
 
-export const getAllWorkspacesApi = async (): Promise<WorkspacesPayload> => {
-  try {
-    const response =
-      await axiosInstance.get<ApiResponse<WorkspacesPayload>>(
-        "/workspaces/all",
-      );
-    return response.data.data;
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) throw error.response?.data ?? error;
-    throw error;
-  }
+export const getAllWorkspacesApi = async (): Promise<WorkspaceItem[]> => {
+  const response = await httpClient.get<WorkspacesPayload>("/workspaces/all");
+  return response.data.workspaces;
 };
 
-export const getAllUsersApi = async (): Promise<UsersPayload> => {
-  try {
-    const response =
-      await axiosInstance.get<ApiResponse<UsersPayload>>("users");
-    return response.data.data;
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) throw error.response?.data ?? error;
-    throw error;
-  }
+export const getAllUsersApi = async (): Promise<UserItem[]> => {
+  const response = await httpClient.get<UsersPayload>("users");
+  return response.data.users;
 };

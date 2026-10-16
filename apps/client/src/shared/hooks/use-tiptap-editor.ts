@@ -1,12 +1,65 @@
 import type { Editor } from '@tiptap/react'
 import { useCurrentEditor, useEditorState } from '@tiptap/react'
-import { useEffect, useState } from 'react'
+import { useCallback, useSyncExternalStore } from 'react'
 
 function getActivePageEditor(editor: Editor): Editor | null {
   const storage = editor.storage as unknown as Record<string, unknown>
   const pages = storage.pages as { activeEditor?: Editor | null } | undefined
-  if (!pages || !('activeEditor' in pages)) return null
+
+  if (!pages || !('activeEditor' in pages)) {
+    return null
+  }
+
   return pages.activeEditor ?? null
+}
+
+function useActivePageEditor(mainEditor: Editor | null): Editor | null {
+  const subscribe = useCallback(
+    (onStoreChange: () => void) => {
+      if (!mainEditor) {
+        return () => {}
+      }
+
+      let subscribedPageEditor = getActivePageEditor(mainEditor)
+
+      const handlePageEditorDestroy = () => {
+        onStoreChange()
+      }
+
+      const handleMainEditorChange = () => {
+        const nextPageEditor = getActivePageEditor(mainEditor)
+
+        if (nextPageEditor !== subscribedPageEditor) {
+          subscribedPageEditor?.off('destroy', handlePageEditorDestroy)
+
+          subscribedPageEditor = nextPageEditor
+
+          subscribedPageEditor?.on('destroy', handlePageEditorDestroy)
+        }
+
+        onStoreChange()
+      }
+
+      mainEditor.on('update', handleMainEditorChange)
+      mainEditor.on('selectionUpdate', handleMainEditorChange)
+      subscribedPageEditor?.on('destroy', handlePageEditorDestroy)
+
+      return () => {
+        mainEditor.off('update', handleMainEditorChange)
+        mainEditor.off('selectionUpdate', handleMainEditorChange)
+        subscribedPageEditor?.off('destroy', handlePageEditorDestroy)
+      }
+    },
+    [mainEditor]
+  )
+
+  const getSnapshot = useCallback(() => {
+    const activeEditor = mainEditor ? getActivePageEditor(mainEditor) : null
+
+    return activeEditor && !activeEditor.isDestroyed ? activeEditor : null
+  }, [mainEditor])
+
+  return useSyncExternalStore(subscribe, getSnapshot, () => null)
 }
 
 export function useTiptapEditor(providedEditor?: Editor | null): {
@@ -17,44 +70,17 @@ export function useTiptapEditor(providedEditor?: Editor | null): {
   const { editor: coreEditor } = useCurrentEditor()
   const mainEditor = providedEditor ?? coreEditor
 
-  const [storageEditor, setStorageEditor] = useState<Editor | null>(null)
-
-  useEffect(() => {
-    if (!mainEditor) {
-      setStorageEditor(null)
-      return
-    }
-
-    const updateHandler = () =>
-      setStorageEditor(getActivePageEditor(mainEditor))
-
-    updateHandler()
-
-    mainEditor.on('update', updateHandler)
-    mainEditor.on('selectionUpdate', updateHandler)
-
-    return () => {
-      mainEditor.off('update', updateHandler)
-      mainEditor.off('selectionUpdate', updateHandler)
-    }
-  }, [mainEditor])
-
-  useEffect(() => {
-    if (!storageEditor) return
-
-    const handleDestroy = () => setStorageEditor(null)
-
-    storageEditor.on('destroy', handleDestroy)
-    return () => {
-      storageEditor.off('destroy', handleDestroy)
-    }
-  }, [storageEditor])
+  const storageEditor = useActivePageEditor(mainEditor)
 
   const editorState = useEditorState({
     editor: storageEditor ?? mainEditor,
     selector(context) {
       if (!context.editor) {
-        return { editor: null, editorState: undefined, canCommand: undefined }
+        return {
+          editor: null,
+          editorState: undefined,
+          canCommand: undefined,
+        }
       }
 
       return {

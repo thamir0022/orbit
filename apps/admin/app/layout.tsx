@@ -10,7 +10,7 @@ import {
 } from "../../../packages/ui/src/components/sidebar";
 import { AppSidebar } from "@/components/admin-sidebar";
 import { TooltipProvider } from "../../../packages/ui/src/components/tooltip";
-import { QueryProvider } from "./api/query";
+import { QueryProvider } from "../lib/query";
 import { ErrorDialog } from "@/error";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });

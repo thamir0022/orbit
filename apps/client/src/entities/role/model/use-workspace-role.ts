@@ -1,8 +1,9 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { roleKeys } from './query-keys'
+
 import { getWorkspaceRole } from '../api/role.api'
+import { roleKeys } from './query-keys'
 import type { WorkspaceRole } from './types'
 
 type UseWorkspaceRoleOptions = {
@@ -20,7 +21,7 @@ export function useWorkspaceRole(
   return useQuery<WorkspaceRole, Error>({
     queryKey: roleKeys.detail(workspaceId, roleId),
     queryFn: () => getWorkspaceRole(roleId),
-    enabled: Boolean(workspaceId) && Boolean(roleId) && enabled,
+    enabled: Boolean(workspaceId && roleId) && enabled,
     staleTime: 60_000,
     placeholderData: placeholderData ? () => placeholderData : undefined,
   })

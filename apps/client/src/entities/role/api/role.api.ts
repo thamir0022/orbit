@@ -25,5 +25,5 @@ export async function getWorkspaceRole(id: string) {
     API_ROUTES.WORKSPACES.ROLES.ROLE(id)
   )
 
-  return data
+  return data.role
 }

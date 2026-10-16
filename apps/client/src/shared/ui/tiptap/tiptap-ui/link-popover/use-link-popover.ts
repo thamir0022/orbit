@@ -53,9 +53,8 @@ export interface LinkHandlerProps {
 export function canSetLink(editor: Editor | null): boolean {
   if (!editor || !editor.isEditable) return false
 
-  // The third argument 'true' checks whether the current selection is inside an image caption, and prevents setting a link there
-  // If the selection is inside an image caption, we can't set a link
   if (isNodeTypeSelected(editor, ['image'], true)) return false
+
   try {
     return editor.can().setMark('link')
   } catch {
@@ -84,17 +83,14 @@ export function shouldShowLinkButton(props: {
 
   const linkInSchema = isMarkInSchema('link', editor)
 
-  // If hideWhenUnavailable is false, always show the button (even if disabled)
   if (!hideWhenUnavailable) {
     return true
   }
 
-  // hideWhenUnavailable is true: hide if link is not in schema
   if (!linkInSchema) {
     return false
   }
 
-  // hideWhenUnavailable is true: hide if we can't set a link (unless in code block)
   if (!editor.isActive('code')) {
     return canSetLink(editor)
   }
@@ -107,18 +103,12 @@ export function shouldShowLinkButton(props: {
  */
 export function useLinkHandler(props: LinkHandlerProps) {
   const { editor, onSetLink } = props
-  const [url, setUrl] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!editor) return
-
-    // Get URL immediately on mount
-    const { href } = editor.getAttributes('link')
-
-    if (isLinkActive(editor) && url === null) {
-      setUrl(href || '')
-    }
-  }, [editor, url])
+  const [url, setUrl] = useState<string | null>(() => {
+    if (!isLinkActive(editor)) return null
+    const { href } = editor!.getAttributes('link')
+    return href || ''
+  })
 
   useEffect(() => {
     if (!editor) return
@@ -129,6 +119,7 @@ export function useLinkHandler(props: LinkHandlerProps) {
     }
 
     editor.on('selectionUpdate', updateLinkState)
+
     return () => {
       editor.off('selectionUpdate', updateLinkState)
     }
@@ -157,6 +148,7 @@ export function useLinkHandler(props: LinkHandlerProps) {
 
   const removeLink = useCallback(() => {
     if (!editor) return
+
     editor
       .chain()
       .focus()
@@ -164,6 +156,7 @@ export function useLinkHandler(props: LinkHandlerProps) {
       .unsetLink()
       .setMeta('preventAutolink', true)
       .run()
+
     setUrl('')
   }, [editor])
 
@@ -172,6 +165,7 @@ export function useLinkHandler(props: LinkHandlerProps) {
       if (!url) return
 
       const safeUrl = sanitizeUrl(url, window.location.href)
+
       if (safeUrl !== '#') {
         window.open(safeUrl, target, features)
       }
@@ -232,40 +226,6 @@ export function useLinkState(props: {
 
 /**
  * Main hook that provides link popover functionality for Tiptap editor
- *
- * @example
- * ```tsx
- * // Simple usage
- * function MyLinkButton() {
- *   const { isVisible, canSet, isActive, Icon, label } = useLinkPopover()
- *
- *   if (!isVisible) return null
- *
- *   return <button disabled={!canSet}>Link</button>
- * }
- *
- * // Advanced usage with configuration
- * function MyAdvancedLinkButton() {
- *   const { isVisible, canSet, isActive, Icon, label } = useLinkPopover({
- *     editor: myEditor,
- *     hideWhenUnavailable: true,
- *     onSetLink: () => console.log('Link set!')
- *   })
- *
- *   if (!isVisible) return null
- *
- *   return (
- *     <MyButton
- *       disabled={!canSet}
- *       aria-label={label}
- *       aria-pressed={isActive}
- *     >
- *       <Icon />
- *       {label}
- *     </MyButton>
- *   )
- * }
- * ```
  */
 export function useLinkPopover(config?: UseLinkPopoverConfig) {
   const {

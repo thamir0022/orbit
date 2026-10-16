@@ -2,12 +2,9 @@
 
 import { cn } from "@/lib/utils";
 import { FlipWords } from "@/components/ui/flip-words";
-import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
-import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { TextEffect } from "@/components/ui/text-effect";
 import { Gruppo, Martel_Sans, Quicksand } from "next/font/google";
 import { motion, Variants } from "motion/react";
-import { Button } from "./button";
 import Link from "next/link";
 
 const quicksand = Quicksand({

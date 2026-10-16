@@ -4,7 +4,8 @@ import { resetPasswordApi } from './reset-password.api'
 
 // Centralized error handler for the feature
 const handleMutationError = (error: unknown) => {
-  toast.error('Something went wrong')
+  const msg = error instanceof Error ? error.message : 'Something went wrong'
+  toast.error(msg)
 }
 
 export function useRequestResetMutation() {

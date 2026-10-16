@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { Grid2X2, List, Search } from 'lucide-react'
 
@@ -55,7 +55,6 @@ import { ProjectPagination } from './project-pagination'
 
 import { ProjectSkeleton } from './project-skeleton'
 import { CreateProjectDialog } from '@/features/create-project'
-import { Button } from '@/shared/ui/button'
 
 interface ProjectBrowserProps {
   readonly workspaceSlug: string
@@ -100,14 +99,18 @@ export const ProjectBrowser = ({ workspaceSlug }: ProjectBrowserProps) => {
 
   const pagination = data?.pagination
 
-  const sorting: SortingState = params.sortField
-    ? [
-        {
-          id: params.sortField,
-          desc: params.sortOrder === 'desc',
-        },
-      ]
-    : []
+  const sorting: SortingState = useMemo(
+    () =>
+      params.sortField
+        ? [
+            {
+              id: params.sortField,
+              desc: params.sortOrder === 'desc',
+            },
+          ]
+        : [],
+    [params.sortField, params.sortOrder]
+  )
 
   const handleViewChange = (value: string) => {
     if (value !== 'list' && value !== 'board') {
@@ -243,7 +246,7 @@ export const ProjectBrowser = ({ workspaceSlug }: ProjectBrowserProps) => {
 
           <Separator
             orientation="vertical"
-            className="hidden h-7 my-auto shrink-0 sm:block"
+            className="my-auto hidden h-7 shrink-0 sm:block"
           />
 
           <ProjectFilters

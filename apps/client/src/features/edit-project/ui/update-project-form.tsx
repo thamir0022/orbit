@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import {
   ArrowLeft,
   CalendarDays,
-  ChevronDown,
   CircleDashed,
   CircleGauge,
   EllipsisVertical,
@@ -23,7 +22,6 @@ import {
   Controller,
   useForm,
   useWatch,
-  type FieldError as ReactHookFormFieldError,
 } from 'react-hook-form'
 
 import { useWorkspace } from '@/entities/workspace/model/workspace.store'
@@ -101,15 +99,6 @@ interface ProjectComboboxFieldProps<T extends string> {
   readonly side?:
     'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
   readonly onChange: (value: T) => void
-}
-
-interface ProjectDatePickerFieldProps {
-  readonly id: string
-  readonly label: string
-  readonly value: string
-  readonly invalid: boolean
-  readonly error?: ReactHookFormFieldError
-  readonly onChange: (value: string) => void
 }
 
 const PROJECT_TYPE_OPTIONS = Object.values(ProjectType)

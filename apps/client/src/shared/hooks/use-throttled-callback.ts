@@ -1,7 +1,7 @@
 import throttle from 'lodash.throttle'
+import { useLayoutEffect, useMemo, useRef } from 'react'
 
 import { useUnmount } from '@/shared/hooks/use-unmount'
-import { useMemo } from 'react'
 
 interface ThrottleSettings {
   leading?: boolean | undefined
@@ -25,17 +25,29 @@ const defaultOptions: ThrottleSettings = {
 export function useThrottledCallback<T extends (...args: any[]) => any>(
   fn: T,
   wait = 250,
-  dependencies: React.DependencyList = [],
+  _dependencies: React.DependencyList = [],
   options: ThrottleSettings = defaultOptions
 ): {
   (this: ThisParameterType<T>, ...args: Parameters<T>): ReturnType<T>
   cancel: () => void
   flush: () => void
 } {
+  const fnRef = useRef(fn)
+
+  useLayoutEffect(() => {
+    fnRef.current = fn
+  }, [fn])
+
   const handler = useMemo(
-    () => throttle<T>(fn, wait, options),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    dependencies
+    () =>
+      throttle<T>(
+        function (this: ThisParameterType<T>, ...args: Parameters<T>) {
+          return fnRef.current.apply(this, args)
+        } as T,
+        wait,
+        options
+      ),
+    [wait, options]
   )
 
   useUnmount(() => {

@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, Cloud, Loader2, TriangleAlert } from 'lucide-react'
+import { Check, Loader2, TriangleAlert } from 'lucide-react'
 import { type DocumentSaveStatus } from '../model/document-autosave-status'
 
 interface DocumentSaveStatusProps {

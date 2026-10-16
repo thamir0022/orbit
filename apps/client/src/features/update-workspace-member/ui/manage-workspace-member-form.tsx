@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { Role } from '@/entities/role'
+import type { WorkspaceRole } from '@/entities/role'
 import type { WorkspaceMember } from '@/entities/workspace-member'
 import { formatDateTime } from '@/shared/lib/format-date'
 import { Button } from '@/shared/ui/button'
@@ -34,7 +34,7 @@ import { RemoveWorkspaceMemberButton } from '@/features/remove-workspace-member'
 
 type ManageWorkspaceMemberFormProps = {
   member: WorkspaceMember
-  roles: Role[]
+  roles: WorkspaceRole[]
   rolesLoading?: boolean
   isSubmitting?: boolean
   errorMessage?: string | null

@@ -108,7 +108,7 @@ export const PasswordSection = () => {
       </FieldContent>
 
       <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
-        <DialogTrigger asChild>
+        <DialogTrigger>
           <Button type="button" variant="outline" size="sm">
             {actionLabel}
           </Button>

@@ -1,32 +1,16 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Controller, useForm } from 'react-hook-form'
 
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
 } from '@/shared/ui/dialog'
-import { Button } from '@/shared/ui/button'
-import { Input } from '@/shared/ui/input'
-import {
-  Field,
-  FieldContent,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from '@/shared/ui/field'
-import Link from 'next/link'
-import { zodResolver } from '@hookform/resolvers/zod'
-import OrbitLogo from '@/shared/ui/orbit-logo'
-import { SignUpFormData, signUpSchema } from '../model/sign-up.schema'
 import { useSignUpStore } from '../model/sign-up.store'
 import { Stepper } from '@/shared/ui/stepper'
 import { SignUpInitiateStep } from './steps/SignUpInitiateStep'
 import { SignUpVerifyStep } from './steps/SignUpVerifyStep'
-import { SignUpDetailsStep } from './steps/SignUpDetailsStep'
 import { useState } from 'react'
 import {
   AlertDialog,

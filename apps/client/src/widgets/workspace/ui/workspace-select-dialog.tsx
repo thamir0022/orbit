@@ -32,12 +32,6 @@ export function WorkspaceSelectionDialog({
 }: WorkspaceSelectionDialogProps) {
   const [showCloseWarning, setShowCloseWarning] = React.useState(false)
 
-  React.useEffect(() => {
-    if (open) {
-      setShowCloseWarning(false)
-    }
-  }, [open])
-
   const handleCloseAttempt = () => {
     if (isPending) {
       return
@@ -51,36 +45,27 @@ export function WorkspaceSelectionDialog({
       return
     }
 
+    setShowCloseWarning(false)
     onOpenChange(false)
   }
 
   return (
     <Dialog
       open={open}
-      onOpenChange={(nextOpen) => {
+      onOpenChange={(nextOpen, eventDetails) => {
         if (!nextOpen) {
+          eventDetails.cancel()
           handleCloseAttempt()
           return
         }
 
+        setShowCloseWarning(false)
         onOpenChange(true)
       }}
     >
       <DialogContent
         className="w-[calc(100%-2rem)] max-w-md gap-0 overflow-hidden p-0"
         showCloseButton={false}
-        onEscapeKeyDown={(event) => {
-          event.preventDefault()
-          handleCloseAttempt()
-        }}
-        onPointerDownOutside={(event) => {
-          event.preventDefault()
-          handleCloseAttempt()
-        }}
-        onInteractOutside={(event) => {
-          event.preventDefault()
-          handleCloseAttempt()
-        }}
       >
         <DialogHeader className="border-b px-6 py-5 text-center">
           <DialogTitle className="text-lg text-center">

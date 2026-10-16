@@ -10,4 +10,4 @@ const axios = AxiosBuilder.create({
   .use(loggingInterceptor())
   .build();
 
-export const privateHttp = new HttpClient(axios);
+export const httpClient = new HttpClient(axios);

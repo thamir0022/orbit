@@ -1,9 +1,6 @@
 import {
   LayoutDashboard,
   FolderKanban,
-  CheckSquare,
-  Users,
-  MessageSquare,
   Settings,
   Folder,
 } from 'lucide-react'

@@ -65,7 +65,7 @@ export function CreateWorkspaceRoleDialog({
         if (!nextOpen) setErrorMessage(null)
       }}
     >
-      <DialogTrigger asChild>
+      <DialogTrigger>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
           Create role

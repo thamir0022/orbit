@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+
 import {
   EditorContent,
   EditorContext,
@@ -221,12 +222,24 @@ export function SimpleEditor({
 }: SimpleEditorProps) {
   const isMobile = useIsBreakpoint()
   const { height } = useWindowSize()
+
   const [mobileView, setMobileView] = useState<'main' | 'highlighter' | 'link'>(
     'main'
   )
+  const [previousIsMobile, setPreviousIsMobile] = useState(isMobile)
   const [isSearchAndReplaceOpen, setIsSearchAndReplaceOpen] = useState(false)
+  const [toolbarHeight, setToolbarHeight] = useState(0)
+
   const toolbarRef = useRef<HTMLDivElement>(null)
   const searchAndReplaceButtonRef = useRef<HTMLButtonElement>(null)
+
+  if (previousIsMobile !== isMobile) {
+    setPreviousIsMobile(isMobile)
+
+    if (!isMobile && mobileView !== 'main') {
+      setMobileView('main')
+    }
+  }
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -276,16 +289,28 @@ export function SimpleEditor({
     },
   })
 
+  useEffect(() => {
+    const toolbarElement = toolbarRef.current
+
+    if (!toolbarElement || typeof ResizeObserver === 'undefined') {
+      return
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      setToolbarHeight(toolbarElement.getBoundingClientRect().height)
+    })
+
+    resizeObserver.observe(toolbarElement)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [])
+
   const rect = useCursorVisibility({
     editor,
-    overlayHeight: toolbarRef.current?.getBoundingClientRect().height ?? 0,
+    overlayHeight: toolbarHeight,
   })
-
-  useEffect(() => {
-    if (!isMobile && mobileView !== 'main') {
-      setMobileView('main')
-    }
-  }, [isMobile, mobileView])
 
   const openSearchAndReplace = useCallback(() => {
     setMobileView('main')

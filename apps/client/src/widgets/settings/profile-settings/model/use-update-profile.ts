@@ -4,7 +4,6 @@ import {
   type UpdateProfilePayload,
 } from '@/entities/user/api/update-profile'
 import { userKeys } from '@/entities/user/model/user.keys'
-import { User } from '@/entities/user/model/user.types'
 import { useUserActions } from '@/entities/user/model/user.store'
 import { toast } from 'sonner'
 

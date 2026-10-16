@@ -67,7 +67,7 @@ export function WorkspaceSelectionView() {
           <h3 className="text-xl font-semibold">No workspaces found</h3>
 
           <p className="mt-2 mb-6 max-w-sm text-sm text-muted-foreground">
-            You don't belong to any active workspaces yet. Create your first
+            You don&apos;t belong to any active workspaces yet. Create your first
             workspace to get started.
           </p>
 

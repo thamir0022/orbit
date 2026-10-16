@@ -1,4 +1,5 @@
 'use client'
+
 import { useEffect, useId } from 'react'
 import {
   MotionValue,
@@ -14,7 +15,7 @@ const TRANSITION = {
   stiffness: 280,
   damping: 18,
   mass: 0.3,
-}
+} as const
 
 function Digit({ value, place }: { value: number; place: number }) {
   const valueRoundedToPlace = Math.floor(value / place) % 10
@@ -41,6 +42,7 @@ function Number({ mv, number }: { mv: MotionValue<number>; number: number }) {
 
   const y = useTransform(mv, (latest) => {
     if (!bounds.height) return 0
+
     const placeValue = latest % 10
     const offset = (10 + number - placeValue) % 10
     let memo = offset * bounds.height
@@ -52,7 +54,7 @@ function Number({ mv, number }: { mv: MotionValue<number>; number: number }) {
     return memo
   })
 
-  // don't render the animated number until we know the height
+  // Don't render the animated number until we know the height.
   if (!bounds.height) {
     return (
       <span ref={ref} className="invisible absolute">

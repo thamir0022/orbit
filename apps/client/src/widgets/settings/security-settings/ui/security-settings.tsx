@@ -69,7 +69,7 @@ export const SecuritySettings = () => {
               )}
 
               <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
-                <DialogTrigger asChild>
+                <DialogTrigger>
                   <Button type="button" variant="outline" size="sm">
                     Change
                   </Button>

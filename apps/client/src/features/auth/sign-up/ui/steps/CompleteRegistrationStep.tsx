@@ -13,7 +13,6 @@ import {
   signUpDetailsSchema,
   type ProfileStepData,
 } from '../../model/sign-up-details.schema'
-import { useSignUpDetailsMutation } from '../../api/sign-up-details.mutation'
 import PasswordField from '@/shared/ui/PasswordField'
 import { useCompleteRegistrationMutation } from '../../api/complete-registration.mutation'
 

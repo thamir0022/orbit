@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { Role } from '@/entities/role'
+import type { WorkspaceRole } from '@/entities/role'
 import type { WorkspaceMember } from '@/entities/workspace-member'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogTrigger } from '@/shared/ui/dialog'
@@ -10,7 +10,7 @@ import { LuUserRoundCog } from 'react-icons/lu'
 
 type ManageWorkspaceMemberButtonProps = {
   member: WorkspaceMember
-  roles: Role[]
+  roles: WorkspaceRole[]
   rolesLoading?: boolean
 }
 
@@ -23,7 +23,7 @@ export function ManageWorkspaceMemberButton({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger>
         <Button
           type="button"
           variant="outline"

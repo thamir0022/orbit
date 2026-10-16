@@ -36,7 +36,7 @@ export function WorkspaceRolePermissionsSelector({
 }: WorkspaceRolePermissionsSelectorProps) {
   const groups = groupPermissionsByResource(permissions)
   const selectedCount = value.length
-  const totalCount = permissions.length
+  // const totalCount = permissions.length
 
   function togglePermission(permissionId: string, checked: boolean) {
     if (checked) {

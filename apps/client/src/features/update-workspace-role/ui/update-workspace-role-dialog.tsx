@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
+
 import {
   Dialog,
   DialogContent,
@@ -9,11 +10,14 @@ import {
   DialogTitle,
 } from '@/shared/ui/dialog'
 import { ScrollArea } from '@/shared/ui/scroll-area'
+
 import { useWorkspacePermissions } from '@/entities/permission'
 import { useWorkspaceRole } from '@/entities/role'
 import type { WorkspaceRole } from '@/entities/role'
+
 import { WorkspaceRoleForm } from '@/features/workspace-role-form'
 import type { WorkspaceRoleFormValues } from '@/features/workspace-role-form'
+
 import { useUpdateWorkspaceRoleMutation } from '../model/use-update-workspace-role'
 
 type UpdateWorkspaceRoleDialogProps = {
@@ -47,18 +51,21 @@ export function UpdateWorkspaceRoleDialog({
   const permissionsQuery = useWorkspacePermissions(workspaceId, {
     enabled: open,
   })
+
   const updateRoleMutation = useUpdateWorkspaceRoleMutation()
 
-  const roleForForm = useMemo(
-    () => roleQuery.data ?? role,
+  const initialValues = useMemo(
+    () => toFormValues(roleQuery.data ?? role),
     [roleQuery.data, role]
   )
 
-  useEffect(() => {
-    if (!open) {
+  function handleOpenChange(nextOpen: boolean) {
+    if (!nextOpen) {
       setErrorMessage(null)
     }
-  }, [open])
+
+    onOpenChange(nextOpen)
+  }
 
   async function handleSubmit(values: WorkspaceRoleFormValues) {
     setErrorMessage(null)
@@ -69,20 +76,16 @@ export function UpdateWorkspaceRoleDialog({
         input: values,
       })
 
-      onOpenChange(false)
+      handleOpenChange(false)
     } catch (error) {
-      console.log(error)
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Failed to update role.'
+      )
     }
   }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(nextOpen) => {
-        onOpenChange(nextOpen)
-        if (!nextOpen) setErrorMessage(null)
-      }}
-    >
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Manage role</DialogTitle>
@@ -91,14 +94,14 @@ export function UpdateWorkspaceRoleDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {open && roleQuery.isLoading ? (
+        {roleQuery.isLoading ? (
           <div className="space-y-4 rounded-2xl border p-4">
             Loading role details...
           </div>
         ) : (
           <ScrollArea className="max-h-[80vh] pr-4">
             <WorkspaceRoleForm
-              initialValues={toFormValues(roleForForm)}
+              initialValues={initialValues}
               permissions={permissionsQuery.data ?? []}
               permissionsLoading={permissionsQuery.isLoading}
               permissionsError={
@@ -108,7 +111,7 @@ export function UpdateWorkspaceRoleDialog({
               errorMessage={errorMessage}
               submitLabel="Save changes"
               onSubmit={handleSubmit}
-              onCancel={() => onOpenChange(false)}
+              onCancel={() => handleOpenChange(false)}
             />
           </ScrollArea>
         )}

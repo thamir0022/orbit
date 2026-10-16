@@ -81,9 +81,13 @@ export const useProjectFilters = () => {
 
   const [search, setSearch] = useState(searchFromUrl)
 
-  useEffect(() => {
+  const [previousSearchFromUrl, setPreviousSearchFromUrl] =
+    useState(searchFromUrl)
+
+  if (searchFromUrl !== previousSearchFromUrl) {
+    setPreviousSearchFromUrl(searchFromUrl)
     setSearch(searchFromUrl)
-  }, [searchFromUrl])
+  }
 
   const updateParams = useCallback(
     (

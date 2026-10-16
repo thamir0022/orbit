@@ -5,7 +5,6 @@ import {
 import { userKeys } from '@/entities/user/model/user.keys'
 import { useUserActions } from '@/entities/user/model/user.store'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { isAxiosError } from 'axios'
 import { toast } from 'sonner'
 
 export const useChangePasswordMutation = () => {

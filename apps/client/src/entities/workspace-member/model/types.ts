@@ -4,6 +4,7 @@ export interface WorkspaceMember {
   status: string
   userId: string
   displayName: string
+  avatarUrl?: string
   email: string
   roleId: string
   roleName: string
