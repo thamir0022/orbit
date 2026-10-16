@@ -23,7 +23,7 @@ const Layout = async ({ children, params }: WorkspaceLayoutProps) => {
 
         <SidebarInset className="min-h-0 min-w-0 overflow-hidden">
           <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col">
-            <div className="flex min-h-0 min-w-0 flex-1">{children}</div>
+            <div className="flex min-h-0 min-w-0 flex-1 p-4">{children}</div>
           </div>
         </SidebarInset>
       </SidebarProvider>

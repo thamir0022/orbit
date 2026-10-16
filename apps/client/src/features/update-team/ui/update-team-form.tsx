@@ -175,7 +175,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
   const serverError = errors.root?.serverError
 
   return (
-    <div className="mx-auto size-full max-w-7xl md:p-6">
+    <div className="mx-auto size-full">
       <div className="mb-4">
         <Link href={teamsPath}>
           <Button type="button" variant="ghost" size="sm">
@@ -260,7 +260,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
         )}
       >
         <section aria-label="Team overview" className="min-w-0">
-          <Card className="min-h-154 w-full overflow-hidden rounded-2xl shadow-sm">
+          <Card className="h-158.5 w-full overflow-hidden rounded-2xl shadow-sm">
             <CardHeader>
               <div className="flex min-w-0 items-center gap-4">
                 <Avatar className="size-16 shrink-0">
@@ -380,7 +380,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
 
             <CardFooter className="mt-auto border-t">
               <div className="flex w-full items-center justify-between gap-6 text-xs">
-                <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                <div className="flex min-w-0 flex-wrap items-center gap-x-1 gap-y-1">
                   <span>Created by</span>
 
                   <div className="flex items-center gap-1.5">

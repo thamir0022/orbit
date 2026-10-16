@@ -366,7 +366,7 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
   const startDateId = useId()
   const targetEndDateId = useId()
   return (
-    <div className="mx-auto w-full max-w-7xl md:p-6">
+    <div className="mx-auto w-full">
       {/* Project navigation */}
       <div className="mb-4">
         <div>
@@ -438,7 +438,7 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
       >
         {/* Main content */}
         <section aria-label="Project overview" className="min-w-0">
-          <Card className="min-h-154 w-full overflow-hidden rounded-2xl shadow-sm">
+          <Card className="min-h-158.5 w-full overflow-hidden rounded-2xl shadow-sm">
             <CardHeader>
               <div className="flex min-w-0 items-center gap-4">
                 <Avatar className="size-16 shrink-0">
