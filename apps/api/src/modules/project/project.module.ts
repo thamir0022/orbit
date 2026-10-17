@@ -21,10 +21,6 @@ import {
   GetProjectsUseCase,
 } from './application/usecases/get-projects'
 import {
-  ProjectCounterModel,
-  ProjectCounterSchema,
-} from './infrastructure/persistance/mongoose/schemas/project-counter.schema'
-import {
   GET_PROJECT_USE_CASE,
   GetProjectUseCase,
 } from './application/usecases/get-project'
@@ -44,10 +40,6 @@ import {
       {
         name: ProjectModel.name,
         schema: ProjectSchema,
-      },
-      {
-        name: ProjectCounterModel.name,
-        schema: ProjectCounterSchema,
       },
     ]),
 

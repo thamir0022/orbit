@@ -12,10 +12,6 @@ import { WorkspaceId } from '@/modules/workspace/domain'
 import { ITransactionManager, TRANSACTION_MANAGER } from '@/shared/application'
 
 import {
-  PROJECT_COUNTER_REPOSITORY,
-  ProjectCounterRepository,
-} from '../../ports/project-counter-repository.port'
-import {
   PROJECT_QUERY_REPOSITORY,
   ProjectQueryRepository,
 } from '../../ports/project-query-repository.port'
@@ -35,9 +31,6 @@ export class CreateProjectUseCase implements ICreateProjectUseCase {
     @Inject(PROJECT_REPOSITORY)
     private readonly projectRepository: ProjectRepository,
 
-    @Inject(PROJECT_COUNTER_REPOSITORY)
-    private readonly projectCounterRepository: ProjectCounterRepository,
-
     @Inject(PROJECT_QUERY_REPOSITORY)
     private readonly projectQueryRepository: ProjectQueryRepository,
 
@@ -54,12 +47,7 @@ export class CreateProjectUseCase implements ICreateProjectUseCase {
 
     const project = await this.transactionManager.executeTransaction(
       async (session) => {
-        const number = await this.projectCounterRepository.nextNumber(
-          workspaceId,
-          { session }
-        )
-
-        const projectKey = ProjectKey.generate(input.name, number)
+        const projectKey = ProjectKey.generate(input.name)
 
         const leadId =
           input.leadId !== undefined && input.leadId !== null

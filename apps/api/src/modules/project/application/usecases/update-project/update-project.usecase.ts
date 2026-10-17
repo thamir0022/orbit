@@ -47,7 +47,7 @@ export class UpdateProjectUseCase implements IUpdateProjectUseCase {
 
   async execute(input: UpdateProjectInput): Promise<UpdateProjectOutput> {
     const workspaceId = WorkspaceId.create(input.workspaceId)
-    const projectKey = ProjectKey.fromString(input.key)
+    const projectKey = ProjectKey.create(input.key)
 
     const project = await this.projectRepository.findByWorkspaceIdAndKey({
       workspaceId,
