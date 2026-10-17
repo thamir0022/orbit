@@ -5,7 +5,6 @@ import {
   Get,
   Inject,
   Param,
-  ParseUUIDPipe,
   Post,
   Put,
 } from '@nestjs/common'
@@ -102,7 +101,7 @@ export class TeamController {
     return this.getTeamsUseCase.execute({ workspaceId })
   }
 
-  @Get(':teamId')
+  @Get(':key')
   @ResponseMessage(TeamResponseMessage.TEAM_FETCHED)
   async getTeam(
     @CurrentAuth() auth: AuthContext,
@@ -110,28 +109,22 @@ export class TeamController {
   ): Promise<GetTeamResponse> {
     return this.getTeamUseCase.execute({
       workspaceId: auth.workspaceId!,
-      teamId: req.teamId,
+      teamKey: req.teamKey,
     })
   }
 
-  @Put(':teamId')
+  @Put(':key')
   @ResponseMessage(TeamResponseMessage.TEAM_UPDATED)
   async updateTeam(
     @CurrentAuth('workspaceId') workspaceId: string,
-    @Param(
-      'teamId',
-      new ParseUUIDPipe({
-        version: '7',
-      })
-    )
-    teamId: string,
+    @Param() teamKey: string,
     @Body() req: UpdateTeamRequest
   ): Promise<UpdateTeamResponse> {
     const { name, description, avatarUrl, leadId, status } = req
 
     return this.updateTeamUseCase.execute({
       workspaceId,
-      teamId,
+      teamKey,
       name,
       description,
       avatarUrl,
@@ -140,70 +133,52 @@ export class TeamController {
     })
   }
 
-  @Delete(':teamId')
+  @Delete(':key')
   @ResponseMessage(TeamResponseMessage.TEAM_DELETED)
   async deleteTeam(
     @CurrentAuth() auth: AuthContext,
-    @Param(
-      'teamId',
-      new ParseUUIDPipe({
-        version: '7',
-      })
-    )
-    teamId: string
+    @Param('key') teamKey: string
   ) {
     return this.deleteTeamUseCase.execute({
       workspaceId: auth.workspaceId!,
       userId: auth.userId,
-      teamId,
+      teamKey,
     })
   }
 
-  @Post(':teamId/members')
+  @Post(':key/members')
   async addTeamMembers(
     @CurrentAuth() auth: AuthContext,
-    @Param(
-      'teamId',
-      new ParseUUIDPipe({
-        version: '7',
-      })
-    )
-    teamId: string,
+    @Param() teamKey: string,
     @Body() req: AddTeamMembersRequest
   ): Promise<AddTeamMembersResponse> {
     return this.addTeamMembersUseCase.execute({
       workspaceId: auth.workspaceId!,
-      teamId,
+      teamKey,
       actorId: auth.userId,
       memberIds: req.userIds,
     })
   }
 
-  @Get(':teamId/members')
+  @Get(':key/members')
   async getTeamMembers(
     @CurrentAuth('workspaceId') workspaceId: string,
-    @Param(
-      'teamId',
-      new ParseUUIDPipe({
-        version: '7',
-      })
-    )
-    teamId: string
+    @Param() teamKey: string
   ) {
     return this.getTeamMembersUseCase.execute({
       workspaceId,
-      teamId,
+      teamKey,
     })
   }
 
-  @Delete(':teamId/members/:memberId')
+  @Delete(':key/members/:memberId')
   async removeTeamMember(
     @CurrentAuth() auth: AuthContext,
     @Param() param: RemoveTeamMemberRequest
   ) {
     return this.removeTeamMemberUseCase.execute({
       workspaceId: auth.workspaceId!,
-      teamId: param.teamId,
+      teamKey: param.teamKey,
       memberId: param.memberId,
       actorId: auth.userId,
     })

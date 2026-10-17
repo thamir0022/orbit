@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { GetTeamInput, GetTeamOutput } from '../dtos'
 import { IGetTeamUseCase } from './get-team.interface'
-import { TeamId } from '../../domain/value-objects/team-id.vo'
 import { WorkspaceId } from '@/modules/workspace/domain'
 import { TeamNotFoundException } from '../../domain/exceptions'
 import {
   TEAM_QUERY_REPOSITORY,
   TeamQueryRepository,
 } from '../ports/team-query-repository.port'
+import { TeamKey } from '../../domain/value-objects/team-key.vo'
 
 @Injectable()
 export class GetTeamUseCase implements IGetTeamUseCase {
@@ -18,11 +18,11 @@ export class GetTeamUseCase implements IGetTeamUseCase {
 
   async execute(input: GetTeamInput): Promise<GetTeamOutput> {
     const workspaceId = WorkspaceId.create(input.workspaceId)
-    const teamId = TeamId.create(input.teamId)
+    const key = TeamKey.create(input.teamKey)
 
-    const team = await this.teamQueryRepo.findByWorkspaceIdAndId({
+    const team = await this.teamQueryRepo.findByWorkspaceIdAndKey({
       workspaceId,
-      teamId,
+      key,
     })
 
     if (!team) throw new TeamNotFoundException()

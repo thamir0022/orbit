@@ -1,6 +1,6 @@
 export interface AddTeamMembersInput {
   readonly workspaceId: string
-  readonly teamId: string
+  readonly teamKey: string
   readonly memberIds: string[]
   readonly actorId: string
 }

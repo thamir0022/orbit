@@ -6,7 +6,6 @@ import {
   WorkspaceMemberStatus,
   WorkspaceStatus,
 } from '@/modules/workspace/domain'
-import { TeamId } from '../../domain/value-objects/team-id.vo'
 import {
   IWorkspaceMemberRepository,
   IWorkspaceRepository,
@@ -29,6 +28,7 @@ import {
   TeamQueryRepository,
 } from '../ports/team-query-repository.port'
 import { UserId } from '@/modules/user/domain'
+import { TeamKey } from '../../domain/value-objects/team-key.vo'
 
 @Injectable()
 export class UpdateTeamUseCase implements IUpdateTeamUseCase {
@@ -46,7 +46,7 @@ export class UpdateTeamUseCase implements IUpdateTeamUseCase {
   async execute(input: UpdateTeamInput): Promise<UpdateTeamOutput> {
     const workspaceId = WorkspaceId.create(input.workspaceId)
 
-    const teamId = TeamId.create(input.teamId)
+    const key = TeamKey.create(input.teamKey)
 
     const workspace = await this.workspaceRepository.findById(workspaceId)
 
@@ -55,9 +55,9 @@ export class UpdateTeamUseCase implements IUpdateTeamUseCase {
     if (workspace.status !== WorkspaceStatus.ACTIVE)
       throw new WorkspaceNotActiveException(workspace.status)
 
-    const team = await this.teamRepository.findByWorkspaceIdAndId({
+    const team = await this.teamRepository.findByWorkspaceIdAndKey({
       workspaceId,
-      teamId,
+      key,
     })
 
     if (!team) throw new TeamNotFoundException()
@@ -97,9 +97,9 @@ export class UpdateTeamUseCase implements IUpdateTeamUseCase {
 
     await this.teamRepository.save(team)
 
-    const result = await this.teamQueryRepository.findByWorkspaceIdAndId({
+    const result = await this.teamQueryRepository.findByWorkspaceIdAndKey({
       workspaceId,
-      teamId: team.id,
+      key: team.key,
     })
 
     return {

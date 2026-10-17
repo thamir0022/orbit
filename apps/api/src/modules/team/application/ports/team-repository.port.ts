@@ -2,10 +2,11 @@ import { IBaseRepository, ITransactionOptions } from '@/shared/application'
 import { Team } from '../../domain/entities/team.entity'
 import { TeamId } from '../../domain/value-objects/team-id.vo'
 import { WorkspaceId } from '@/modules/workspace/domain'
+import { TeamKey } from '../../domain/value-objects/team-key.vo'
 
-export interface FindTeamByWorkspaceIdAndIdProps {
+export interface FindTeamByWorkspaceIdAndKeyProps {
   workspaceId: WorkspaceId
-  teamId: TeamId
+  key: TeamKey
 }
 
 export interface FindTeamByWorkspaceIdAndNameProps {
@@ -19,8 +20,8 @@ export interface TeamRepository extends IBaseRepository<Team, TeamId> {
     options?: ITransactionOptions
   ): Promise<Team[]>
 
-  findByWorkspaceIdAndId(
-    props: FindTeamByWorkspaceIdAndIdProps,
+  findByWorkspaceIdAndKey(
+    props: FindTeamByWorkspaceIdAndKeyProps,
     options?: ITransactionOptions
   ): Promise<Team | null>
 

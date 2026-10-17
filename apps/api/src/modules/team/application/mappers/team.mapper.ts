@@ -4,6 +4,7 @@ import { TeamDocument } from '../../infrastructure/persistance/schemas/team.sche
 import { TeamId } from '../../domain/value-objects/team-id.vo'
 import { WorkspaceId } from '@/modules/workspace/domain'
 import { UserId } from '@/modules/user/domain'
+import { TeamKey } from '../../domain/value-objects/team-key.vo'
 
 export class TeamMapper {
   static toDomainDto(document: TeamDocument): Team {
@@ -11,6 +12,7 @@ export class TeamMapper {
       id: TeamId.fromString(document.id),
       workspaceId: WorkspaceId.fromString(document.workspaceId),
       name: document.name,
+      key: TeamKey.create(document.key),
       description: document.description,
       avatarUrl: document.avatarUrl,
       leadId: document.leadId ? UserId.fromString(document.leadId) : null,

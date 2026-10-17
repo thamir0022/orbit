@@ -42,6 +42,7 @@ import { TEAM_REPOSITORY, TeamRepository } from '../ports/team-repository.port'
 
 import { type CreateTeamInput, type CreateTeamOutput } from '../dtos'
 import { ICreateTeamUseCase } from './create-team.interface'
+import { TeamKey } from '../../domain/value-objects/team-key.vo'
 
 @Injectable()
 export class CreateTeamUseCase implements ICreateTeamUseCase {
@@ -161,9 +162,12 @@ export class CreateTeamUseCase implements ICreateTeamUseCase {
      */
     const team = await this.transactionManager.executeTransaction(
       async (session) => {
+        const key = TeamKey.generate(input.name)
+
         const newTeam = Team.create({
           workspaceId: workspaceId.value,
           name: input.name,
+          key,
           description: input.description,
           avatarUrl: input.avatarUrl,
           leadId: leadId?.value,
@@ -200,9 +204,9 @@ export class CreateTeamUseCase implements ICreateTeamUseCase {
      * query repository so the response contains the
      * client-facing projection.
      */
-    const result = await this.teamQueryRepository.findByWorkspaceIdAndId({
+    const result = await this.teamQueryRepository.findByWorkspaceIdAndKey({
       workspaceId,
-      teamId: team.id,
+      key: team.key,
     })
 
     if (!result) {

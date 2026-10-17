@@ -2,7 +2,7 @@ import { TeamId } from '../../../domain/value-objects/team-id.vo'
 import { Team } from '../../../domain/entities/team.entity'
 import { TeamMapper } from '../../../application/mappers/team.mapper'
 import {
-  FindTeamByWorkspaceIdAndIdProps,
+  FindTeamByWorkspaceIdAndKeyProps,
   FindTeamByWorkspaceIdAndNameProps,
   TeamRepository,
 } from '../../../application/ports/team-repository.port'
@@ -65,15 +65,15 @@ export class MongoTeamRepository implements TeamRepository {
     return documents.map((doc) => TeamMapper.toDomainDto(doc))
   }
 
-  async findByWorkspaceIdAndId(
-    props: FindTeamByWorkspaceIdAndIdProps,
+  async findByWorkspaceIdAndKey(
+    props: FindTeamByWorkspaceIdAndKeyProps,
     options?: ITransactionOptions
   ): Promise<Team | null> {
     const document = await this.teamModel
       .findOne(
         {
           workspaceId: props.workspaceId.value,
-          id: props.teamId.value,
+          key: props.key.value,
           deletedAt: null,
         },
         null,

@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { IDeleteTeamUseCase } from './delete-team.interface'
 import { DeleteTeamInput } from '../dtos'
-import { TeamId } from '../../domain/value-objects/team-id.vo'
 import { WorkspaceId, WorkspaceStatus } from '@/modules/workspace/domain'
 import { UserId } from '@/modules/user/domain'
 import {
@@ -14,6 +13,7 @@ import {
   WorkspaceNotFoundException,
 } from '@/modules/workspace/domain/exceptions/workspace.exception'
 import { TeamNotFoundException } from '../../domain/exceptions'
+import { TeamKey } from '../../domain/value-objects/team-key.vo'
 
 @Injectable()
 export class DeleteTeamUseCase implements IDeleteTeamUseCase {
@@ -26,7 +26,7 @@ export class DeleteTeamUseCase implements IDeleteTeamUseCase {
 
   async execute(input: DeleteTeamInput): Promise<void> {
     const workspaceId = WorkspaceId.create(input.workspaceId)
-    const teamId = TeamId.create(input.teamId)
+    const key = TeamKey.create(input.teamKey)
     const userId = UserId.create(input.userId)
 
     const workspace = await this.workspaceRepo.findById(workspaceId)
@@ -36,9 +36,9 @@ export class DeleteTeamUseCase implements IDeleteTeamUseCase {
     if (workspace.status !== WorkspaceStatus.ACTIVE)
       throw new WorkspaceNotActiveException(workspace.status)
 
-    const team = await this.teamRepo.findByWorkspaceIdAndId({
+    const team = await this.teamRepo.findByWorkspaceIdAndKey({
       workspaceId,
-      teamId,
+      key,
     })
 
     if (!team) throw new TeamNotFoundException()

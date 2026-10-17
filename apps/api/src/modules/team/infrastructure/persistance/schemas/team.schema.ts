@@ -33,6 +33,15 @@ export class TeamModel {
   name!: string
 
   @Prop({
+    required: true,
+    uppercase: true,
+    trim: true,
+    maxlength: 10,
+    immutable: true,
+  })
+  key!: string
+
+  @Prop({
     trim: true,
   })
   description?: string

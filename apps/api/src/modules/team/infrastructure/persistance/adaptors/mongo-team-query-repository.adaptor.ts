@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 import { ITransactionOptions } from '@/shared/application'
 import {
-  FindTeamByWorkspaceIdAndIdQueryProps,
+  FindTeamByWorkspaceIdAndKeyQueryProps,
   TeamQueryRepository,
 } from '../../../application/ports/team-query-repository.port'
 import { TeamDocument, TeamModel } from '../schemas/team.schema'
@@ -117,8 +117,8 @@ export class MongoTeamQueryRepository implements TeamQueryRepository {
       .exec()
   }
 
-  async findByWorkspaceIdAndId(
-    props: FindTeamByWorkspaceIdAndIdQueryProps,
+  async findByWorkspaceIdAndKey(
+    props: FindTeamByWorkspaceIdAndKeyQueryProps,
     options?: ITransactionOptions
   ): Promise<TeamListItemOutput | null> {
     const [team] = await this.teamModel
@@ -126,7 +126,7 @@ export class MongoTeamQueryRepository implements TeamQueryRepository {
         {
           $match: {
             workspaceId: new UUID(props.workspaceId.value),
-            id: new UUID(props.teamId.value),
+            key: props.key.value,
             deletedAt: null,
           },
         },

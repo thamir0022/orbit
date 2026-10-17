@@ -11,7 +11,6 @@ import {
   WORKSPACE_REPOSITORY,
 } from '@/modules/workspace/application'
 import { WorkspaceId, WorkspaceStatus } from '@/modules/workspace/domain'
-import { TeamId } from '../../domain/value-objects/team-id.vo'
 import {
   WorkspaceNotActiveException,
   WorkspaceNotFoundException,
@@ -20,6 +19,7 @@ import {
   TeamInactiveException,
   TeamNotFoundException,
 } from '../../domain/exceptions'
+import { TeamKey } from '../../domain/value-objects/team-key.vo'
 
 @Injectable()
 export class GetTeamMembersUseCase implements IGetTeamMembersUseCase {
@@ -34,13 +34,13 @@ export class GetTeamMembersUseCase implements IGetTeamMembersUseCase {
 
   async execute(input: GetTeamMembersInput): Promise<GetTeamMembersOutput> {
     const workspaceId = WorkspaceId.create(input.workspaceId)
-    const teamId = TeamId.create(input.teamId)
+    const key = TeamKey.create(input.teamKey)
 
     const [workspace, team] = await Promise.all([
       this.workspaceRepository.findById(workspaceId),
-      this.teamRepository.findByWorkspaceIdAndId({
+      this.teamRepository.findByWorkspaceIdAndKey({
         workspaceId,
-        teamId,
+        key,
       }),
     ])
 
@@ -56,7 +56,7 @@ export class GetTeamMembersUseCase implements IGetTeamMembersUseCase {
     const members =
       await this.teamMemberQueryRepository.findByWorkspaceIdAndTeamId({
         workspaceId,
-        teamId,
+        teamId: team.id,
       })
 
     return { members }

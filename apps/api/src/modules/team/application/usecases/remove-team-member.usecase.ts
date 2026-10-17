@@ -15,13 +15,13 @@ import {
   WorkspaceNotActiveException,
   WorkspaceNotFoundException,
 } from '@/modules/workspace/domain/exceptions/workspace.exception'
-import { TeamId } from '../../domain/value-objects/team-id.vo'
 import { UserId } from '@/modules/user/domain'
 import {
   TeamInactiveException,
   TeamMemberNotFoundException,
   TeamNotFoundException,
 } from '../../domain/exceptions'
+import { TeamKey } from '../../domain/value-objects/team-key.vo'
 
 @Injectable()
 export class RemoveTeamMemberUseCase implements IRemoveTeamMemberUseCase {
@@ -44,21 +44,24 @@ export class RemoveTeamMemberUseCase implements IRemoveTeamMemberUseCase {
     if (workspace.status !== WorkspaceStatus.ACTIVE)
       throw new WorkspaceNotActiveException(workspace.status)
 
-    const teamId = TeamId.create(input.teamId)
+    const key = TeamKey.create(input.teamKey)
     const memberId = UserId.create(input.memberId)
 
-    const [team, teamMember] = await Promise.all([
-      this.teamRepository.findByWorkspaceIdAndId({ workspaceId, teamId }),
-      this.teamMemberRepository.findByWorkspaceIdAndTeamIdAndUserId({
-        workspaceId,
-        teamId,
-        userId: memberId,
-      }),
-    ])
+    const team = await this.teamRepository.findByWorkspaceIdAndKey({
+      workspaceId,
+      key,
+    })
 
     if (!team) throw new TeamNotFoundException()
 
     if (!team.isActive) throw new TeamInactiveException()
+
+    const teamMember =
+      await this.teamMemberRepository.findByWorkspaceIdAndTeamIdAndUserId({
+        workspaceId,
+        teamId: team.id,
+        userId: memberId,
+      })
 
     if (!teamMember) throw new TeamMemberNotFoundException()
 

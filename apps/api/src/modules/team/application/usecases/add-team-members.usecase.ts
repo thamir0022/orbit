@@ -16,7 +16,6 @@ import {
   TeamInactiveException,
   TeamNotFoundException,
 } from '../../domain/exceptions'
-import { TeamId } from '../../domain/value-objects/team-id.vo'
 import { TeamMember } from '../../domain/entities/team-member.entity'
 import { UserId } from '@/modules/user/domain'
 
@@ -39,6 +38,7 @@ import {
   TEAM_MEMBER_QUERY_REPOSITORY,
   TeamMemberQueryRepository,
 } from '../ports/team-member-query-repository.port'
+import { TeamKey } from '../../domain/value-objects/team-key.vo'
 
 @Injectable()
 export class AddTeamMembersUseCase implements IAddTeamMembersUseCase {
@@ -61,7 +61,7 @@ export class AddTeamMembersUseCase implements IAddTeamMembersUseCase {
 
   async execute(input: AddTeamMembersInput): Promise<AddTeamMembersOutput> {
     const workspaceId = WorkspaceId.create(input.workspaceId)
-    const teamId = TeamId.create(input.teamId)
+    const key = TeamKey.create(input.teamKey)
 
     /**
      * Deduplicate user IDs before querying MongoDB.
@@ -81,9 +81,9 @@ export class AddTeamMembersUseCase implements IAddTeamMembersUseCase {
     const [workspace, team] = await Promise.all([
       this.workspaceRepository.findById(workspaceId),
 
-      this.teamRepository.findByWorkspaceIdAndId({
+      this.teamRepository.findByWorkspaceIdAndKey({
         workspaceId,
-        teamId,
+        key,
       }),
     ])
 
@@ -108,7 +108,7 @@ export class AddTeamMembersUseCase implements IAddTeamMembersUseCase {
 
       this.teamMemberRepository.findByWorkspaceIdAndTeamIdAndUserIds({
         workspaceId,
-        teamId,
+        teamId: team.id,
         userIds,
       }),
     ])
@@ -154,7 +154,7 @@ export class AddTeamMembersUseCase implements IAddTeamMembersUseCase {
     const teamMembers = membersToAdd.map((userId) =>
       TeamMember.create({
         workspaceId,
-        teamId,
+        teamId: team.id,
         userId,
         addedBy: UserId.create(input.actorId),
       })
@@ -168,7 +168,7 @@ export class AddTeamMembersUseCase implements IAddTeamMembersUseCase {
     const members =
       await this.teamMemberQueryRepository.findByWorkspaceIdAndTeamId({
         workspaceId,
-        teamId,
+        teamId: team.id,
       })
 
     return {

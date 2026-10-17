@@ -1,12 +1,12 @@
 import { ITransactionOptions } from '@/shared/application'
 import { WorkspaceId } from '@/modules/workspace/domain'
-import { TeamId } from '../../domain/value-objects/team-id.vo'
 import { TeamListItemOutput } from '../contracts/team-list-item.output'
 import { TeamSummaryOutput } from '../contracts/team-summary.output'
+import { TeamKey } from '../../domain/value-objects/team-key.vo'
 
-export interface FindTeamByWorkspaceIdAndIdQueryProps {
+export interface FindTeamByWorkspaceIdAndKeyQueryProps {
   workspaceId: WorkspaceId
-  teamId: TeamId
+  key: TeamKey
 }
 
 export interface TeamQueryRepository {
@@ -15,8 +15,8 @@ export interface TeamQueryRepository {
     options?: ITransactionOptions
   ): Promise<TeamListItemOutput[]>
 
-  findByWorkspaceIdAndId(
-    props: FindTeamByWorkspaceIdAndIdQueryProps,
+  findByWorkspaceIdAndKey(
+    props: FindTeamByWorkspaceIdAndKeyQueryProps,
     options?: ITransactionOptions
   ): Promise<TeamListItemOutput | null>
 
