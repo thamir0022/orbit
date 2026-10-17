@@ -5,7 +5,7 @@ import {
   IsDate,
   IsNotEmpty,
   IsString,
-  IsUUID,
+  Matches,
   MaxLength,
   MinLength,
 } from 'class-validator'
@@ -49,14 +49,13 @@ const transformDate = ({ value }: { value: unknown }): unknown => {
 export class CreateSprintRequest {
   @ApiProperty({
     description: 'Team that owns the sprint',
-    format: 'uuid',
-    example: '0192f8c4-7a1b-7c32-8f4d-123456789abd',
+    example: 'ABC-A1B2C3D4',
   })
   @Transform(trim)
-  @IsUUID('7', {
-    message: 'Team ID must be a valid UUID v7',
+  @Matches(/^[A-Z0-9]{3}-[A-F0-9]{8}$/, {
+    message: 'Team key must be in the format ABC-A1B2C3D4',
   })
-  readonly teamId!: string
+  readonly teamKey!: string
 
   @ApiProperty({
     description: 'Sprint name',

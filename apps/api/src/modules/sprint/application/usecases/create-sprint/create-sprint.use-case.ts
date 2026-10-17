@@ -20,7 +20,6 @@ import { ITransactionManager, TRANSACTION_MANAGER } from '@/shared/application'
 import { CreateSprintInput } from './create-sprint.input'
 import { CreateSprintOutput } from './create-sprint.output'
 import { WorkspaceId, WorkspaceStatus } from '@/modules/workspace/domain'
-import { TeamId } from '@/modules/team/domain'
 import { UserId } from '@/modules/user/domain'
 import {
   WorkspaceNotActiveException,
@@ -32,6 +31,7 @@ import {
 } from '@/modules/team/domain/exceptions'
 import { Sprint } from '../../../domain/entities/sprint.entity'
 import { SprintNotFoundException } from '@/modules/sprint/domain/exceptions'
+import { TeamKey } from '@/modules/team/domain/value-objects/team-key.vo'
 
 /**
  * Creates a new sprint for a team.
@@ -60,7 +60,7 @@ export class CreateSprintUseCase implements ICreateSprintUseCase {
 
   async execute(input: CreateSprintInput): Promise<CreateSprintOutput> {
     const workspaceId = WorkspaceId.create(input.workspaceId)
-    const teamId = TeamId.create(input.teamId)
+    const teamKey = TeamKey.create(input.teamKey)
     const actorId = UserId.create(input.actorId)
 
     /**
@@ -82,9 +82,9 @@ export class CreateSprintUseCase implements ICreateSprintUseCase {
      * This guarantees that the requested team belongs to
      * the current workspace.
      */
-    const team = await this.teamRepository.findByWorkspaceIdAndId({
+    const team = await this.teamRepository.findByWorkspaceIdAndKey({
       workspaceId,
-      teamId,
+      key: teamKey,
     })
 
     if (!team) {
@@ -107,7 +107,7 @@ export class CreateSprintUseCase implements ICreateSprintUseCase {
       async (session) => {
         const newSprint = Sprint.create({
           workspaceId: workspaceId.value,
-          teamId: teamId.value,
+          teamId: team.id.value,
           name: input.name,
           goal: input.goal,
           description: input.description,

@@ -54,12 +54,12 @@ export class SprintController {
     @CurrentAuth() auth: AuthContext,
     @Body() req: CreateSprintRequest
   ): Promise<CreateSprintResponse> {
-    const { teamId, name, goal, description, startDate, endDate } = req
+    const { teamKey, name, goal, description, startDate, endDate } = req
 
     return this.createSprintUseCase.execute({
       workspaceId: auth.workspaceId!,
       actorId: auth.userId,
-      teamId,
+      teamKey,
       name,
       goal,
       description,

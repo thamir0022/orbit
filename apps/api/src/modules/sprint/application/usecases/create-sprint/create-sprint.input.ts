@@ -6,7 +6,7 @@
  */
 export interface CreateSprintInput {
   workspaceId: string
-  teamId: string
+  teamKey: string
 
   name: string
   goal?: string
