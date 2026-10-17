@@ -8,11 +8,13 @@ import {
   TeamProps,
   UpdateTeamProps,
 } from '../interfaces/team.interface'
+import { TeamKey } from '../value-objects/team-key.vo'
 
 export class Team extends AggregateRoot<TeamId> {
   private readonly _workspaceId: WorkspaceId
   private _name: string
   private _description?: string
+  private _key: TeamKey
   private _avatarUrl?: string
   private _leadId: UserId | null
   private _status: TeamStatus
@@ -26,6 +28,7 @@ export class Team extends AggregateRoot<TeamId> {
     super(props.id)
     this._workspaceId = props.workspaceId
     this._name = props.name
+    this._key = props.key
     this._description = props.description
     this._avatarUrl = props.avatarUrl
     this._leadId = props.leadId
@@ -45,6 +48,7 @@ export class Team extends AggregateRoot<TeamId> {
       id: teamId,
       workspaceId: WorkspaceId.create(props.workspaceId),
       name: props.name,
+      key: props.key,
       description: props.description,
       avatarUrl: props.avatarUrl,
       leadId: props.leadId ? UserId.create(props.leadId) : null,
@@ -91,6 +95,10 @@ export class Team extends AggregateRoot<TeamId> {
 
   get name(): string {
     return this._name
+  }
+
+  get key(): TeamKey {
+    return this._key
   }
 
   get description(): string | undefined {

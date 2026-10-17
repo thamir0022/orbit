@@ -2,11 +2,13 @@ import { UserId } from '@/modules/user/domain'
 import { WorkspaceId } from '@/modules/workspace/domain'
 import { TeamId } from '../value-objects/team-id.vo'
 import { TeamStatus } from '../enums/team-status.enum'
+import { TeamKey } from '../value-objects/team-key.vo'
 
 export interface TeamProps {
   readonly id: TeamId
   readonly workspaceId: WorkspaceId
   readonly name: string
+  readonly key: TeamKey
   readonly description?: string
   readonly avatarUrl?: string
   readonly leadId: UserId | null
@@ -21,6 +23,7 @@ export interface TeamProps {
 export interface CreateTeamProps {
   readonly workspaceId: string
   readonly name: string
+  readonly key: TeamKey
   readonly description?: string
   readonly avatarUrl?: string
   readonly leadId?: string

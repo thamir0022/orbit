@@ -4,3 +4,4 @@ export { TeamLeadNotWorkspaceMemberException } from './team-lead-not-workspace-m
 export { TeamLeadNotActiveWorkspaceMemberException } from './team-lead-not-active-workspace-member.exception'
 export { TeamInactiveException } from './team-inactive.exception'
 export { TeamMemberNotFoundException } from './team-member-not-found.exception'
+export { TeamKeyInvalidException } from './team-key-invalid.exception'
