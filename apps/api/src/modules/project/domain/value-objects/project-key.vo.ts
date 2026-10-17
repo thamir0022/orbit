@@ -1,3 +1,5 @@
+import { randomBytes } from 'node:crypto'
+
 import { ValueObject } from '@/shared/domain'
 
 import { ProjectKeyInvalidException } from '../exceptions/project-key-invalid.exception'
@@ -8,20 +10,14 @@ interface ProjectKeyProps {
 
 export class ProjectKey extends ValueObject<ProjectKeyProps> {
   private static readonly PREFIX_LENGTH = 3
-  private static readonly NUMBER_WIDTH = 3
-
-  private static readonly PATTERN = /^[A-Z0-9]{3}-\d+$/
+  private static readonly RANDOM_SUFFIX_BYTES = 4
+  private static readonly PATTERN = /^[A-Z0-9]{3}-[A-F0-9]{8}$/
 
   private constructor(props: ProjectKeyProps) {
     super(props)
   }
 
-  /**
-   * Creates a ProjectKey from an already generated value.
-   *
-   * Example:
-   * ORB-001
-   */
+  /** Creates a project key from an existing value. */
   static create(value: string): ProjectKey {
     const normalizedValue = value.trim().toUpperCase()
 
@@ -29,52 +25,29 @@ export class ProjectKey extends ValueObject<ProjectKeyProps> {
       throw new ProjectKeyInvalidException()
     }
 
-    return new ProjectKey({
-      value: normalizedValue,
-    })
+    return new ProjectKey({ value: normalizedValue })
   }
 
-  /**
-   * Generates a project key from the project name and
-   * workspace-scoped sequential project number.
-   *
-   * Example:
-   * Orbit + 1 → ORB-001
-   */
-  static generate(projectName: string, number: number): ProjectKey {
-    if (!Number.isInteger(number) || number <= 0) {
-      throw new ProjectKeyInvalidException()
-    }
-
-    const prefix = ProjectKey.createPrefix(projectName)
-
-    const value = `${prefix}-${number
-      .toString()
-      .padStart(ProjectKey.NUMBER_WIDTH, '0')}`
-
-    return ProjectKey.create(value)
-  }
-
-  static fromString(value: string): ProjectKey {
-    return ProjectKey.create(value)
-  }
-
-  get value(): string {
-    return this.props.value
-  }
-
-  private static createPrefix(projectName: string): string {
-    const normalizedName = projectName
+  /** Generates a project key, e.g. ORB-A1B2C3D4. */
+  static generate(projectName: string): ProjectKey {
+    const prefix = projectName
       .trim()
       .toUpperCase()
       .replace(/[^A-Z0-9]/g, '')
-
-    const prefix = normalizedName.slice(0, ProjectKey.PREFIX_LENGTH)
+      .slice(0, ProjectKey.PREFIX_LENGTH)
 
     if (prefix.length !== ProjectKey.PREFIX_LENGTH) {
       throw new ProjectKeyInvalidException()
     }
 
-    return prefix
+    const suffix = randomBytes(ProjectKey.RANDOM_SUFFIX_BYTES)
+      .toString('hex')
+      .toUpperCase()
+
+    return ProjectKey.create(`${prefix}-${suffix}`)
+  }
+
+  get value(): string {
+    return this.props.value
   }
 }
