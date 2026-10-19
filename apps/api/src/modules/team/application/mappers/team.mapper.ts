@@ -46,6 +46,7 @@ export class TeamMapper {
       id: team.id.value,
       workspaceId: team.workspaceId.value,
       name: team.name,
+      key: team.key.value,
       description: team.description,
       avatarUrl: team.avatarUrl,
       leadId: team.leadId?.value,
