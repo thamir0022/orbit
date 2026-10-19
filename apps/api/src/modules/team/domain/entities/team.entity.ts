@@ -63,12 +63,66 @@ export class Team extends AggregateRoot<TeamId> {
     return team
   }
 
-  updateTeam(props: UpdateTeamProps) {
-    this._name = props.name ?? this._name
-    this._description = props.description ?? this._description
-    this._avatarUrl = props.avatarUrl ?? this._avatarUrl
-    this._leadId = props.leadId ? UserId.create(props.leadId) : this._leadId
-    this._status = props.status ?? this._status
+  updateTeam(props: UpdateTeamProps): void {
+    let hasChanges = false
+
+    if (props.name !== undefined) {
+      const name = props.name.trim()
+
+      if (name.length < 2 || name.length > 100) {
+        throw new Error('Team name must be between 2 and 100 characters')
+      }
+
+      this._name = name
+      hasChanges = true
+    }
+
+    if (props.description !== undefined) {
+      const description = props.description?.trim() ?? null
+
+      if (description !== null && description.length > 500) {
+        throw new Error('Team description cannot exceed 500 characters')
+      }
+
+      this._description = description
+      hasChanges = true
+    }
+
+    if (props.avatarUrl !== undefined) {
+      const avatarUrl = props.avatarUrl?.trim() ?? null
+
+      if (avatarUrl !== null) {
+        let url: URL
+
+        try {
+          url = new URL(avatarUrl)
+        } catch {
+          throw new Error('Team avatar URL must be a valid URL')
+        }
+
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+          throw new Error('Team avatar URL must use HTTP or HTTPS')
+        }
+      }
+
+      this._avatarUrl = avatarUrl
+      hasChanges = true
+    }
+
+    if (props.leadId !== undefined) {
+      this._leadId = props.leadId === null ? null : UserId.create(props.leadId)
+
+      hasChanges = true
+    }
+
+    if (props.status !== undefined) {
+      this._status = props.status
+      hasChanges = true
+    }
+
+    if (hasChanges) {
+      this.touch()
+    }
   }
 
   delete(userId: UserId): void {
@@ -147,5 +201,9 @@ export class Team extends AggregateRoot<TeamId> {
 
   static reconstitute(props: TeamProps): Team {
     return new Team(props)
+  }
+
+  private touch() {
+    this._updatedAt = new Date()
   }
 }
