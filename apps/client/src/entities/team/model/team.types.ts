@@ -1,7 +1,7 @@
 import { UserSummary } from '@/shared/types/user-summary'
 
 export interface Team {
-  readonly id: string
+  readonly key: string
   readonly workspaceId: string
   readonly name: string
   readonly description?: string
@@ -19,7 +19,7 @@ export enum TeamStatus {
 }
 
 export interface TeamSummary {
-  readonly id: string
+  readonly key: string
   readonly name: string
   readonly avatarUrl?: string
 }

@@ -10,11 +10,11 @@ import { UpdateTeamForm } from '@/features/update-team'
 import { TeamOverviewSkeleton } from './team-overview-skeleton'
 
 interface TeamOverviewPageProps {
-  readonly teamId: string
+  readonly teamKey: string
 }
 
-export function TeamOverviewPage({ teamId }: TeamOverviewPageProps) {
-  const { data: team, isPending, isError, refetch } = useTeamQuery(teamId)
+export function TeamOverviewPage({ teamKey }: TeamOverviewPageProps) {
+  const { data: team, isPending, isError, refetch } = useTeamQuery(teamKey)
 
   if (isPending) {
     return <TeamOverviewSkeleton />

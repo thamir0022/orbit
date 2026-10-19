@@ -6,14 +6,14 @@ import { teamKeys } from '../model/team.query-keys'
 import { getTeam } from '../api/get-team.api'
 
 /**
- * Retrieves a single team by id.
+ * Retrieves a single team by key.
  *
  * Used by the team overview page.
  */
-export function useTeamQuery(id: string) {
+export function useTeamQuery(key: string) {
   return useQuery({
-    queryKey: teamKeys.detail(id),
-    queryFn: () => getTeam(id),
-    enabled: Boolean(id),
+    queryKey: teamKeys.detail(key),
+    queryFn: () => getTeam(key),
+    enabled: Boolean(key),
   })
 }

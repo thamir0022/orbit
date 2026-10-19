@@ -7,9 +7,9 @@ interface GetTeamApiResponse {
   readonly team: Team
 }
 
-export const getTeam = async (id: string): Promise<Team> => {
+export const getTeam = async (key: string): Promise<Team> => {
   const { data } = await httpClient.get<GetTeamApiResponse>(
-    API_ROUTES.TEAMS.BY_ID(id)
+    API_ROUTES.TEAMS.BY_KEY(key)
   )
 
   return data.team

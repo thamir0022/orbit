@@ -62,7 +62,7 @@ export const API_ROUTES = {
   },
   TEAMS: {
     BASE: '/teams',
-    BY_ID: (id: string) => `/teams/${encodeURIComponent(id)}`,
+    BY_KEY: (key: string) => `/teams/${encodeURIComponent(key)}`,
   },
 } as const
 

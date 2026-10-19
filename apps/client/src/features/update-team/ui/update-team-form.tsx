@@ -81,11 +81,11 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
   const teamsPath = workspace?.slug ? `/${workspace.slug}/teams` : '#'
 
   const overviewPath = workspace?.slug
-    ? `/${workspace.slug}/teams/${team.id}`
+    ? `/${workspace.slug}/teams/${team.key}`
     : '#'
 
   const membersPath = workspace?.slug
-    ? `/${workspace.slug}/teams/${team.id}/members`
+    ? `/${workspace.slug}/teams/${team.key}/members`
     : '#'
 
   const isOverviewActive = pathname === overviewPath
@@ -109,7 +109,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
 
     try {
       await updateTeam.mutateAsync({
-        teamId: team.id,
+        teamKey: team.key,
         ...(field === 'name' && {
           name: String(value).trim(),
         }),

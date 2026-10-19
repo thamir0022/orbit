@@ -15,11 +15,11 @@ interface UpdateTeamApiResponse {
 }
 
 export const updateTeam = async (
-  teamId: string,
+  teamKey: string,
   payload: UpdateTeamPayload
 ): Promise<Team> => {
   const { data } = await httpClient.put<UpdateTeamApiResponse>(
-    API_ROUTES.TEAMS.BY_ID(teamId),
+    API_ROUTES.TEAMS.BY_KEY(teamKey),
     payload
   )
 

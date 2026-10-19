@@ -9,7 +9,7 @@ import { updateTeam } from '../api/update-team.api'
 import { teamKeys } from '@/entities/team'
 
 export interface UpdateTeamMutationInput {
-  readonly teamId: string
+  readonly teamKey: string
   readonly name?: string
   readonly description?: string
   readonly status?: TeamStatus
@@ -21,25 +21,21 @@ export function useUpdateTeamMutation() {
 
   return useMutation({
     mutationFn: ({
-      teamId,
+      teamKey,
       name,
       description,
       status,
       leadId,
     }: UpdateTeamMutationInput) =>
-      updateTeam(teamId, {
+      updateTeam(teamKey, {
         name,
         description,
         status,
         leadId,
       }),
 
-    onSuccess: (updatedTeam: Team, { teamId }) => {
-      queryClient.setQueryData(teamKeys.detail(teamId), updatedTeam)
-
-      void queryClient.invalidateQueries({
-        queryKey: teamKeys.lists(),
-      })
+    onSuccess: (updatedTeam: Team, { teamKey }) => {
+      queryClient.setQueryData(teamKeys.detail(teamKey), updatedTeam)
     },
   })
 }
