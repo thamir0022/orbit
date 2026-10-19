@@ -36,7 +36,7 @@ export class TeamModel {
     required: true,
     uppercase: true,
     trim: true,
-    maxlength: 10,
+    maxlength: 12,
     immutable: true,
   })
   key!: string
