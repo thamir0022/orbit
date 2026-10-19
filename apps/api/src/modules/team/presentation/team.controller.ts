@@ -105,11 +105,11 @@ export class TeamController {
   @ResponseMessage(TeamResponseMessage.TEAM_FETCHED)
   async getTeam(
     @CurrentAuth() auth: AuthContext,
-    @Param() req: GetTeamRequest
+    @Param() { key }: GetTeamRequest
   ): Promise<GetTeamResponse> {
     return this.getTeamUseCase.execute({
       workspaceId: auth.workspaceId!,
-      teamKey: req.teamKey,
+      key,
     })
   }
 
@@ -117,14 +117,14 @@ export class TeamController {
   @ResponseMessage(TeamResponseMessage.TEAM_UPDATED)
   async updateTeam(
     @CurrentAuth('workspaceId') workspaceId: string,
-    @Param() teamKey: string,
+    @Param('key') key: string,
     @Body() req: UpdateTeamRequest
   ): Promise<UpdateTeamResponse> {
     const { name, description, avatarUrl, leadId, status } = req
 
     return this.updateTeamUseCase.execute({
       workspaceId,
-      teamKey,
+      key,
       name,
       description,
       avatarUrl,
@@ -137,24 +137,24 @@ export class TeamController {
   @ResponseMessage(TeamResponseMessage.TEAM_DELETED)
   async deleteTeam(
     @CurrentAuth() auth: AuthContext,
-    @Param('key') teamKey: string
+    @Param('key') key: string
   ) {
     return this.deleteTeamUseCase.execute({
       workspaceId: auth.workspaceId!,
       userId: auth.userId,
-      teamKey,
+      key,
     })
   }
 
   @Post(':key/members')
   async addTeamMembers(
     @CurrentAuth() auth: AuthContext,
-    @Param() teamKey: string,
+    @Param('key') key: string,
     @Body() req: AddTeamMembersRequest
   ): Promise<AddTeamMembersResponse> {
     return this.addTeamMembersUseCase.execute({
       workspaceId: auth.workspaceId!,
-      teamKey,
+      teamKey: key,
       actorId: auth.userId,
       memberIds: req.userIds,
     })
@@ -163,7 +163,7 @@ export class TeamController {
   @Get(':key/members')
   async getTeamMembers(
     @CurrentAuth('workspaceId') workspaceId: string,
-    @Param() teamKey: string
+    @Param('key') teamKey: string
   ) {
     return this.getTeamMembersUseCase.execute({
       workspaceId,
@@ -178,7 +178,7 @@ export class TeamController {
   ) {
     return this.removeTeamMemberUseCase.execute({
       workspaceId: auth.workspaceId!,
-      teamKey: param.teamKey,
+      teamKey: param.key,
       memberId: param.memberId,
       actorId: auth.userId,
     })

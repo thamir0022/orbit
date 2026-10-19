@@ -18,7 +18,7 @@ export class GetTeamUseCase implements IGetTeamUseCase {
 
   async execute(input: GetTeamInput): Promise<GetTeamOutput> {
     const workspaceId = WorkspaceId.create(input.workspaceId)
-    const key = TeamKey.create(input.teamKey)
+    const key = TeamKey.create(input.key)
 
     const team = await this.teamQueryRepo.findByWorkspaceIdAndKey({
       workspaceId,

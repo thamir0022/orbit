@@ -46,7 +46,7 @@ export class UpdateTeamUseCase implements IUpdateTeamUseCase {
   async execute(input: UpdateTeamInput): Promise<UpdateTeamOutput> {
     const workspaceId = WorkspaceId.create(input.workspaceId)
 
-    const key = TeamKey.create(input.teamKey)
+    const key = TeamKey.create(input.key)
 
     const workspace = await this.workspaceRepository.findById(workspaceId)
 

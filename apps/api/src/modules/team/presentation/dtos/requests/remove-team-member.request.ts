@@ -12,7 +12,7 @@ export class RemoveTeamMemberRequest {
   @Matches(/^[A-Z0-9]{3}-[A-F0-9]{8}$/, {
     message: 'Team key must be in the format ABC-A1B2C3D4',
   })
-  readonly teamKey!: string
+  readonly key!: string
 
   @ApiProperty({
     type: 'string',

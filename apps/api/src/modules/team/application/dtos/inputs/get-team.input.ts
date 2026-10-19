@@ -1,4 +1,4 @@
 export interface GetTeamInput {
   readonly workspaceId: string
-  readonly teamKey: string
+  readonly key: string
 }

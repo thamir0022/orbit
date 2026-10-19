@@ -26,7 +26,7 @@ export class DeleteTeamUseCase implements IDeleteTeamUseCase {
 
   async execute(input: DeleteTeamInput): Promise<void> {
     const workspaceId = WorkspaceId.create(input.workspaceId)
-    const key = TeamKey.create(input.teamKey)
+    const key = TeamKey.create(input.key)
     const userId = UserId.create(input.userId)
 
     const workspace = await this.workspaceRepo.findById(workspaceId)

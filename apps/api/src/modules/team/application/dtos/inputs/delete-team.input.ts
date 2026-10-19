@@ -1,5 +1,5 @@
 export interface DeleteTeamInput {
   readonly workspaceId: string
-  readonly teamKey: string
+  readonly key: string
   readonly userId: string
 }
