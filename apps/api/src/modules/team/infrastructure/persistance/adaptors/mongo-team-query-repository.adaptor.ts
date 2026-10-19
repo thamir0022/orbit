@@ -183,7 +183,7 @@ export class MongoTeamQueryRepository implements TeamQueryRepository {
         {
           $project: {
             _id: 0,
-            id: 1,
+            key: 1,
             workspaceId: 1,
             name: 1,
             description: 1,
@@ -235,8 +235,8 @@ export class MongoTeamQueryRepository implements TeamQueryRepository {
       .lean()
       .exec()
 
-    return teams.map(({ id, name, avatarUrl }) => ({
-      id,
+    return teams.map(({ key, name, avatarUrl }) => ({
+      key,
       name,
       avatarUrl,
     }))
