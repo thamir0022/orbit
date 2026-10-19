@@ -5,11 +5,9 @@ import { UserSummaryResponseDto } from '@/shared/presentation/dtos/responses/use
 
 export class TeamResponseDto {
   @ApiProperty({
-    description: 'Unique team identifier',
-    format: 'uuid',
-    example: '0192f8c4-7a1b-7c32-8f4d-123456789abc',
+    description: 'Unique team key',
   })
-  id!: string
+  key!: string
 
   @ApiProperty({
     description: 'Team name',
