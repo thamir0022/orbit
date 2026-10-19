@@ -2,7 +2,7 @@ import { UserSummaryOutput } from '@/shared/application/contracts'
 import { TeamStatus } from '../../domain/enums/team-status.enum'
 
 export interface TeamListItemOutput {
-  id: string
+  key: string
   name: string
   description?: string
   avatarUrl?: string

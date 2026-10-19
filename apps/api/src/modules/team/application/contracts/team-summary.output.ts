@@ -6,7 +6,7 @@
  * that do not need the complete team representation.
  */
 export interface TeamSummaryOutput {
-  readonly id: string
+  readonly key: string
   readonly name: string
   readonly avatarUrl?: string
 }
