@@ -56,7 +56,7 @@ export class UpdateSprintUseCase implements IUpdateSprintUseCase {
     /**
      * The Sprint aggregate enforces lifecycle and date invariants.
      */
-    sprint.updateSprint({
+    sprint.update({
       name: input.name,
       goal: input.goal,
       description: input.description,
