@@ -9,9 +9,6 @@ export type SprintDocument = HydratedDocument<SprintModel>
   timestamps: true,
 })
 export class SprintModel {
-  @Prop()
-  _id!: MongooseSchema.Types.ObjectId
-
   @Prop({
     required: true,
     unique: true,
@@ -24,7 +21,7 @@ export class SprintModel {
     required: true,
     immutable: true,
     type: MongooseSchema.Types.UUID,
-    ref: 'workspaces',
+    ref: 'WorkspaceModel',
   })
   workspaceId!: string
 
@@ -32,28 +29,34 @@ export class SprintModel {
     required: true,
     immutable: true,
     type: MongooseSchema.Types.UUID,
-    ref: 'teams',
+    ref: 'TeamModel',
   })
   teamId!: string
 
-  // Sprint details
   @Prop({
     required: true,
     trim: true,
+    minlength: 1,
+    maxlength: 120,
   })
   name!: string
 
   @Prop({
+    type: String,
     trim: true,
+    default: null,
+    maxlength: 500,
   })
-  goal?: string
+  goal!: string | null
 
   @Prop({
+    type: String,
     trim: true,
+    default: null,
+    maxlength: 5000,
   })
-  description?: string
+  description!: string | null
 
-  // Timebox
   @Prop({
     required: true,
     type: Date,
@@ -66,7 +69,6 @@ export class SprintModel {
   })
   endDate!: Date
 
-  // Lifecycle
   @Prop({
     required: true,
     enum: SprintStatus,
@@ -74,27 +76,11 @@ export class SprintModel {
   })
   status!: SprintStatus
 
-  // Planning snapshots
-  @Prop({
-    type: Number,
-    default: null,
-    min: 0,
-  })
-  committedPoints!: number | null
-
-  @Prop({
-    type: Number,
-    default: null,
-    min: 0,
-  })
-  completedPoints!: number | null
-
-  // Audit
   @Prop({
     required: true,
     immutable: true,
     type: MongooseSchema.Types.UUID,
-    ref: 'users',
+    ref: 'UserModel',
   })
   createdBy!: string
 
@@ -118,99 +104,19 @@ export class SprintModel {
 
   @Prop({
     type: MongooseSchema.Types.UUID,
-    ref: 'users',
+    ref: 'UserModel',
     default: null,
   })
   cancelledBy!: string | null
 
-  // Managed automatically by Mongoose timestamps.
-  @Prop()
+  // Managed automatically by Mongoose's timestamps option.
   createdAt!: Date
-
-  @Prop()
   updatedAt!: Date
 }
 
 export const SprintSchema = SchemaFactory.createForClass(SprintModel)
 
-/**
- * Primary tenant + team query.
- *
- * Example:
- * { workspaceId, teamId }
- *
- * Used for retrieving all sprints belonging to a team.
- */
-SprintSchema.index({
-  workspaceId: 1,
-  teamId: 1,
-})
-
-/**
- * Common team + status filtering.
- *
- * Example:
- * { workspaceId, teamId, status }
- *
- * Useful for:
- * - active sprint lookup
- * - planned sprint filtering
- * - completed sprint filtering
- */
-SprintSchema.index(
-  {
-    workspaceId: 1,
-    teamId: 1,
-    status: 1,
-  },
-  {
-    name: 'workspace_team_status_idx',
-  }
-)
-
-/**
- * Team sprint ordering and time-based filtering.
- *
- * Useful for:
- * - sorting sprints by start date
- * - date-range queries
- * - retrieving the current/next sprint
- */
-SprintSchema.index(
-  {
-    workspaceId: 1,
-    teamId: 1,
-    startDate: 1,
-  },
-  {
-    name: 'workspace_team_start_date_idx',
-  }
-)
-
-/**
- * Workspace-wide sprint time queries.
- *
- * Useful for:
- * - workspace-level reporting
- * - calendar/timeline queries
- * - date-based sprint filtering across teams
- */
-SprintSchema.index(
-  {
-    workspaceId: 1,
-    startDate: 1,
-  },
-  {
-    name: 'workspace_start_date_idx',
-  }
-)
-
-/**
- * Useful for retrieving recent sprints for a team.
- *
- * The index supports descending start-date queries commonly
- * used by sprint history and current-sprint screens.
- */
+// Team Sprint listing: newest first.
 SprintSchema.index(
   {
     workspaceId: 1,
@@ -218,6 +124,45 @@ SprintSchema.index(
     startDate: -1,
   },
   {
-    name: 'workspace_team_recent_sprints_idx',
+    name: 'workspace_team_start_date_idx',
+  }
+)
+
+// Filter a team's Sprints by status and order them by start date.
+SprintSchema.index(
+  {
+    workspaceId: 1,
+    teamId: 1,
+    status: 1,
+    startDate: -1,
+  },
+  {
+    name: 'workspace_team_status_start_date_idx',
+  }
+)
+
+// Workspace-wide timeline, if the UI needs this query.
+SprintSchema.index(
+  {
+    workspaceId: 1,
+    startDate: -1,
+  },
+  {
+    name: 'workspace_start_date_idx',
+  }
+)
+
+// Enforce no more than one active Sprint per Team.
+SprintSchema.index(
+  {
+    workspaceId: 1,
+    teamId: 1,
+  },
+  {
+    unique: true,
+    name: 'workspace_team_one_active_sprint_idx',
+    partialFilterExpression: {
+      status: SprintStatus.ACTIVE,
+    },
   }
 )
