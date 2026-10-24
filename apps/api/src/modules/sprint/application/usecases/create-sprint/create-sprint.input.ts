@@ -9,8 +9,8 @@ export interface CreateSprintInput {
   teamKey: string
 
   name: string
-  goal?: string
-  description?: string
+  goal: string | null
+  description: string | null
 
   startDate: Date | string
   endDate: Date | string
