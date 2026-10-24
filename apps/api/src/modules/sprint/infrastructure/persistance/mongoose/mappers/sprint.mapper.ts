@@ -33,10 +33,9 @@ export class SprintMapper {
 
       status: document.status,
 
-      committedPoints: document.committedPoints ?? null,
-      completedPoints: document.completedPoints ?? null,
-
       createdBy: UserId.fromString(document.createdBy),
+      createdAt: document.createdAt,
+      updatedAt: document.updatedAt,
 
       startedAt: document.startedAt ?? null,
       completedAt: document.completedAt ?? null,
@@ -70,10 +69,9 @@ export class SprintMapper {
 
       status: sprint.status,
 
-      committedPoints: sprint.committedPoints,
-      completedPoints: sprint.completedPoints,
-
       createdBy: sprint.createdBy.value,
+      createdAt: sprint.createdAt,
+      updatedAt: sprint.updatedAt,
 
       startedAt: sprint.startedAt,
       completedAt: sprint.completedAt,
