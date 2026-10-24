@@ -90,7 +90,7 @@ export class CreateSprintRequest {
   @MaxLength(300, {
     message: 'Sprint goal must not exceed 300 characters',
   })
-  readonly goal?: string
+  readonly goal!: string | null
 
   @ApiPropertyOptional({
     description: 'Additional sprint context or notes',
@@ -105,7 +105,7 @@ export class CreateSprintRequest {
   @MaxLength(2000, {
     message: 'Sprint description must not exceed 2000 characters',
   })
-  readonly description?: string
+  readonly description!: string | null
 
   @ApiProperty({
     description: 'Sprint start date and time in ISO 8601 format',
