@@ -14,8 +14,8 @@ export interface SprintProps {
   teamId: TeamId
 
   name: string
-  goal?: string
-  description?: string
+  goal: string | null
+  description: string | null
 
   startDate: Date
   endDate: Date
@@ -26,8 +26,8 @@ export interface SprintProps {
   completedPoints?: number | null
 
   createdBy: UserId
-  createdAt?: Date
-  updatedAt?: Date
+  createdAt: Date
+  updatedAt: Date
 
   startedAt?: Date | null
   completedAt?: Date | null
@@ -43,8 +43,8 @@ export interface CreateSprintProps {
   teamId: string
 
   name: string
-  goal?: string
-  description?: string
+  goal: string | null
+  description: string | null
 
   startDate: Date | string
   endDate: Date | string
