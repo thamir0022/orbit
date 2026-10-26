@@ -1,5 +1,4 @@
 import { ProjectId } from '@/modules/project/domain'
-import { SprintId } from '@/modules/sprint/domain'
 import { TeamId } from '@/modules/team/domain'
 import { UserId } from '@/modules/user/domain'
 import { WorkspaceId } from '@/modules/workspace/domain'
@@ -9,7 +8,6 @@ import {
   WorkItemAlreadyDeletedException,
   WorkItemCompletedBeforeStartedException,
   WorkItemDeletedException,
-  WorkItemDueDateBeforeStartedException,
   WorkItemInvalidStatusTransitionException,
   WorkItemNotDeletedException,
   WorkItemSelfParentException,
@@ -20,17 +18,31 @@ import {
 import { WorkItemPriority } from '../enums/work-item-priority.enum'
 import { WorkItemStatus } from '../enums/work-item-status.enum'
 import { WorkItemType } from '../enums/work-item-type.enum'
+
 import {
   CreateWorkItemProps,
   UpdateWorkItemProps,
   WorkItemProps,
 } from '../interfaces/work-item.interface'
+
 import { WorkItemId } from '../value-objects/work-item-id.vo'
 import { WorkItemKey } from '../value-objects/work-item-key.vo'
 
+const WORK_ITEM_TITLE_MAX_LENGTH = 250
+const WORK_ITEM_DESCRIPTION_MAX_LENGTH = 20_000
+
+/**
+ * Aggregate root representing a unit of work owned by a Team.
+ *
+ * Sprint membership and assignment history are managed by SprintWorkItem.
+ * This aggregate owns the Work Item's details, workflow, estimation,
+ * hierarchy, user assignment, and lifecycle.
+ *
+ * Cross-aggregate references must be validated by application use cases.
+ */
 export class WorkItem extends AggregateRoot<WorkItemId> {
   private readonly _workspaceId: WorkspaceId
-  private readonly _projectId: ProjectId
+  private _projectId: ProjectId | null
   private readonly _teamId: TeamId
 
   private readonly _key: WorkItemKey
@@ -46,7 +58,6 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
   private _status: WorkItemStatus
   private _priority: WorkItemPriority | null
 
-  private _sprintId: SprintId | null
   private _assigneeId: UserId | null
 
   private readonly _createdBy: UserId
@@ -58,6 +69,7 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
   private _completedAt: Date | null
 
   private _deletedAt: Date | null
+  private _deletedBy: UserId | null
 
   private readonly _createdAt: Date
   private _updatedAt: Date
@@ -73,30 +85,31 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
     this._number = props.number
 
     this._type = props.type
-    this._title = props.title
-    this._description = props.description
-    this._acceptanceCriteria = [...props.acceptanceCriteria]
+    this._title = this.normalizeTitle(props.title)
+    this._description = this.normalizeDescription(props.description)
+    this._acceptanceCriteria = this.normalizeAcceptanceCriteria(
+      props.acceptanceCriteria
+    )
 
     this._parentId = props.parentId
 
     this._status = props.status
     this._priority = props.priority
-
-    this._sprintId = props.sprintId
     this._assigneeId = props.assigneeId
 
     this._createdBy = props.createdBy
 
     this._storyPoints = props.storyPoints
 
-    this._startedAt = props.startedAt
-    this._dueDate = props.dueDate
-    this._completedAt = props.completedAt
+    this._startedAt = this.cloneNullableDate(props.startedAt)
+    this._dueDate = this.cloneNullableDate(props.dueDate)
+    this._completedAt = this.cloneNullableDate(props.completedAt)
 
-    this._deletedAt = props.deletedAt
+    this._deletedAt = this.cloneNullableDate(props.deletedAt)
+    this._deletedBy = props.deletedBy ?? null
 
-    this._createdAt = props.createdAt
-    this._updatedAt = props.updatedAt
+    this._createdAt = this.cloneDate(props.createdAt)
+    this._updatedAt = this.cloneDate(props.updatedAt)
 
     this.validateInvariants()
   }
@@ -105,33 +118,44 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
   // Factory methods
   // ---------------------------------------------------------------------------
 
+  /**
+   * Creates a new Work Item.
+   *
+   * Sprint membership is created separately through SprintWorkItem.
+   */
   static create(props: CreateWorkItemProps): WorkItem {
     const now = new Date()
+    const status = props.status ?? WorkItemStatus.BACKLOG
+
+    const startedAt =
+      props.startedAt ??
+      (status === WorkItemStatus.IN_PROGRESS || status === WorkItemStatus.DONE
+        ? now
+        : null)
+
+    const completedAt =
+      props.completedAt ?? (status === WorkItemStatus.DONE ? now : null)
 
     return new WorkItem({
       id: WorkItemId.create(),
 
       workspaceId: WorkspaceId.create(props.workspaceId),
-      projectId: ProjectId.create(props.projectId),
+      projectId: props.projectId ? ProjectId.create(props.projectId) : null,
       teamId: TeamId.create(props.teamId),
-
-      type: props.type ?? WorkItemType.STORY,
 
       key: props.key,
       number: props.number,
 
-      title: props.title.trim(),
-      description: props.description?.trim(),
+      type: props.type ?? WorkItemType.STORY,
+      title: props.title,
+      description: props.description,
 
-      acceptanceCriteria:
-        props.acceptanceCriteria?.map((criterion) => criterion.trim()) ?? [],
+      acceptanceCriteria: props.acceptanceCriteria ?? [],
 
       parentId: props.parentId ? WorkItemId.create(props.parentId) : null,
 
-      status: props.status ?? WorkItemStatus.BACKLOG,
+      status,
       priority: props.priority ?? null,
-
-      sprintId: props.sprintId ? SprintId.create(props.sprintId) : null,
 
       assigneeId: props.assigneeId ? UserId.create(props.assigneeId) : null,
 
@@ -139,17 +163,21 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
 
       storyPoints: props.storyPoints ?? null,
 
-      startedAt: props.startedAt ?? null,
+      startedAt,
       dueDate: props.dueDate ?? null,
-      completedAt: props.completedAt ?? null,
+      completedAt,
 
       deletedAt: null,
+      deletedBy: null,
 
       createdAt: now,
       updatedAt: now,
     })
   }
 
+  /**
+   * Reconstitutes a Work Item from persistence.
+   */
   static reconstitute(props: WorkItemProps): WorkItem {
     return new WorkItem(props)
   }
@@ -158,20 +186,26 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
   // Commands
   // ---------------------------------------------------------------------------
 
+  /**
+   * Updates editable Work Item details.
+   *
+   * Undefined properties are ignored. Nullable references can be cleared
+   * explicitly by passing null.
+   */
   updateWorkItem(props: UpdateWorkItemProps): void {
     this.assertNotDeleted()
 
     const nextTitle =
-      props.title !== undefined ? props.title.trim() : this._title
+      props.title !== undefined ? this.normalizeTitle(props.title) : this._title
 
     const nextDescription =
       props.description !== undefined
-        ? props.description?.trim()
+        ? this.normalizeDescription(props.description)
         : this._description
 
     const nextAcceptanceCriteria =
       props.acceptanceCriteria !== undefined
-        ? props.acceptanceCriteria.map((criterion) => criterion.trim())
+        ? this.normalizeAcceptanceCriteria(props.acceptanceCriteria)
         : this._acceptanceCriteria
 
     const nextType = props.type ?? this._type
@@ -186,11 +220,6 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
     const nextPriority =
       props.priority !== undefined ? props.priority : this._priority
 
-    const nextSprintId =
-      props.sprintId !== undefined
-        ? this.toSprintId(props.sprintId)
-        : this._sprintId
-
     const nextAssigneeId =
       props.assigneeId !== undefined
         ? this.toUserId(props.assigneeId)
@@ -199,188 +228,219 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
     const nextStoryPoints =
       props.storyPoints !== undefined ? props.storyPoints : this._storyPoints
 
-    const nextStartedAt =
+    const nextStartedAt = this.cloneNullableDate(
       props.startedAt !== undefined ? props.startedAt : this._startedAt
+    )
 
-    const nextDueDate =
+    const nextDueDate = this.cloneNullableDate(
       props.dueDate !== undefined ? props.dueDate : this._dueDate
+    )
 
-    let nextCompletedAt =
+    let nextCompletedAt = this.cloneNullableDate(
       props.completedAt !== undefined ? props.completedAt : this._completedAt
-
-    this.validateTitle(nextTitle)
-
-    this.validateParent(nextParentId)
+    )
 
     this.validateStatusTransition(nextStatus)
-
+    this.validateParent(nextParentId)
     this.validateStoryPoints(nextStoryPoints)
 
+    const now = new Date()
+
+    let effectiveStartedAt = nextStartedAt
+
+    if (
+      nextStatus === WorkItemStatus.IN_PROGRESS ||
+      nextStatus === WorkItemStatus.DONE
+    ) {
+      effectiveStartedAt ??= now
+    }
+
+    if (nextStatus === WorkItemStatus.DONE) {
+      nextCompletedAt ??= now
+    } else {
+      nextCompletedAt = null
+    }
+
     this.validateDates({
-      startedAt: nextStartedAt,
+      startedAt: effectiveStartedAt,
       dueDate: nextDueDate,
       completedAt: nextCompletedAt,
     })
 
-    if (nextStatus === WorkItemStatus.DONE && nextCompletedAt === null) {
-      nextCompletedAt = new Date()
-    }
-
-    if (nextStatus !== WorkItemStatus.DONE) {
-      nextCompletedAt = null
-    }
-
     this._title = nextTitle
     this._description = nextDescription
     this._acceptanceCriteria = [...nextAcceptanceCriteria]
+
     this._type = nextType
     this._parentId = nextParentId
+
     this._status = nextStatus
     this._priority = nextPriority
-    this._sprintId = nextSprintId
     this._assigneeId = nextAssigneeId
+
     this._storyPoints = nextStoryPoints
-    this._startedAt = nextStartedAt
+
+    this._startedAt = effectiveStartedAt
     this._dueDate = nextDueDate
     this._completedAt = nextCompletedAt
-
-    this.touch()
   }
 
+  /**
+   * Changes the Work Item's workflow status.
+   */
   changeStatus(status: WorkItemStatus): void {
     this.assertNotDeleted()
+    this.transitionTo(status, new Date())
+  }
+
+  /**
+   * Assigns the Work Item to a user.
+   */
+  assignTo(assigneeId: UserId | null): void {
+    this.assertNotDeleted()
+
+    this._assigneeId = assigneeId
+  }
+
+  /**
+   * Changes or clears the Project association.
+   *
+   * Project existence and workspace ownership are validated by the
+   * application use case.
+   */
+  assignToProject(projectId: ProjectId | null): void {
+    this.assertNotDeleted()
+
+    this._projectId = projectId
+  }
+
+  /**
+   * Changes the Work Item priority.
+   */
+  changePriority(priority: WorkItemPriority | null): void {
+    this.assertNotDeleted()
+
+    this._priority = priority
+  }
+
+  /**
+   * Changes the Work Item type.
+   */
+  changeType(type: WorkItemType): void {
+    this.assertNotDeleted()
+
+    this._type = type
+  }
+
+  /**
+   * Sets the parent Work Item.
+   *
+   * Cross-aggregate parent existence, workspace ownership, compatible
+   * hierarchy, and circular relationships must be validated externally.
+   */
+  setParent(parentId: WorkItemId | null): void {
+    this.assertNotDeleted()
+    this.validateParent(parentId)
+
+    this._parentId = parentId
+  }
+
+  /**
+   * Updates the Work Item estimate.
+   */
+  estimate(storyPoints: number | null): void {
+    this.assertNotDeleted()
+    this.validateStoryPoints(storyPoints)
+
+    this._storyPoints = storyPoints
+  }
+
+  /**
+   * Starts the Work Item.
+   */
+  start(startedAt: Date = new Date()): void {
+    this.assertNotDeleted()
+    this.transitionTo(WorkItemStatus.IN_PROGRESS, startedAt)
+  }
+
+  /**
+   * Completes the Work Item.
+   */
+  complete(completedAt: Date = new Date()): void {
+    this.assertNotDeleted()
+    this.transitionTo(WorkItemStatus.DONE, completedAt)
+  }
+
+  /**
+   * Cancels the Work Item.
+   */
+  cancel(at: Date = new Date()): void {
+    this.assertNotDeleted()
+    this.transitionTo(WorkItemStatus.CANCELLED, at)
+  }
+
+  /**
+   * Soft-deletes the Work Item and records the deleting user.
+   */
+  delete(deletedBy: UserId, at: Date = new Date()): void {
+    if (this.isDeleted) {
+      throw new WorkItemAlreadyDeletedException()
+    }
+
+    this.assertValidDate(at, 'Deletion timestamp')
+
+    this._deletedAt = this.cloneDate(at)
+    this._deletedBy = deletedBy
+  }
+
+  /**
+   * Restores a soft-deleted Work Item.
+   */
+  restore(at: Date = new Date()): void {
+    if (!this.isDeleted) {
+      throw new WorkItemNotDeletedException()
+    }
+
+    this.assertValidDate(at, 'Restoration timestamp')
+
+    this._deletedAt = null
+    this._deletedBy = null
+  }
+
+  // ---------------------------------------------------------------------------
+  // Lifecycle
+  // ---------------------------------------------------------------------------
+
+  private transitionTo(status: WorkItemStatus, at: Date): void {
+    this.assertValidDate(at, 'Status transition timestamp')
     this.validateStatusTransition(status)
 
     if (status === this._status) {
       return
     }
 
-    const now = new Date()
+    let nextStartedAt = this._startedAt
 
-    this._status = status
-
-    if (status === WorkItemStatus.IN_PROGRESS) {
-      this._startedAt ??= now
+    if (
+      (status === WorkItemStatus.IN_PROGRESS ||
+        status === WorkItemStatus.DONE) &&
+      nextStartedAt === null
+    ) {
+      nextStartedAt = this.cloneDate(at)
     }
 
-    this._completedAt =
-      status === WorkItemStatus.DONE ? (this._completedAt ?? now) : null
-
-    this.touch()
-  }
-
-  assignTo(assigneeId: UserId | null): void {
-    this.assertNotDeleted()
-
-    this._assigneeId = assigneeId
-
-    this.touch()
-  }
-
-  moveToSprint(sprintId: SprintId | null): void {
-    this.assertNotDeleted()
-
-    this._sprintId = sprintId
-
-    this.touch()
-  }
-
-  changePriority(priority: WorkItemPriority | null): void {
-    this.assertNotDeleted()
-
-    this._priority = priority
-
-    this.touch()
-  }
-
-  changeType(type: WorkItemType): void {
-    this.assertNotDeleted()
-
-    this._type = type
-
-    this.touch()
-  }
-
-  setParent(parentId: WorkItemId | null): void {
-    this.assertNotDeleted()
-    this.validateParent(parentId)
-
-    this._parentId = parentId
-
-    this.touch()
-  }
-
-  estimate(storyPoints: number | null): void {
-    this.assertNotDeleted()
-    this.validateStoryPoints(storyPoints)
-
-    this._storyPoints = storyPoints
-
-    this.touch()
-  }
-
-  start(startedAt: Date = new Date()): void {
-    this.assertNotDeleted()
-    this.validateStatusTransition(WorkItemStatus.IN_PROGRESS)
-
-    const nextStartedAt = this._startedAt ?? startedAt
+    const nextCompletedAt =
+      status === WorkItemStatus.DONE ? this.cloneDate(at) : null
 
     this.validateDates({
       startedAt: nextStartedAt,
       dueDate: this._dueDate,
-      completedAt: this._completedAt,
+      completedAt: nextCompletedAt,
     })
 
-    this._status = WorkItemStatus.IN_PROGRESS
+    this._status = status
     this._startedAt = nextStartedAt
-
-    this.touch()
-  }
-
-  complete(completedAt: Date = new Date()): void {
-    this.assertNotDeleted()
-    this.validateStatusTransition(WorkItemStatus.DONE)
-
-    this.validateDates({
-      startedAt: this._startedAt,
-      dueDate: this._dueDate,
-      completedAt,
-    })
-
-    this._status = WorkItemStatus.DONE
-    this._completedAt = completedAt
-
-    this.touch()
-  }
-
-  cancel(): void {
-    this.assertNotDeleted()
-    this.validateStatusTransition(WorkItemStatus.CANCELLED)
-
-    this._status = WorkItemStatus.CANCELLED
-    this._completedAt = null
-
-    this.touch()
-  }
-
-  delete(): void {
-    if (this._deletedAt) {
-      throw new WorkItemAlreadyDeletedException()
-    }
-
-    this._deletedAt = new Date()
-
-    this.touch()
-  }
-
-  restore(): void {
-    if (!this._deletedAt) {
-      throw new WorkItemNotDeletedException()
-    }
-
-    this._deletedAt = null
-
-    this.touch()
+    this._completedAt = nextCompletedAt
   }
 
   // ---------------------------------------------------------------------------
@@ -395,16 +455,12 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
     return this._workspaceId
   }
 
-  get projectId(): ProjectId {
+  get projectId(): ProjectId | null {
     return this._projectId
   }
 
   get teamId(): TeamId {
     return this._teamId
-  }
-
-  get type(): WorkItemType {
-    return this._type
   }
 
   get key(): WorkItemKey {
@@ -413,6 +469,10 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
 
   get number(): number {
     return this._number
+  }
+
+  get type(): WorkItemType {
+    return this._type
   }
 
   get title(): string {
@@ -439,10 +499,6 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
     return this._priority
   }
 
-  get sprintId(): SprintId | null {
-    return this._sprintId
-  }
-
   get assigneeId(): UserId | null {
     return this._assigneeId
   }
@@ -456,27 +512,31 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
   }
 
   get startedAt(): Date | null {
-    return this._startedAt ? new Date(this._startedAt) : null
+    return this.cloneNullableDate(this._startedAt)
   }
 
   get dueDate(): Date | null {
-    return this._dueDate ? new Date(this._dueDate) : null
+    return this.cloneNullableDate(this._dueDate)
   }
 
   get completedAt(): Date | null {
-    return this._completedAt ? new Date(this._completedAt) : null
-  }
-
-  get createdAt(): Date {
-    return new Date(this._createdAt)
-  }
-
-  get updatedAt(): Date {
-    return new Date(this._updatedAt)
+    return this.cloneNullableDate(this._completedAt)
   }
 
   get deletedAt(): Date | null {
-    return this._deletedAt ? new Date(this._deletedAt) : null
+    return this.cloneNullableDate(this._deletedAt)
+  }
+
+  get deletedBy(): UserId | null {
+    return this._deletedBy
+  }
+
+  get createdAt(): Date {
+    return this.cloneDate(this._createdAt)
+  }
+
+  get updatedAt(): Date {
+    return this.cloneDate(this._updatedAt)
   }
 
   get isDeleted(): boolean {
@@ -496,25 +556,73 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
   // ---------------------------------------------------------------------------
 
   private assertNotDeleted(): void {
-    if (this._deletedAt) {
+    if (this.isDeleted) {
       throw new WorkItemDeletedException()
     }
   }
 
   private validateInvariants(): void {
-    this.validateParent(this._parentId)
+    this.validateTitle(this._title)
     this.validateStoryPoints(this._storyPoints)
+    this.validateParent(this._parentId)
 
     this.validateDates({
       startedAt: this._startedAt,
       dueDate: this._dueDate,
       completedAt: this._completedAt,
     })
+
+    this.assertValidDate(this._createdAt, 'Creation timestamp')
+    this.assertValidDate(this._updatedAt, 'Update timestamp')
+
+    if (this._updatedAt < this._createdAt) {
+      throw new TypeError(
+        'Work Item update timestamp cannot precede its creation timestamp.'
+      )
+    }
+
+    if (this._deletedAt !== null) {
+      this.assertValidDate(this._deletedAt, 'Deletion timestamp')
+    }
+
+    if (this._deletedAt === null && this._deletedBy !== null) {
+      throw new TypeError(
+        'A non-deleted Work Item cannot have a deleting user.'
+      )
+    }
+
+    if (this._status === WorkItemStatus.DONE && this._completedAt === null) {
+      throw new TypeError(
+        'A completed Work Item must have a completion timestamp.'
+      )
+    }
+
+    if (this._status !== WorkItemStatus.DONE && this._completedAt !== null) {
+      throw new TypeError(
+        'Only a completed Work Item can have a completion timestamp.'
+      )
+    }
+
+    if (
+      (this._status === WorkItemStatus.IN_PROGRESS ||
+        this._status === WorkItemStatus.DONE) &&
+      this._startedAt === null
+    ) {
+      throw new TypeError(
+        'An in-progress or completed Work Item must have a start timestamp.'
+      )
+    }
   }
 
   private validateTitle(title: string): void {
-    if (!title) {
+    if (!title.trim()) {
       throw new WorkItemTitleNotAllowedException()
+    }
+
+    if (title.length > WORK_ITEM_TITLE_MAX_LENGTH) {
+      throw new RangeError(
+        `Work Item title cannot exceed ${WORK_ITEM_TITLE_MAX_LENGTH} characters.`
+      )
     }
   }
 
@@ -525,7 +633,12 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
   }
 
   private validateStoryPoints(storyPoints: number | null): void {
-    if (storyPoints !== null && storyPoints <= 0) {
+    if (
+      storyPoints !== null &&
+      (!Number.isFinite(storyPoints) ||
+        !Number.isInteger(storyPoints) ||
+        storyPoints < 1)
+    ) {
       throw new WorkItemEstimationNotAllowedException()
     }
   }
@@ -552,33 +665,82 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
   }): void {
     const { startedAt, dueDate, completedAt } = params
 
-    if (startedAt && completedAt && completedAt < startedAt) {
+    if (startedAt !== null) {
+      this.assertValidDate(startedAt, 'Start timestamp')
+    }
+
+    if (dueDate !== null) {
+      this.assertValidDate(dueDate, 'Due date')
+    }
+
+    if (completedAt !== null) {
+      this.assertValidDate(completedAt, 'Completion timestamp')
+    }
+
+    if (startedAt !== null && completedAt !== null && completedAt < startedAt) {
       throw new WorkItemCompletedBeforeStartedException()
     }
 
-    if (startedAt && dueDate && dueDate < startedAt) {
-      throw new WorkItemDueDateBeforeStartedException()
-    }
+    // A due date earlier than the actual start date indicates overdue work,
+    // not an invalid Work Item.
   }
 
   // ---------------------------------------------------------------------------
-  // Helpers
+  // Normalization and helpers
   // ---------------------------------------------------------------------------
+
+  private normalizeTitle(title: string): string {
+    const normalized = title.trim()
+
+    this.validateTitle(normalized)
+
+    return normalized
+  }
+
+  private normalizeDescription(
+    description: string | null | undefined
+  ): string | undefined {
+    const normalized = description?.trim()
+
+    if (!normalized) {
+      return undefined
+    }
+
+    if (normalized.length > WORK_ITEM_DESCRIPTION_MAX_LENGTH) {
+      throw new RangeError(
+        `Work Item description cannot exceed ${WORK_ITEM_DESCRIPTION_MAX_LENGTH} characters.`
+      )
+    }
+
+    return normalized
+  }
+
+  private normalizeAcceptanceCriteria(
+    criteria: readonly string[]
+  ): readonly string[] {
+    return criteria.map((criterion) => criterion.trim()).filter(Boolean)
+  }
 
   private toWorkItemId(id: string | null): WorkItemId | null {
     return id ? WorkItemId.create(id) : null
-  }
-
-  private toSprintId(id: string | null): SprintId | null {
-    return id ? SprintId.create(id) : null
   }
 
   private toUserId(id: string | null): UserId | null {
     return id ? UserId.create(id) : null
   }
 
-  private touch(): void {
-    this._updatedAt = new Date()
+  private assertValidDate(date: Date, fieldName: string): void {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+      throw new TypeError(`${fieldName} must be a valid date.`)
+    }
+  }
+
+  private cloneDate(date: Date): Date {
+    return new Date(date.getTime())
+  }
+
+  private cloneNullableDate(date: Date | null | undefined): Date | null {
+    return date == null ? null : this.cloneDate(date)
   }
 
   // ---------------------------------------------------------------------------
