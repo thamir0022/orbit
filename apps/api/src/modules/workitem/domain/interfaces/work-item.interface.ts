@@ -1,5 +1,4 @@
 import { ProjectId } from '@/modules/project/domain'
-import { SprintId } from '@/modules/sprint/domain'
 import { TeamId } from '@/modules/team/domain'
 import { UserId } from '@/modules/user/domain'
 import { WorkspaceId } from '@/modules/workspace/domain'
@@ -14,7 +13,7 @@ export interface WorkItemProps {
   readonly id: WorkItemId
 
   readonly workspaceId: WorkspaceId
-  readonly projectId: ProjectId
+  readonly projectId: ProjectId | null
   readonly teamId: TeamId
 
   readonly type: WorkItemType
@@ -31,8 +30,6 @@ export interface WorkItemProps {
   readonly status: WorkItemStatus
   readonly priority: WorkItemPriority | null
 
-  readonly sprintId: SprintId | null
-
   readonly assigneeId: UserId | null
   readonly createdBy: UserId
 
@@ -46,6 +43,7 @@ export interface WorkItemProps {
   readonly updatedAt: Date
 
   readonly deletedAt: Date | null
+  readonly deletedBy: UserId | null
 }
 
 export interface CreateWorkItemProps {
@@ -59,15 +57,13 @@ export interface CreateWorkItemProps {
   readonly number: number
 
   readonly title: string
-  readonly description?: string | null
+  readonly description?: string
   readonly acceptanceCriteria?: readonly string[]
 
   readonly parentId?: string | null
 
   readonly status?: WorkItemStatus
   readonly priority?: WorkItemPriority | null
-
-  readonly sprintId?: string | null
 
   readonly assigneeId?: string | null
   readonly createdBy: string
