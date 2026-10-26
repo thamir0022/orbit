@@ -9,6 +9,7 @@ export type WorkItemDocument = HydratedDocument<WorkItemModel>
 
 @Schema({
   collection: 'work_items',
+  timestamps: true,
   versionKey: false,
 })
 export class WorkItemModel {
@@ -17,7 +18,6 @@ export class WorkItemModel {
     required: true,
     unique: true,
     immutable: true,
-    index: true,
   })
   id!: string
 
@@ -26,25 +26,21 @@ export class WorkItemModel {
     required: true,
     immutable: true,
     ref: 'workspaces',
-    index: true,
   })
   workspaceId!: string
 
   @Prop({
     type: MongooseSchema.Types.UUID,
-    required: true,
-    immutable: true,
+    default: null,
     ref: 'projects',
-    index: true,
   })
-  projectId!: string
+  projectId!: string | null
 
   @Prop({
     type: MongooseSchema.Types.UUID,
     required: true,
     immutable: true,
     ref: 'teams',
-    index: true,
   })
   teamId!: string
 
@@ -61,6 +57,8 @@ export class WorkItemModel {
     required: true,
     immutable: true,
     trim: true,
+    minlength: 1,
+    maxlength: 250,
   })
   key!: string
 
@@ -69,6 +67,10 @@ export class WorkItemModel {
     required: true,
     immutable: true,
     min: 1,
+    validate: {
+      validator: Number.isInteger,
+      message: 'Work Item number must be an integer.',
+    },
   })
   number!: number
 
@@ -76,12 +78,15 @@ export class WorkItemModel {
     type: String,
     required: true,
     trim: true,
+    minlength: 1,
+    maxlength: 250,
   })
   title!: string
 
   @Prop({
     type: String,
     trim: true,
+    maxlength: 20000,
     default: undefined,
   })
   description?: string
@@ -96,7 +101,6 @@ export class WorkItemModel {
     type: MongooseSchema.Types.UUID,
     ref: 'workitems',
     default: null,
-    index: true,
   })
   parentId!: string | null
 
@@ -117,17 +121,8 @@ export class WorkItemModel {
 
   @Prop({
     type: MongooseSchema.Types.UUID,
-    ref: 'sprints',
-    default: null,
-    index: true,
-  })
-  sprintId!: string | null
-
-  @Prop({
-    type: MongooseSchema.Types.UUID,
     ref: 'users',
     default: null,
-    index: true,
   })
   assigneeId!: string | null
 
@@ -136,7 +131,6 @@ export class WorkItemModel {
     required: true,
     immutable: true,
     ref: 'users',
-    index: true,
   })
   createdBy!: string
 
@@ -144,6 +138,12 @@ export class WorkItemModel {
     type: Number,
     default: null,
     min: 1,
+    validate: {
+      validator: (value: number | null) =>
+        value == null ||
+        (Number.isFinite(value) && Number.isInteger(value) && value >= 1),
+      message: 'Story points must be a positive integer.',
+    },
   })
   storyPoints!: number | null
 
@@ -167,27 +167,29 @@ export class WorkItemModel {
 
   @Prop({
     type: Date,
-    required: true,
-    immutable: true,
-  })
-  createdAt!: Date
-
-  @Prop({
-    type: Date,
-    required: true,
-  })
-  updatedAt!: Date
-
-  @Prop({
-    type: Date,
     default: null,
-    index: true,
   })
   deletedAt!: Date | null
+
+  @Prop({
+    type: MongooseSchema.Types.UUID,
+    ref: 'users',
+    default: null,
+  })
+  deletedBy!: string | null
+
+  // Managed automatically by Mongoose's timestamps option.
+  createdAt!: Date
+  updatedAt!: Date
 }
 
 export const WorkItemSchema = SchemaFactory.createForClass(WorkItemModel)
 
+// ---------------------------------------------------------------------------
+// Unique constraints
+// ---------------------------------------------------------------------------
+
+// Work Item keys are unique within a workspace.
 WorkItemSchema.index(
   {
     workspaceId: 1,
@@ -199,16 +201,22 @@ WorkItemSchema.index(
   }
 )
 
+// Work Item numbers are scoped to their owning Team.
 WorkItemSchema.index(
   {
-    projectId: 1,
+    workspaceId: 1,
+    teamId: 1,
     number: 1,
   },
   {
     unique: true,
-    name: 'project_work_item_number_unique',
+    name: 'workspace_team_work_item_number_unique',
   }
 )
+
+// ---------------------------------------------------------------------------
+// Query indexes
+// ---------------------------------------------------------------------------
 
 WorkItemSchema.index(
   {
@@ -229,17 +237,6 @@ WorkItemSchema.index(
   },
   {
     name: 'workspace_team_status_idx',
-  }
-)
-
-WorkItemSchema.index(
-  {
-    workspaceId: 1,
-    teamId: 1,
-    sprintId: 1,
-  },
-  {
-    name: 'workspace_team_sprint_idx',
   }
 )
 
