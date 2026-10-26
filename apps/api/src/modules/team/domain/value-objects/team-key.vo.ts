@@ -1,5 +1,3 @@
-import { randomBytes } from 'node:crypto'
-
 import { ValueObject } from '@/shared/domain'
 
 import { TeamKeyInvalidException } from '../exceptions'
@@ -9,42 +7,69 @@ interface TeamKeyProps {
 }
 
 export class TeamKey extends ValueObject<TeamKeyProps> {
-  private static readonly PREFIX_LENGTH = 3
-  private static readonly RANDOM_SUFFIX_BYTES = 4
-  private static readonly PATTERN = /^[A-Z0-9]{3}-[A-F0-9]{8}$/
+  private static readonly MAX_LENGTH = 10
+
+  private static readonly PATTERN = /^[A-Z][A-Z0-9]{0,9}$/
 
   private constructor(props: TeamKeyProps) {
     super(props)
   }
 
-  /** Creates a team key from an existing value. */
+  /**
+   * Creates a team key from an existing value.
+   *
+   * Examples: ENG, QA, API
+   */
   static create(value: string): TeamKey {
     const normalizedValue = value.trim().toUpperCase()
 
-    if (!TeamKey.PATTERN.test(normalizedValue)) {
+    if (
+      normalizedValue.length > TeamKey.MAX_LENGTH ||
+      !TeamKey.PATTERN.test(normalizedValue)
+    ) {
       throw new TeamKeyInvalidException()
     }
 
     return new TeamKey({ value: normalizedValue })
   }
 
-  /** Generates a team key, e.g. ENG-A1B2C3D4. */
+  /**
+   * Generates a candidate team key from a team name.
+   *
+   * Examples:
+   * "Engineering" -> ENG
+   * "Quality Assurance" -> QUA
+   * "API Team" -> API
+   * "3D Design" -> T3D
+   *
+   * This does not guarantee uniqueness within a workspace.
+   * The application layer must resolve key conflicts.
+   */
   static generate(teamName: string): TeamKey {
-    const prefix = teamName
+    const normalizedName = teamName
       .trim()
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
       .toUpperCase()
       .replace(/[^A-Z0-9]/g, '')
-      .slice(0, TeamKey.PREFIX_LENGTH)
 
-    if (prefix.length !== TeamKey.PREFIX_LENGTH) {
+    if (!normalizedName) {
       throw new TeamKeyInvalidException()
     }
 
-    const suffix = randomBytes(TeamKey.RANDOM_SUFFIX_BYTES)
-      .toString('hex')
-      .toUpperCase()
+    let prefix = normalizedName.slice(0, 3)
 
-    return TeamKey.create(`${prefix}-${suffix}`)
+    // Team keys must start with a letter.
+    if (!/^[A-Z]/.test(prefix)) {
+      prefix = `T${prefix.slice(0, 2)}`
+    }
+
+    // Ensure short names still produce a valid candidate.
+    if (prefix.length === 1) {
+      prefix = `${prefix}T`
+    }
+
+    return TeamKey.create(prefix)
   }
 
   get value(): string {
