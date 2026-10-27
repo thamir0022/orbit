@@ -1,5 +1,4 @@
 import { ProjectId } from '@/modules/project/domain'
-import { SprintId } from '@/modules/sprint/domain'
 import { TeamId } from '@/modules/team/domain'
 import { UserId } from '@/modules/user/domain'
 import { WorkspaceId } from '@/modules/workspace/domain'
@@ -15,7 +14,9 @@ export class WorkItemMapper {
       id: WorkItemId.fromString(document.id),
 
       workspaceId: WorkspaceId.fromString(document.workspaceId),
-      projectId: ProjectId.fromString(document.projectId),
+      projectId: document.projectId
+        ? ProjectId.fromString(document.projectId)
+        : null,
       teamId: TeamId.fromString(document.teamId),
 
       type: document.type,
@@ -35,10 +36,6 @@ export class WorkItemMapper {
       status: document.status,
       priority: document.priority,
 
-      sprintId: document.sprintId
-        ? SprintId.fromString(document.sprintId)
-        : null,
-
       assigneeId: document.assigneeId
         ? UserId.fromString(document.assigneeId)
         : null,
@@ -55,6 +52,8 @@ export class WorkItemMapper {
       updatedAt: document.updatedAt,
 
       deletedAt: document.deletedAt ?? null,
+
+      deletedBy: document.deletedBy ? UserId.create(document.deletedBy) : null,
     })
   }
 
@@ -63,7 +62,7 @@ export class WorkItemMapper {
       id: workItem.id.value,
 
       workspaceId: workItem.workspaceId.value,
-      projectId: workItem.projectId.value,
+      projectId: workItem.projectId?.value,
       teamId: workItem.teamId.value,
 
       type: workItem.type,
@@ -81,8 +80,6 @@ export class WorkItemMapper {
       status: workItem.status,
       priority: workItem.priority,
 
-      sprintId: workItem.sprintId ? workItem.sprintId.value : null,
-
       assigneeId: workItem.assigneeId ? workItem.assigneeId.value : null,
 
       createdBy: workItem.createdBy.value,
@@ -97,6 +94,7 @@ export class WorkItemMapper {
       updatedAt: workItem.updatedAt,
 
       deletedAt: workItem.deletedAt,
+      deletedBy: workItem.deletedBy?.value,
     }
   }
 }
