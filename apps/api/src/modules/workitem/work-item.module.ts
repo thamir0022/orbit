@@ -6,11 +6,10 @@ import {
 } from './infrastructure/persistance/mongoose/schemas/work-item.schema'
 import { WorkItemProviders } from './infrastructure/providers/work-item.provider'
 import {
-  WorkItemCounterModel,
-  WorkItemCounterSchema,
+  TeamWorkItemCounterModel,
+  TeamWorkItemCounterSchema,
 } from './infrastructure/persistance/mongoose/schemas/work-item-counter.schema'
 import { WorkItemController } from './presentation/http/controllers/work-item.controller'
-import { ProjectModule } from '../project/project.module'
 import {
   CREATE_WORK_ITEM_USE_CASE,
   CreateWorkItemUseCase,
@@ -31,6 +30,7 @@ import {
   UPDATE_WORK_ITEM_USE_CASE,
   UpdateWorkItemUseCase,
 } from './application/usecases/update-workitem'
+import { TeamModule } from '../team/team.module'
 
 @Module({
   imports: [
@@ -40,11 +40,11 @@ import {
         schema: WorkItemSchema,
       },
       {
-        name: WorkItemCounterModel.name,
-        schema: WorkItemCounterSchema,
+        name: TeamWorkItemCounterModel.name,
+        schema: TeamWorkItemCounterSchema,
       },
     ]),
-    ProjectModule,
+    TeamModule,
   ],
   providers: [
     ...WorkItemProviders,
