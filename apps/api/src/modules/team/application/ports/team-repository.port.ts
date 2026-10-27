@@ -20,6 +20,12 @@ export interface TeamRepository extends IBaseRepository<Team, TeamId> {
     options?: ITransactionOptions
   ): Promise<Team[]>
 
+  findByWorkspaceIdAndId(
+    workspaceId: WorkspaceId,
+    id: TeamId,
+    options?: ITransactionOptions
+  ): Promise<Team | null>
+
   findByWorkspaceIdAndKey(
     props: FindTeamByWorkspaceIdAndKeyProps,
     options?: ITransactionOptions

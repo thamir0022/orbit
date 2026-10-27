@@ -65,6 +65,29 @@ export class MongoTeamRepository implements TeamRepository {
     return documents.map((doc) => TeamMapper.toDomainDto(doc))
   }
 
+  async findByWorkspaceIdAndId(
+    workspaceId: WorkspaceId,
+    id: TeamId,
+    options?: ITransactionOptions
+  ): Promise<Team | null> {
+    const team = await this.teamModel
+      .findOne(
+        {
+          workspaceId: workspaceId.value,
+          id: id.value,
+          deletedAt: null,
+        },
+        null,
+        {
+          session: options?.session,
+        }
+      )
+      .lean()
+      .exec()
+
+    return team ? TeamMapper.toDomainDto(team) : null
+  }
+
   async findByWorkspaceIdAndKey(
     props: FindTeamByWorkspaceIdAndKeyProps,
     options?: ITransactionOptions
