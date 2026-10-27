@@ -1,4 +1,3 @@
-import { ProjectKey } from '@/modules/project/domain/value-objects/project-key.vo'
 import { ValueObject } from '@/shared/domain'
 
 import { WorkItemKeyInvalidException } from '../exceptions/work-item-key-invalid.exception'
@@ -8,20 +7,15 @@ interface WorkItemKeyProps {
 }
 
 export class WorkItemKey extends ValueObject<WorkItemKeyProps> {
-  private static readonly NUMBER_WIDTH = 3
+  private static readonly TEAM_KEY_PATTERN = /^[A-Z][A-Z0-9]{0,9}$/
 
-  private static readonly PATTERN = /^[A-Z0-9]{3}-\d+-\d+$/
+  private static readonly PATTERN = /^[A-Z][A-Z0-9]{0,9}-[1-9]\d*$/
 
   private constructor(props: WorkItemKeyProps) {
     super(props)
   }
 
-  /**
-   * Creates a WorkItemKey from an already generated value.
-   *
-   * Example:
-   * ORB-001-001
-   */
+  /** Creates a Work Item key from an existing value, e.g. ENG-123. */
   static create(value: string): WorkItemKey {
     const normalizedValue = value.trim().toUpperCase()
 
@@ -29,30 +23,25 @@ export class WorkItemKey extends ValueObject<WorkItemKeyProps> {
       throw new WorkItemKeyInvalidException()
     }
 
-    return new WorkItemKey({
-      value: normalizedValue,
-    })
+    return new WorkItemKey({ value: normalizedValue })
   }
 
-  /**
-   * Generates a WorkItemKey from the project key and
-   * project-scoped sequential work item number.
-   *
-   * Example:
-   * ORB-001 + 1 → ORB-001-001
-   */
-  static generate(projectKey: ProjectKey, number: number): WorkItemKey {
-    if (!Number.isInteger(number) || number <= 0) {
+  /** Generates a Work Item key from a team key and its allocated sequence. */
+  static fromSequence(teamKey: string, sequence: number): WorkItemKey {
+    const normalizedTeamKey = teamKey.trim().toUpperCase()
+
+    if (
+      !WorkItemKey.TEAM_KEY_PATTERN.test(normalizedTeamKey) ||
+      !Number.isSafeInteger(sequence) ||
+      sequence <= 0
+    ) {
       throw new WorkItemKeyInvalidException()
     }
 
-    const value = `${projectKey.value}-${number
-      .toString()
-      .padStart(WorkItemKey.NUMBER_WIDTH, '0')}`
-
-    return WorkItemKey.create(value)
+    return WorkItemKey.create(`${normalizedTeamKey}-${sequence}`)
   }
 
+  /** Reconstitutes a Work Item key from its persisted value. */
   static fromString(value: string): WorkItemKey {
     return WorkItemKey.create(value)
   }
