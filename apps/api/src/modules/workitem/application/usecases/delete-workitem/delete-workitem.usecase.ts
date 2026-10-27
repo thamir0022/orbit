@@ -11,6 +11,7 @@ import { WorkItemNotFoundException } from '../../../domain/exceptions'
 
 import { DeleteWorkItemInput } from './delete-workitem.input'
 import { IDeleteWorkItemUseCase } from './delete-workitem.interface'
+import { UserId } from '@/modules/user/domain'
 
 /**
  * Soft deletes a work item through its domain aggregate.
@@ -39,7 +40,9 @@ export class DeleteWorkItemUseCase implements IDeleteWorkItemUseCase {
       throw new WorkItemNotFoundException()
     }
 
-    workItem.delete()
+    const deletedBy = UserId.create(input.actorId)
+
+    workItem.delete(deletedBy)
 
     await this.workItemRepository.save(workItem)
   }

@@ -150,12 +150,13 @@ export class WorkItemController {
   @Delete(':key')
   @ResponseMessage(WorkItemResponseMessage.WORKITEM_DELETED)
   async deleteWorkItem(
-    @CurrentAuth('workspaceId') workspaceId: string,
+    @CurrentAuth() auth: AuthContext,
     @Param('key') key: string
   ) {
     return this.deleteWorkItemUseCase.execute({
-      workspaceId,
+      workspaceId: auth.workspaceId!,
       key,
+      actorId: auth.userId,
     })
   }
 }

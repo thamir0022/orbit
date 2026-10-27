@@ -9,13 +9,13 @@ import { WorkItemType } from '../../../domain/enums/work-item-type.enum'
  */
 export interface CreateWorkItemInput {
   readonly workspaceId: string
-  readonly projectId: string
   readonly teamId: string
+  readonly projectId?: string
 
   readonly type?: WorkItemType
 
   readonly title: string
-  readonly description?: string | null
+  readonly description?: string
   readonly acceptanceCriteria?: readonly string[]
 
   readonly parentId?: string | null

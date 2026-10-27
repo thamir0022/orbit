@@ -1,21 +1,20 @@
 import { Inject, Injectable } from '@nestjs/common'
 
-import { ProjectId } from '@/modules/project/domain'
-import { ProjectNotFoundException } from '@/modules/project/domain/exceptions'
+import { TeamId } from '@/modules/team/domain'
+import {
+  TEAM_REPOSITORY,
+  TeamRepository,
+} from '@/modules/team/application/ports/team-repository.port'
 import { WorkspaceId } from '@/modules/workspace/domain'
 
 import { WorkItem } from '../../../domain/entities/work-item.entity'
-import { WorkItemKey } from '../../../domain/value-objects/work-item-key.vo'
 import { WorkItemNotFoundException } from '../../../domain/exceptions'
+import { WorkItemKey } from '../../../domain/value-objects/work-item-key.vo'
 
 import {
-  PROJECT_REPOSITORY,
-  ProjectRepository,
-} from '@/modules/project/application/ports/project-repository.port'
-import {
-  WORK_ITEM_COUNTER_REPOSITORY,
-  WorkItemCounterRepository,
-} from '../../ports/work-item-counter-repository.port'
+  WORK_ITEM_NUMBER_ALLOCATOR,
+  WorkItemNumberAllocator,
+} from '../../ports/work-item-number-allocator.port'
 import {
   WORK_ITEM_QUERY_REPOSITORY,
   WorkItemQueryRepository,
@@ -25,23 +24,24 @@ import {
   WorkItemRepository,
 } from '../../ports/work-item-repository.port'
 
-import { CreateWorkItemInput } from './create-work-item.input'
-import { ICreateWorkItemUseCase } from './create-work-item.interface'
-import { CreateWorkItemOutput } from './create-work-item.output'
-
 import {
   ITransactionManager,
   TRANSACTION_MANAGER,
 } from '@/shared/application/ports/transaction-manager.interface'
 
+import { CreateWorkItemInput } from './create-work-item.input'
+import { ICreateWorkItemUseCase } from './create-work-item.interface'
+import { CreateWorkItemOutput } from './create-work-item.output'
+import { TeamNotFoundException } from '@/modules/team/domain/exceptions'
+
 @Injectable()
 export class CreateWorkItemUseCase implements ICreateWorkItemUseCase {
   constructor(
-    @Inject(PROJECT_REPOSITORY)
-    private readonly projectRepository: ProjectRepository,
+    @Inject(TEAM_REPOSITORY)
+    private readonly teamRepository: TeamRepository,
 
-    @Inject(WORK_ITEM_COUNTER_REPOSITORY)
-    private readonly workItemCounterRepository: WorkItemCounterRepository,
+    @Inject(WORK_ITEM_NUMBER_ALLOCATOR)
+    private readonly workItemNumberAllocator: WorkItemNumberAllocator,
 
     @Inject(WORK_ITEM_REPOSITORY)
     private readonly workItemRepository: WorkItemRepository,
@@ -54,49 +54,59 @@ export class CreateWorkItemUseCase implements ICreateWorkItemUseCase {
   ) {}
 
   async execute(input: CreateWorkItemInput): Promise<CreateWorkItemOutput> {
-    const { workspaceId: workspaceIdValue, ...workItemProps } = input
+    const {
+      workspaceId: workspaceIdValue,
+      teamId: teamIdValue,
+      ...workItemProps
+    } = input
 
     const workspaceId = WorkspaceId.create(workspaceIdValue)
-    const projectId = ProjectId.create(input.projectId)
+    const teamId = TeamId.create(teamIdValue)
 
-    const project = await this.projectRepository.findById(projectId)
+    const team = await this.teamRepository.findByWorkspaceIdAndId(
+      workspaceId,
+      teamId
+    )
 
-    if (!project) throw new ProjectNotFoundException()
+    if (!team) {
+      throw new TeamNotFoundException()
+    }
 
     const workItem = await this.transactionManager.executeTransaction(
       async (session) => {
-        const number = await this.workItemCounterRepository.nextNumber(
-          projectId,
+        const sequence = await this.workItemNumberAllocator.allocateNextNumber(
+          workspaceId,
+          teamId,
           { session }
         )
 
-        const key = WorkItemKey.generate(project.key, number)
+        const key = WorkItemKey.fromSequence(team.key.value, sequence)
 
-        const workItem = WorkItem.create({
+        const newWorkItem = WorkItem.create({
           ...workItemProps,
-
           workspaceId: workspaceId.value,
-
+          teamId: teamId.value,
           key,
-          number,
-
+          number: sequence,
           createdBy: input.actorId,
         })
 
-        await this.workItemRepository.save(workItem, { session })
+        await this.workItemRepository.save(newWorkItem, { session })
 
-        return workItem
+        return newWorkItem
       }
     )
 
     const result =
-      await this.workItemQueryRepository.findByWorkspaceIdAndProjectIdAndId({
+      await this.workItemQueryRepository.findByWorkspaceIdAndTeamIdAndId({
         workspaceId: workItem.workspaceId,
-        projectId: workItem.projectId,
+        teamId: workItem.teamId,
         workItemId: workItem.id,
       })
 
-    if (!result) throw new WorkItemNotFoundException()
+    if (!result) {
+      throw new WorkItemNotFoundException()
+    }
 
     return {
       workItem: result,

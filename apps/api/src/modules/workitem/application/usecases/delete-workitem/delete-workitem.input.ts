@@ -4,6 +4,6 @@
  */
 export interface DeleteWorkItemInput {
   readonly workspaceId: string
-
   readonly key: string
+  readonly actorId: string
 }

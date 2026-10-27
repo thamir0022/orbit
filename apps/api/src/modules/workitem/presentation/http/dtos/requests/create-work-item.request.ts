@@ -23,8 +23,9 @@ export class CreateWorkItemRequest {
     format: 'uuid',
     example: '01996f1a-2f8b-7b9d-8f5e-1c4a6b7d8e90',
   })
-  @IsUUID('7')
-  readonly projectId!: string
+  @IsUUID('7', { message: 'Invalid project id' })
+  @IsOptional()
+  readonly projectId?: string
 
   @ApiProperty({
     description: 'Team responsible for the work item.',
@@ -64,7 +65,7 @@ export class CreateWorkItemRequest {
   @IsOptional()
   @IsString()
   @MaxLength(5000)
-  readonly description?: string | null
+  readonly description?: string
 
   @ApiPropertyOptional({
     description: 'Acceptance criteria for the work item.',
