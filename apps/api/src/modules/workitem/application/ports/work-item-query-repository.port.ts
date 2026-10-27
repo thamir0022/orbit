@@ -94,9 +94,9 @@ export interface FindWorkItemsQueryProps {
 /**
  * Query parameters for retrieving a specific work item.
  */
-export interface FindWorkItemByWorkspaceIdAndProjectIdAndIdQueryProps {
+export interface FindWorkItemByWorkspaceIdAndTeamIdAndIdQueryProps {
   readonly workspaceId: WorkspaceId
-  readonly projectId: ProjectId
+  readonly teamId: TeamId
   readonly workItemId: WorkItemId
 }
 
@@ -134,8 +134,8 @@ export interface WorkItemQueryRepository {
     options?: ITransactionOptions
   ): Promise<WorkItemListItemOutput>
 
-  findByWorkspaceIdAndProjectIdAndId(
-    props: FindWorkItemByWorkspaceIdAndProjectIdAndIdQueryProps,
+  findByWorkspaceIdAndTeamIdAndId(
+    props: FindWorkItemByWorkspaceIdAndTeamIdAndIdQueryProps,
     options?: ITransactionOptions
   ): Promise<WorkItemListItemOutput | null>
 }

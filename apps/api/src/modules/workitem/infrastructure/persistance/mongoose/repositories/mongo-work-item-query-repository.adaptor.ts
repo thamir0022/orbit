@@ -6,7 +6,7 @@ import { ITransactionOptions } from '@/shared/application'
 import { WorkspaceId } from '@/modules/workspace/domain'
 
 import {
-  FindWorkItemByWorkspaceIdAndProjectIdAndIdQueryProps,
+  FindWorkItemByWorkspaceIdAndTeamIdAndIdQueryProps,
   FindWorkItemsQueryProps,
   QuerySortOrder,
   WorkItemQueryFilterProps,
@@ -132,15 +132,15 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
     return result ?? null
   }
 
-  async findByWorkspaceIdAndProjectIdAndId(
-    props: FindWorkItemByWorkspaceIdAndProjectIdAndIdQueryProps,
+  async findByWorkspaceIdAndTeamIdAndId(
+    props: FindWorkItemByWorkspaceIdAndTeamIdAndIdQueryProps,
     options?: ITransactionOptions
   ): Promise<WorkItemListItemOutput | null> {
     const pipeline: PipelineStage[] = [
       {
         $match: {
           workspaceId: new UUID(props.workspaceId.value),
-          projectId: new UUID(props.projectId.value),
+          teamId: new UUID(props.teamId.value),
           id: new UUID(props.workItemId.value),
           deletedAt: null,
         },
