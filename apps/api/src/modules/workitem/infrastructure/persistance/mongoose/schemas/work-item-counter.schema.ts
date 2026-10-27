@@ -1,52 +1,40 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose'
 
-export type WorkItemCounterDocument = HydratedDocument<WorkItemCounterModel>
+export type TeamWorkItemCounterDocument =
+  HydratedDocument<TeamWorkItemCounterModel>
 
 @Schema({
-  collection: 'work_item_counters',
+  collection: 'team_work_item_counters',
+  timestamps: true,
   versionKey: false,
 })
-export class WorkItemCounterModel {
+export class TeamWorkItemCounterModel {
   @Prop({
     type: MongooseSchema.Types.UUID,
-    required: true,
     immutable: true,
-    ref: 'projects',
+    required: true,
   })
-  projectId!: string
+  workspaceId!: string
+
+  @Prop({
+    type: MongooseSchema.Types.UUID,
+    immutable: true,
+    required: true,
+  })
+  teamId!: string
 
   @Prop({
     type: Number,
     required: true,
-    min: 0,
     default: 0,
+    min: 0,
   })
-  currentNumber!: number
-
-  @Prop({
-    type: Date,
-    required: true,
-    immutable: true,
-  })
-  createdAt!: Date
-
-  @Prop({
-    type: Date,
-    required: true,
-  })
-  updatedAt!: Date
+  lastIssuedNumber!: number
 }
 
-export const WorkItemCounterSchema =
-  SchemaFactory.createForClass(WorkItemCounterModel)
-
-WorkItemCounterSchema.index(
-  {
-    projectId: 1,
-  },
-  {
-    unique: true,
-    name: 'project_work_item_counter_unique',
-  }
+export const TeamWorkItemCounterSchema = SchemaFactory.createForClass(
+  TeamWorkItemCounterModel
 )
+
+TeamWorkItemCounterSchema.index({ workspaceId: 1, teamId: 1 }, { unique: true })
