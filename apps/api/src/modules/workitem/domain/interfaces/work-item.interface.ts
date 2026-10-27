@@ -48,7 +48,7 @@ export interface WorkItemProps {
 
 export interface CreateWorkItemProps {
   readonly workspaceId: string
-  readonly projectId: string
+  readonly projectId?: string
   readonly teamId: string
 
   readonly type?: WorkItemType
