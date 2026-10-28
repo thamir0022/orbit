@@ -12,6 +12,11 @@ export interface FindProjectByWorkspaceIdAndKeyProps {
 }
 
 export interface ProjectRepository extends IBaseRepository<Project, ProjectId> {
+  findByWorkspaceIdAndId(
+    props: { readonly workspaceId: WorkspaceId; readonly projectId: ProjectId },
+    options?: ITransactionOptions
+  ): Promise<Project | null>
+
   /**
    * Finds a project by its human-readable key within a workspace.
    */

@@ -13,6 +13,7 @@ import { ITransactionOptions } from '@/shared/application'
 import { ProjectId } from '../../../../domain'
 import { Project } from '../../../../domain/entities/project.entity'
 import { ProjectMapper } from '../mappers/project.mapper'
+import { WorkspaceId } from '@/modules/workspace/domain'
 
 @Injectable()
 export class MongoProjectRepository implements ProjectRepository {
@@ -55,6 +56,22 @@ export class MongoProjectRepository implements ProjectRepository {
 
     const document = await query.exec()
 
+    return document ? ProjectMapper.toDomain(document) : null
+  }
+
+  async findByWorkspaceIdAndId(
+    props: { readonly workspaceId: WorkspaceId; readonly projectId: ProjectId },
+    options?: ITransactionOptions
+  ): Promise<Project | null> {
+    const query = this.projectModel.findOne({
+      workspaceId: props.workspaceId.value,
+      id: props.projectId.value,
+      deletedAt: null,
+    })
+
+    if (options?.session) query.session(options.session)
+
+    const document = await query.exec()
     return document ? ProjectMapper.toDomain(document) : null
   }
 

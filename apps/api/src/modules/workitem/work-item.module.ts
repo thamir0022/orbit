@@ -36,6 +36,24 @@ import {
 } from './application/usecases/get-team-stories'
 import { TeamModule } from '../team/team.module'
 import { TeamStoriesController } from './presentation/http/controllers/team-stories.controller'
+import { WorkspaceModule } from '../workspace/workspace.module'
+import { ProjectModule } from '../project/project.module'
+import {
+  TEAM_STORY_CONTEXT_SERVICE,
+  TeamStoryContextService,
+} from './application/services/team-story-context.service'
+import {
+  CREATE_TEAM_STORY_USE_CASE,
+  CreateTeamStoryUseCase,
+} from './application/usecases/create-team-story'
+import {
+  UPDATE_TEAM_STORY_USE_CASE,
+  UpdateTeamStoryUseCase,
+} from './application/usecases/update-team-story'
+import {
+  DELETE_TEAM_STORY_USE_CASE,
+  DeleteTeamStoryUseCase,
+} from './application/usecases/delete-team-story'
 
 @Module({
   imports: [
@@ -50,9 +68,27 @@ import { TeamStoriesController } from './presentation/http/controllers/team-stor
       },
     ]),
     TeamModule,
+    WorkspaceModule,
+    ProjectModule,
   ],
   providers: [
     ...WorkItemProviders,
+    {
+      provide: TEAM_STORY_CONTEXT_SERVICE,
+      useClass: TeamStoryContextService,
+    },
+    {
+      provide: CREATE_TEAM_STORY_USE_CASE,
+      useClass: CreateTeamStoryUseCase,
+    },
+    {
+      provide: UPDATE_TEAM_STORY_USE_CASE,
+      useClass: UpdateTeamStoryUseCase,
+    },
+    {
+      provide: DELETE_TEAM_STORY_USE_CASE,
+      useClass: DeleteTeamStoryUseCase,
+    },
     {
       provide: CREATE_WORK_ITEM_USE_CASE,
       useClass: CreateWorkItemUseCase,
