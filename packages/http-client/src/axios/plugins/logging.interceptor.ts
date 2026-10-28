@@ -1,4 +1,4 @@
-import type { AxiosError, AxiosResponse } from "axios";
+import { isCancel, type AxiosError, type AxiosResponse } from "axios";
 import { AxiosInterceptor } from "../types/axios.types";
 
 export interface LoggingInterceptorOptions {
@@ -58,7 +58,10 @@ export function loggingInterceptor({
         return response;
       },
       (error: AxiosError) => {
-        if (logErrors) {
+        // Cancellation is a normal part of request lifecycle management, for
+        // example when TanStack Query replaces an in-flight query. Logging it
+        // as an error makes Next's development overlay report a false failure.
+        if (logErrors && !isCancel(error)) {
           console.error(
             `[HTTP ERROR ${error.response?.status ?? "NETWORK"}]`,
             error,

@@ -1,4 +1,4 @@
-import { AxiosInstance } from "axios";
+import { AxiosInstance, isCancel } from "axios";
 import { ApiSuccess, HttpRequestConfig } from "../types";
 import { normalizeError } from "../errors";
 import { InternalHttpRequest } from "./internal.types";
@@ -89,6 +89,13 @@ export class HttpClient {
 
       return data;
     } catch (error) {
+      // An AbortSignal is expected when a query observer is replaced or unmounted.
+      // Keep Axios's cancellation intact so TanStack Query can discard it instead
+      // of surfacing it as an application error.
+      if (isCancel(error)) {
+        throw error;
+      }
+
       normalizeError(error);
     }
   }
