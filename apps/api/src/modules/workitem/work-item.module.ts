@@ -30,7 +30,12 @@ import {
   UPDATE_WORK_ITEM_USE_CASE,
   UpdateWorkItemUseCase,
 } from './application/usecases/update-workitem'
+import {
+  GET_TEAM_STORIES_USE_CASE,
+  GetTeamStoriesUseCase,
+} from './application/usecases/get-team-stories'
 import { TeamModule } from '../team/team.module'
+import { TeamStoriesController } from './presentation/http/controllers/team-stories.controller'
 
 @Module({
   imports: [
@@ -68,7 +73,11 @@ import { TeamModule } from '../team/team.module'
       provide: UPDATE_WORK_ITEM_USE_CASE,
       useClass: UpdateWorkItemUseCase,
     },
+    {
+      provide: GET_TEAM_STORIES_USE_CASE,
+      useClass: GetTeamStoriesUseCase,
+    },
   ],
-  controllers: [WorkItemController],
+  controllers: [WorkItemController, TeamStoriesController],
 })
 export class WorkItemModule {}
