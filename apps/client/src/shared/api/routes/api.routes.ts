@@ -64,6 +64,10 @@ export const API_ROUTES = {
     BASE: '/teams',
     BY_KEY: (key: string) => `/teams/${encodeURIComponent(key)}`,
   },
+  WORK_ITEMS: {
+    BASE: 'work-items',
+    BY_KEY: (key: string) => `/work-items/${encodeURIComponent(key)}`,
+  },
 } as const
 
 // Export types for your routes
