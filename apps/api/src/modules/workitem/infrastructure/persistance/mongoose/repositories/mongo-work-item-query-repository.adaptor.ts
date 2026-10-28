@@ -14,6 +14,7 @@ import {
   WorkItemQuerySortField,
   WorkItemListQueryResult,
   FindWorkItemByWorkspaceIdAndKeyProps,
+  FindWorkItemByWorkspaceIdAndTeamKeyQueryProps,
 } from '../../../../application/ports/work-item-query-repository.port'
 import { WorkItemListItemOutput } from '../../../../application/contracts/work-item-list-item.output'
 import { WorkItemDocument, WorkItemModel } from '../schemas/work-item.schema'
@@ -165,6 +166,38 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
     return result ?? null
   }
 
+  async findByWorkspaceIdAndTeamKey(
+    props: FindWorkItemByWorkspaceIdAndTeamKeyQueryProps,
+    options?: ITransactionOptions
+  ): Promise<WorkItemListItemOutput | null> {
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          workspaceId: new UUID(props.workspaceId.value),
+          teamKey: props.teamkey.value,
+          deletedAt: null,
+        },
+      },
+
+      ...this.buildUserEnrichmentStages(),
+
+      {
+        $project: this.buildListProjectionStage(),
+      },
+
+      {
+        $limit: 1,
+      },
+    ]
+
+    const [result] = await this.executeAggregation<WorkItemListItemOutput>(
+      pipeline,
+      options
+    )
+
+    return result ?? null
+  }
+
   /**
    * Builds the tenant-scoped filter used by the read model.
    */
@@ -190,6 +223,8 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
 
     /**
      * Team filter.
+     *
+     * Work items persist the owning team's id, not the human-readable key.
      */
     if (filters.teamId) {
       match.teamId = new UUID(filters.teamId.value)

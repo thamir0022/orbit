@@ -85,7 +85,7 @@ export abstract class PaginatedSearchRequest {
   @Max(10000, {
     message: 'Page must not exceed 10000',
   })
-  readonly page?: number
+  readonly page: number = 1
 
   @ApiPropertyOptional({
     description: 'Number of results returned per page.',
@@ -125,7 +125,7 @@ export abstract class PaginatedSearchRequest {
   @Max(100, {
     message: 'Limit must not exceed 100',
   })
-  readonly limit?: number
+  readonly limit: number = 20
 
   @ApiPropertyOptional({
     description: 'Sort direction.',

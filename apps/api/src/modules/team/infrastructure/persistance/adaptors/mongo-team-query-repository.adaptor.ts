@@ -183,6 +183,7 @@ export class MongoTeamQueryRepository implements TeamQueryRepository {
         {
           $project: {
             _id: 0,
+            id: 1,
             key: 1,
             workspaceId: 1,
             name: 1,

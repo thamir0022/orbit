@@ -2,7 +2,12 @@ import { Inject, Injectable } from '@nestjs/common'
 
 import { ProjectId } from '@/modules/project/domain'
 import { SprintId } from '@/modules/sprint/domain'
-import { TeamId } from '@/modules/team/domain'
+import {
+  TEAM_REPOSITORY,
+  TeamRepository,
+} from '@/modules/team/application/ports/team-repository.port'
+import { TeamNotFoundException } from '@/modules/team/domain/exceptions'
+import { TeamKey } from '@/modules/team/domain/value-objects/team-key.vo'
 import { UserId } from '@/modules/user/domain'
 import { WorkItemId } from '../../../domain/value-objects/work-item-id.vo'
 import { WorkspaceId } from '@/modules/workspace/domain'
@@ -26,6 +31,9 @@ import { IGetWorkItemsUseCase } from './get-workitems.interface'
 @Injectable()
 export class GetWorkItemsUseCase implements IGetWorkItemsUseCase {
   constructor(
+    @Inject(TEAM_REPOSITORY)
+    private readonly teamRepository: TeamRepository,
+
     @Inject(WORK_ITEM_QUERY_REPOSITORY)
     private readonly workItemQueryRepository: WorkItemQueryRepository
   ) {}
@@ -37,7 +45,9 @@ export class GetWorkItemsUseCase implements IGetWorkItemsUseCase {
       ? ProjectId.create(input.projectId)
       : undefined
 
-    const teamId = input.teamId ? TeamId.create(input.teamId) : undefined
+    const teamId = input.teamKey
+      ? await this.resolveTeamId(workspaceId, input.teamKey)
+      : undefined
 
     const sprintId = input.sprintId
       ? SprintId.create(input.sprintId)
@@ -105,5 +115,18 @@ export class GetWorkItemsUseCase implements IGetWorkItemsUseCase {
       limit: result.limit,
       hasNextPage: result.hasNextPage,
     }
+  }
+
+  private async resolveTeamId(workspaceId: WorkspaceId, teamKey: string) {
+    const team = await this.teamRepository.findByWorkspaceIdAndKey({
+      workspaceId,
+      key: TeamKey.create(teamKey),
+    })
+
+    if (!team) {
+      throw new TeamNotFoundException()
+    }
+
+    return team.id
   }
 }

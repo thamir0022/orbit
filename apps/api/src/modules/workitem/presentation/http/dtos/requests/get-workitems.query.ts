@@ -10,6 +10,7 @@ import {
   IsInt,
   IsOptional,
   IsUUID,
+  Matches,
   Max,
   Min,
 } from 'class-validator'
@@ -64,10 +65,11 @@ export class GetWorkItemsQuery extends PaginatedSearchRequest {
   })
   @Transform(trim)
   @IsOptional()
-  @IsUUID('7', {
-    message: 'Team ID must be a valid UUID v7',
+  @Matches(/^[A-Z][A-Z0-9]{0,9}$/, {
+    message:
+      'Team key must start with an uppercase letter and contain only uppercase letters or numbers (maximum 10 characters)',
   })
-  readonly teamId?: string
+  readonly teamKey?: string
 
   // ---------------------------------------------------------------------------
   // Sprint

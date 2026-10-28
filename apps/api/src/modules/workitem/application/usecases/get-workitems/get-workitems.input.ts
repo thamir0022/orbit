@@ -18,7 +18,7 @@ export interface GetWorkItemsInput {
 
   readonly projectId?: string
 
-  readonly teamId?: string
+  readonly teamKey?: string
 
   readonly sprintId?: string
 
