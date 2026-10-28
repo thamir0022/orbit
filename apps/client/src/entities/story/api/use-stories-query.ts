@@ -12,5 +12,6 @@ export function useStoriesQuery(params: GetStoriesParams) {
     queryFn: ({ signal }) => getStories({ teamKey: params.teamKey, signal }),
     enabled: Boolean(params.workspaceId && params.teamKey),
     staleTime: 30_000,
+    select: (data) => data.items,
   })
 }
