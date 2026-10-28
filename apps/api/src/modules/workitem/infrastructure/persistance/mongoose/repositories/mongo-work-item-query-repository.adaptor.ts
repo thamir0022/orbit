@@ -14,7 +14,6 @@ import {
   WorkItemQuerySortField,
   WorkItemListQueryResult,
   FindWorkItemByWorkspaceIdAndKeyProps,
-  FindWorkItemByWorkspaceIdAndTeamKeyQueryProps,
 } from '../../../../application/ports/work-item-query-repository.port'
 import { WorkItemListItemOutput } from '../../../../application/contracts/work-item-list-item.output'
 import { WorkItemDocument, WorkItemModel } from '../schemas/work-item.schema'
@@ -143,38 +142,6 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
           workspaceId: new UUID(props.workspaceId.value),
           teamId: new UUID(props.teamId.value),
           id: new UUID(props.workItemId.value),
-          deletedAt: null,
-        },
-      },
-
-      ...this.buildUserEnrichmentStages(),
-
-      {
-        $project: this.buildListProjectionStage(),
-      },
-
-      {
-        $limit: 1,
-      },
-    ]
-
-    const [result] = await this.executeAggregation<WorkItemListItemOutput>(
-      pipeline,
-      options
-    )
-
-    return result ?? null
-  }
-
-  async findByWorkspaceIdAndTeamKey(
-    props: FindWorkItemByWorkspaceIdAndTeamKeyQueryProps,
-    options?: ITransactionOptions
-  ): Promise<WorkItemListItemOutput | null> {
-    const pipeline: PipelineStage[] = [
-      {
-        $match: {
-          workspaceId: new UUID(props.workspaceId.value),
-          teamKey: props.teamkey.value,
           deletedAt: null,
         },
       },
