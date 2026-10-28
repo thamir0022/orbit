@@ -151,13 +151,19 @@ export class MongoWorkItemRepository implements WorkItemRepository {
 
   async save(entity: WorkItem, options?: ITransactionOptions): Promise<void> {
     const persistenceModel = WorkItemMapper.toPersistence(entity)
+    if (entity.description === undefined) delete persistenceModel.description
 
     const query = this.workItemModel.updateOne(
       {
         id: entity.id.value,
+        workspaceId: entity.workspaceId.value,
+        teamId: entity.teamId.value,
       },
       {
         $set: persistenceModel,
+        ...(entity.description === undefined
+          ? { $unset: { description: 1 } }
+          : {}),
       },
       {
         upsert: true,

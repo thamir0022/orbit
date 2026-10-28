@@ -283,6 +283,7 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
     this._startedAt = effectiveStartedAt
     this._dueDate = nextDueDate
     this._completedAt = nextCompletedAt
+    this._updatedAt = now
   }
 
   /**
@@ -391,6 +392,7 @@ export class WorkItem extends AggregateRoot<WorkItemId> {
 
     this._deletedAt = this.cloneDate(at)
     this._deletedBy = deletedBy
+    this._updatedAt = this.cloneDate(at)
   }
 
   /**
