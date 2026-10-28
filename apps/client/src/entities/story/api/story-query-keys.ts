@@ -4,5 +4,5 @@ export const storyQueryKeys = {
   all: ['stories'] as const,
   lists: () => [...storyQueryKeys.all, 'list'] as const,
   list: (params: GetStoriesParams) =>
-    [...storyQueryKeys.lists(), params.workspaceId, params.teamKey] as const,
+    [...storyQueryKeys.lists(), params] as const,
 }

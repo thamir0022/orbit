@@ -94,6 +94,7 @@ export function StoriesPage() {
   return (
     <StoriesList
       workspaceId={workspaceId}
+      workspaceSlug={workspaceSlug}
       teamKey={team.key}
       teamName={team.name}
     />

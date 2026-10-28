@@ -1,4 +1,4 @@
-export { type Team, TeamStatus } from './model/team.types'
+export { type Team, type TeamSummary, TeamStatus } from './model/team.types'
 export { createTeamApi, type CreateTeamPayload } from './api/create-team.api'
 export { teamKeys } from './model/team.query-keys'
 export { useTeamQuery } from './queries/use-team.query'
