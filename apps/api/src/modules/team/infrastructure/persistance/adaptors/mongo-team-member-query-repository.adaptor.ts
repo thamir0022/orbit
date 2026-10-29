@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Model } from 'mongoose'
+import { Model, PipelineStage } from 'mongoose'
 import { ITransactionOptions } from '@/shared/application'
 import {
   FindTeamMemberByWorkspaceIdAndTeamIdAndUserIdProps,
@@ -21,6 +21,48 @@ export class MongoTeamMemberQueryRepository implements TeamMemberQueryRepository
     private readonly teamMemberModel: Model<TeamMemberDocument>
   ) {}
 
+  /** Joins member and actor identities into the public membership read model. */
+  private buildMemberProjectionPipeline(): PipelineStage[] {
+    return [
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: 'id',
+          as: 'user',
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'addedBy',
+          foreignField: 'id',
+          as: 'addedByUser',
+        },
+      },
+      { $unwind: '$user' },
+      { $unwind: '$addedByUser' },
+      {
+        $project: {
+          _id: 0,
+          id: '$user.id',
+          firstName: '$user.firstName',
+          lastName: '$user.lastName',
+          displayName: '$user.displayName',
+          email: '$user.email',
+          status: 1,
+          joinedAt: 1,
+          addedBy: {
+            id: '$addedByUser.id',
+            email: '$addedByUser.email',
+            displayName: '$addedByUser.displayName',
+            avatarUrl: { $ifNull: ['$addedByUser.avatarUrl', null] },
+          },
+        },
+      },
+    ]
+  }
+
   async findByWorkspaceIdAndTeamId(
     props: FindTeamMembersByWorkspaceIdAndTeamIdProps,
     options?: ITransactionOptions
@@ -38,66 +80,13 @@ export class MongoTeamMemberQueryRepository implements TeamMemberQueryRepository
         },
 
         {
-          $lookup: {
-            from: 'users',
-            localField: 'userId',
-            foreignField: 'id',
-            as: 'user',
-          },
-        },
-
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'addedBy',
-            foreignField: 'id',
-            as: 'addedBy',
-          },
-        },
-
-        {
-          $unwind: {
-            path: '$user',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-
-        {
-          $unwind: {
-            path: '$addedBy',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-
-        {
-          $project: {
-            _id: 0,
-
-            userId: {
-              id: '$user.id',
-              name: '$user.name',
-              email: '$user.email',
-              avatarUrl: '$user.avatarUrl',
-            },
-
-            status: 1,
-
-            addedBy: {
-              id: '$addedBy.id',
-              name: '$addedBy.name',
-              email: '$addedBy.email',
-              avatarUrl: '$addedBy.avatarUrl',
-            },
-
-            joinedAt: 1,
-          },
-        },
-
-        {
           $sort: {
+            status: 1,
             joinedAt: -1,
           },
         },
+
+        ...this.buildMemberProjectionPipeline(),
       ])
       .session(options?.session ?? null)
       .exec()
@@ -120,61 +109,7 @@ export class MongoTeamMemberQueryRepository implements TeamMemberQueryRepository
           },
         },
 
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'userId',
-            foreignField: 'id',
-            as: 'user',
-          },
-        },
-
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'addedBy',
-            foreignField: 'id',
-            as: 'addedBy',
-          },
-        },
-
-        {
-          $unwind: {
-            path: '$user',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-
-        {
-          $unwind: {
-            path: '$addedBy',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-
-        {
-          $project: {
-            _id: 0,
-
-            userId: {
-              id: '$user.id',
-              name: '$user.name',
-              email: '$user.email',
-              avatarUrl: '$user.avatarUrl',
-            },
-
-            status: 1,
-
-            addedBy: {
-              id: '$addedBy.id',
-              name: '$addedBy.name',
-              email: '$addedBy.email',
-              avatarUrl: '$addedBy.avatarUrl',
-            },
-
-            joinedAt: 1,
-          },
-        },
+        ...this.buildMemberProjectionPipeline(),
       ])
       .session(options?.session ?? null)
       .limit(1)
