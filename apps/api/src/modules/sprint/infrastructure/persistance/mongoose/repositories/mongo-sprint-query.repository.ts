@@ -1,3 +1,4 @@
+import { sprintUuid } from '../mappers/sprint-uuid'
 import { ITransactionOptions } from '@/shared/application'
 import { WorkspaceId } from '@/modules/workspace/domain'
 import { InjectModel } from '@nestjs/mongoose'
@@ -50,13 +51,11 @@ export class MongoSprintQueryRepository implements SprintQueryRepository {
         $match: this.buildMatchStage(workspaceId, filters),
       },
 
+      // Sort before the facet so MongoDB can use a matching index.
+      { $sort: this.buildSortStage(sort) },
       {
         $facet: {
           items: [
-            {
-              $sort: this.buildSortStage(sort),
-            },
-
             {
               $skip: skip,
             },
@@ -67,53 +66,7 @@ export class MongoSprintQueryRepository implements SprintQueryRepository {
 
             ...this.buildUserEnrichmentStages(),
 
-            {
-              $project: {
-                _id: 0,
-
-                id: 1,
-
-                name: 1,
-                goal: 1,
-                description: 1,
-
-                status: 1,
-
-                startDate: 1,
-                endDate: 1,
-
-                committedPoints: 1,
-                completedPoints: 1,
-
-                startedAt: 1,
-                completedAt: 1,
-
-                cancelledAt: 1,
-
-                createdAt: 1,
-                updatedAt: 1,
-
-                createdBy: {
-                  id: '$createdByUser.id',
-                  displayName: '$createdByUser.displayName',
-                  avatarUrl: '$createdByUser.avatarUrl',
-                },
-
-                cancelledBy: {
-                  $cond: [
-                    {
-                      $ne: ['$cancelledByUser', null],
-                    },
-                    {
-                      id: '$cancelledByUser.id',
-                      displayName: '$cancelledByUser.displayName',
-                      avatarUrl: '$cancelledByUser.avatarUrl',
-                    },
-                    null,
-                  ],
-                },
-              },
-            },
+            this.buildProjection(),
           ],
 
           metadata: [
@@ -133,7 +86,7 @@ export class MongoSprintQueryRepository implements SprintQueryRepository {
     const total = result?.metadata[0]?.total ?? 0
 
     return {
-      items: result?.items ?? [],
+      items: (result?.items ?? []).map((item) => this.normalizeIds(item)),
       total,
       page,
       limit,
@@ -156,53 +109,7 @@ export class MongoSprintQueryRepository implements SprintQueryRepository {
 
       ...this.buildUserEnrichmentStages(),
 
-      {
-        $project: {
-          _id: 0,
-
-          id: 1,
-
-          name: 1,
-          goal: 1,
-          description: 1,
-
-          status: 1,
-
-          startDate: 1,
-          endDate: 1,
-
-          committedPoints: 1,
-          completedPoints: 1,
-
-          startedAt: 1,
-          completedAt: 1,
-
-          cancelledAt: 1,
-
-          createdAt: 1,
-          updatedAt: 1,
-
-          createdBy: {
-            id: '$createdByUser.id',
-            displayName: '$createdByUser.displayName',
-            avatarUrl: '$createdByUser.avatarUrl',
-          },
-
-          cancelledBy: {
-            $cond: [
-              {
-                $ne: ['$cancelledByUser', null],
-              },
-              {
-                id: '$cancelledByUser.id',
-                displayName: '$cancelledByUser.displayName',
-                avatarUrl: '$cancelledByUser.avatarUrl',
-              },
-              null,
-            ],
-          },
-        },
-      },
+      this.buildProjection(),
 
       {
         $limit: 1,
@@ -214,7 +121,78 @@ export class MongoSprintQueryRepository implements SprintQueryRepository {
       options
     )
 
-    return result ?? null
+    return result ? this.normalizeIds(result) : null
+  }
+
+  // Keep list and detail response fields consistent.
+  private buildProjection(): PipelineStage.Project {
+    return {
+      $project: {
+        _id: 0,
+
+        id: 1,
+        teamId: 1,
+
+        name: 1,
+        goal: 1,
+        description: 1,
+
+        status: 1,
+
+        startDate: 1,
+        endDate: 1,
+
+        committedPoints: { $ifNull: ['$committedPoints', null] },
+        completedPoints: { $ifNull: ['$completedPoints', null] },
+
+        startedAt: 1,
+        completedAt: 1,
+
+        cancelledAt: 1,
+
+        createdAt: 1,
+        updatedAt: 1,
+
+        createdBy: {
+          id: { $ifNull: ['$createdByUser.id', '$createdBy'] },
+          displayName: {
+            $ifNull: ['$createdByUser.displayName', 'Deleted user'],
+          },
+          avatarUrl: { $ifNull: ['$createdByUser.avatarUrl', null] },
+        },
+
+        cancelledBy: {
+          $cond: [
+            {
+              $ne: [{ $ifNull: ['$cancelledBy', null] }, null],
+            },
+            {
+              id: { $ifNull: ['$cancelledByUser.id', '$cancelledBy'] },
+              displayName: {
+                $ifNull: ['$cancelledByUser.displayName', 'Deleted user'],
+              },
+              avatarUrl: {
+                $ifNull: ['$cancelledByUser.avatarUrl', null],
+              },
+            },
+            null,
+          ],
+        },
+      },
+    }
+  }
+
+  // Aggregations bypass Mongoose UUID getters.
+  private normalizeIds(item: SprintListItemOutput): SprintListItemOutput {
+    return {
+      ...item,
+      id: sprintUuid(item.id),
+      teamId: sprintUuid(item.teamId),
+      createdBy: { ...item.createdBy, id: sprintUuid(item.createdBy.id) },
+      cancelledBy: item.cancelledBy
+        ? { ...item.cancelledBy, id: sprintUuid(item.cancelledBy.id) }
+        : null,
+    }
   }
 
   /**
@@ -393,7 +371,7 @@ export class MongoSprintQueryRepository implements SprintQueryRepository {
       {
         $unwind: {
           path: '$createdByUser',
-          preserveNullAndEmptyArrays: false,
+          preserveNullAndEmptyArrays: true,
         },
       },
 

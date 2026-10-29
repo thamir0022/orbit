@@ -26,10 +26,18 @@ export class SprintResponse implements SprintListItemOutput {
   name!: string
 
   @ApiPropertyOptional({
+    type: String,
+    nullable: true,
     description: 'Short objective the sprint aims to achieve',
     example: 'Complete the new authentication and onboarding flow.',
   })
-  goal?: string
+  goal?: string | null
+
+  @ApiPropertyOptional({ nullable: true, type: String })
+  description?: string | null
+
+  @ApiProperty({ format: 'uuid' })
+  teamId!: string
 
   @ApiProperty({
     description: 'Current lifecycle status of the sprint',
