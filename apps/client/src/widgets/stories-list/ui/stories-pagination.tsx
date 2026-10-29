@@ -54,7 +54,7 @@ export function StoriesPagination({
         className="text-center text-xs text-muted-foreground sm:text-left"
         aria-live="polite"
       >
-        Showing {firstStoryIndex}–{lastStoryIndex} of {total} stories · Page{' '}
+        Showing {firstStoryIndex}-{lastStoryIndex} of {total} stories · Page{' '}
         {page} of {totalPages}
       </p>
 
