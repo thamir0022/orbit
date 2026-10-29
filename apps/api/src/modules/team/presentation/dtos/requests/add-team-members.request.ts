@@ -8,9 +8,10 @@ import {
   IsUUID,
 } from 'class-validator'
 
+/** Validates the workspace user IDs selected for team membership. */
 export class AddTeamMembersRequest {
   @ApiProperty({
-    description: 'Member IDs to add to the team',
+    description: 'Workspace user IDs to add to the team',
     type: [String],
     format: 'uuid',
     example: [

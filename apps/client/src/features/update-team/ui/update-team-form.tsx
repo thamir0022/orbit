@@ -1,35 +1,20 @@
 'use client'
 
-import { useEffect, useId, useMemo, useRef, useState } from 'react'
-
+import { useEffect, useMemo, useRef } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  ArrowLeft,
-  CircleDashed,
-  PanelRightClose,
-  PanelRightOpen,
-} from 'lucide-react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { Controller, useForm } from 'react-hook-form'
-
 import { TeamStatus, type Team } from '@/entities/team/model/team.types'
-import { useWorkspace } from '@/entities/workspace/model/workspace.store'
-
+import { CircleDashed } from 'lucide-react'
 import { getInitials } from '@/shared/lib/get-initials'
 import { formatDate } from '@/shared/lib/format-date'
-import { cn } from '@/shared/lib/utils'
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
-import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/shared/ui/card'
+import { Card, CardContent, CardHeader } from '@/shared/ui/card'
 import { Field, FieldError, FieldLabel } from '@/shared/ui/field'
 import { Input } from '@/shared/ui/input'
-import { ScrollArea } from '@/shared/ui/scroll-area'
 import { SearchableSelect } from '@/shared/ui/searchable-select'
 import { Spinner } from '@/shared/ui/spinner'
 import { Textarea } from '@/shared/ui/textarea'
-
 import { getUpdateTeamDefaultValues } from '../lib/update-team.utils'
 import { useUpdateTeamMutation } from '../model/use-update-team.mutation'
 import {
@@ -37,32 +22,15 @@ import {
   type UpdateTeamFormValues,
 } from '../model/update-team.schema'
 
-interface UpdateTeamFormProps {
-  readonly team: Team
-}
-
-const TEAM_STATUS_OPTIONS = Object.values(TeamStatus)
-
-export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
-  const workspace = useWorkspace()
-  const pathname = usePathname()
+export function UpdateTeamForm({ team }: { readonly team: Team }) {
   const updateTeam = useUpdateTeamMutation()
-
-  const propertiesPanelId = useId()
-  const propertiesToggleRef = useRef<HTMLButtonElement | null>(null)
-
-  const [isPropertiesOpen, setIsPropertiesOpen] = useState(true)
-
   const defaultValues = useMemo(() => getUpdateTeamDefaultValues(team), [team])
-
-  const lastSavedValuesRef = useRef<UpdateTeamFormValues>(defaultValues)
-
+  const lastSaved = useRef(defaultValues)
   const form = useForm<UpdateTeamFormValues>({
     resolver: zodResolver(UpdateTeamSchema),
     defaultValues,
     mode: 'onChange',
   })
-
   const {
     control,
     reset,
@@ -75,408 +43,164 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
 
   useEffect(() => {
     reset(defaultValues)
-    lastSavedValuesRef.current = defaultValues
+    lastSaved.current = defaultValues
   }, [defaultValues, reset])
 
-  const teamsPath = workspace?.slug ? `/${workspace.slug}/teams` : '#'
-
-  const overviewPath = workspace?.slug
-    ? `/${workspace.slug}/teams/${team.key}`
-    : '#'
-
-  const membersPath = workspace?.slug
-    ? `/${workspace.slug}/teams/${team.key}/members`
-    : '#'
-
-  const isOverviewActive = pathname === overviewPath
-
-  const isMembersActive =
-    pathname === membersPath || pathname.startsWith(`${membersPath}/`)
-
-  const handlePropertiesToggle = () => {
-    setIsPropertiesOpen((current) => !current)
-
-    requestAnimationFrame(() => {
-      propertiesToggleRef.current?.focus()
-    })
-  }
-
   const saveField = async (
-    field: keyof UpdateTeamFormValues,
-    value: UpdateTeamFormValues[keyof UpdateTeamFormValues]
-  ) => {
-    clearErrors('root.serverError')
-
-    try {
-      await updateTeam.mutateAsync({
-        teamKey: team.key,
-        ...(field === 'name' && {
-          name: String(value).trim(),
-        }),
-        ...(field === 'description' && {
-          description: String(value).trim(),
-        }),
-        ...(field === 'status' && {
-          status: value as TeamStatus,
-        }),
-        ...(field === 'leadId' && {
-          leadId: value,
-        }),
-      })
-
-      const nextValues = {
-        ...getValues(),
-        [field]:
-          field === 'name' || field === 'description'
-            ? String(value).trim()
-            : value,
-      } as UpdateTeamFormValues
-
-      lastSavedValuesRef.current = nextValues
-      reset(nextValues)
-    } catch (error) {
-      setError('root.serverError', {
-        message:
-          error instanceof Error ? error.message : 'Failed to update the team.',
-      })
-    }
-  }
-
-  const handleTextBlur = async (
-    field: 'name' | 'description',
+    field: 'name' | 'description' | 'status',
     value: string
   ) => {
-    const isValid = await trigger(field)
-
-    if (!isValid) {
-      return
+    clearErrors('root.serverError')
+    const normalized = value.trim()
+    if (normalized === lastSaved.current[field]) return
+    try {
+      await updateTeam.mutateAsync({ teamKey: team.key, [field]: normalized })
+      const values = { ...getValues(), [field]: normalized }
+      lastSaved.current = values
+      reset(values)
+    } catch (cause) {
+      setError('root.serverError', {
+        message:
+          cause instanceof Error
+            ? cause.message
+            : 'Unable to save team changes.',
+      })
     }
-
-    const normalizedValue = value.trim()
-    const lastSavedValue = lastSavedValuesRef.current[field]?.trim() ?? ''
-
-    if (normalizedValue === lastSavedValue) {
-      return
-    }
-
-    await saveField(field, normalizedValue)
   }
 
-  const handlePropertyChange = async (field: 'status', value: TeamStatus) => {
-    const isValid = await trigger(field)
-
-    if (!isValid) {
-      return
-    }
-
-    await saveField(field, value)
+  const saveText = async (field: 'name' | 'description', value: string) => {
+    if (await trigger(field)) await saveField(field, value)
   }
-
-  const serverError = errors.root?.serverError
 
   return (
-    <div className="mx-auto size-full">
-      <div className="mb-4">
-        <Link href={teamsPath}>
-          <Button type="button" variant="ghost" size="sm">
-            <ArrowLeft className="size-3.5" aria-hidden="true" />
-            <span>Teams</span>
-          </Button>
-        </Link>
-
-        <nav
-          aria-label="Team navigation"
-          className="mt-3 flex items-center gap-1"
-        >
-          <Link href={overviewPath}>
-            <Button
-              type="button"
-              variant={isOverviewActive ? 'secondary' : 'ghost'}
-              size="sm"
-              className="h-8 rounded-full px-3"
-              aria-current={isOverviewActive ? 'page' : undefined}
-            >
-              Overview
-            </Button>
-          </Link>
-
-          <Link href={membersPath}>
-            <Button
-              type="button"
-              variant={isMembersActive ? 'secondary' : 'ghost'}
-              size="sm"
-              className="h-8 rounded-full px-3"
-              aria-current={isMembersActive ? 'page' : undefined}
-            >
-              Members
-            </Button>
-          </Link>
-
-          <div className="ml-auto flex items-center gap-2">
-            {updateTeam.isPending && (
-              <span
-                className="flex items-center gap-1.5 text-xs"
-                aria-live="polite"
-              >
-                <Spinner className="size-3" aria-hidden="true" />
-                Saving…
-              </span>
-            )}
-
-            <Button
-              ref={propertiesToggleRef}
-              type="button"
-              variant="outline"
-              size="icon-sm"
-              aria-label={
-                isPropertiesOpen
-                  ? 'Hide team properties'
-                  : 'Show team properties'
-              }
-              aria-expanded={isPropertiesOpen}
-              aria-controls={propertiesPanelId}
-              onClick={handlePropertiesToggle}
-              className="shrink-0"
-            >
-              {isPropertiesOpen ? (
-                <PanelRightClose aria-hidden="true" />
-              ) : (
-                <PanelRightOpen aria-hidden="true" />
-              )}
-            </Button>
-          </div>
-        </nav>
-      </div>
-
-      <div
-        className={cn(
-          'grid min-w-0 grid-cols-1 items-start gap-4',
-          'lg:transition-[grid-template-columns,gap]',
-          'lg:duration-300 lg:ease-out',
-          'motion-reduce:transition-none',
-          isPropertiesOpen
-            ? 'lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-4'
-            : 'lg:grid-cols-[minmax(0,1fr)_0rem] lg:gap-0'
-        )}
-      >
-        <section aria-label="Team overview" className="min-w-0">
-          <Card className="h-158.5 w-full overflow-hidden rounded-2xl shadow-sm">
-            <CardHeader>
-              <div className="flex min-w-0 items-center gap-4">
-                <Avatar className="size-16 shrink-0">
-                  <AvatarImage
-                    src={team.avatarUrl || undefined}
-                    alt={team.name}
-                  />
-
-                  <AvatarFallback className="text-lg font-medium">
-                    {getInitials(team.name)}
-                  </AvatarFallback>
-                </Avatar>
-
-                <div className="min-w-0 flex-1">
-                  <Controller
-                    name="name"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <Field
-                        data-invalid={fieldState.invalid}
-                        className="gap-1"
-                      >
-                        <FieldLabel htmlFor="team-name" className="sr-only">
-                          Team name
-                        </FieldLabel>
-
-                        <Input
-                          {...field}
-                          id="team-name"
-                          aria-invalid={fieldState.invalid}
-                          aria-describedby={
-                            fieldState.invalid ? 'team-name-error' : undefined
-                          }
-                          onBlur={(event) => {
-                            field.onBlur()
-
-                            void handleTextBlur(
-                              'name',
-                              event.currentTarget.value
-                            )
-                          }}
-                          className="field-sizing-content w-fit! max-w-full border-none! bg-transparent! text-2xl! font-semibold! focus-visible:ring-0"
-                        />
-
-                        {fieldState.invalid && (
-                          <FieldError
-                            id="team-name-error"
-                            errors={[fieldState.error]}
-                          />
-                        )}
-                      </Field>
-                    )}
-                  />
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent>
-              <div className="mb-3 flex gap-4">
-                <Controller
-                  name="status"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <SearchableSelect
-                      id="team-status"
-                      label="Status"
-                      value={field.value ?? team.status}
-                      options={TEAM_STATUS_OPTIONS}
-                      placeholder="Select status"
-                      invalid={fieldState.invalid}
-                      side="bottom"
-                      icon={
-                        <CircleDashed className="size-3.5" aria-hidden="true" />
-                      }
-                      onChange={(value) => {
-                        field.onChange(value)
-
-                        void handlePropertyChange('status', value)
-                      }}
-                    />
-                  )}
-                />
-              </div>
+    <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_16rem]">
+      <Card className="min-w-0 gap-0 overflow-hidden rounded-xl py-0 shadow-none">
+        <CardHeader className="border-b px-5 py-5 sm:px-6">
+          <div className="flex items-center gap-4">
+            <Avatar className="size-12 shrink-0">
+              <AvatarImage src={team.avatarUrl || undefined} alt="" />
+              <AvatarFallback>{getInitials(team.name)}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1">
               <Controller
-                name="description"
+                name="name"
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid} className="gap-1">
-                    <FieldLabel htmlFor="team-description" className="sr-only">
-                      Team description
+                    <FieldLabel htmlFor="team-name" className="sr-only">
+                      Team name
                     </FieldLabel>
-
-                    <Textarea
+                    <Input
                       {...field}
-                      id="team-description"
-                      aria-label="Team description"
+                      id="team-name"
                       aria-invalid={fieldState.invalid}
-                      placeholder={`Ideas or thoughts about ${team.name}`}
                       onBlur={(event) => {
                         field.onBlur()
-
-                        void handleTextBlur(
-                          'description',
-                          event.currentTarget.value
-                        )
+                        void saveText('name', event.currentTarget.value)
                       }}
-                      className="min-h-24 max-h-52"
+                      className="h-auto border-0 bg-transparent px-0 text-xl font-semibold shadow-none focus-visible:ring-0"
                     />
-
-                    {fieldState.invalid && (
+                    {fieldState.invalid ? (
                       <FieldError errors={[fieldState.error]} />
-                    )}
+                    ) : null}
                   </Field>
                 )}
               />
-            </CardContent>
-
-            <CardFooter className="mt-auto border-t">
-              <div className="flex w-full items-center justify-between gap-6 text-xs">
-                <div className="flex min-w-0 flex-wrap items-center gap-x-1 gap-y-1">
-                  <span>Created by</span>
-
-                  <div className="flex items-center gap-1.5">
-                    <Avatar className="size-5 shrink-0">
-                      <AvatarImage
-                        src={team.createdBy.avatarUrl ?? undefined}
-                        alt=""
-                      />
-
-                      <AvatarFallback className="text-[9px]">
-                        {getInitials(team.createdBy.displayName)}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <span className="font-medium">
-                      {team.createdBy.displayName}
-                    </span>
-                  </div>
-
-                  <span>at</span>
-
-                  <time dateTime={team.createdAt}>
-                    {formatDate(team.createdAt)}
-                  </time>
-                </div>
-
-                <div className="shrink-0 text-right">
-                  <span>Last updated at </span>
-
-                  <time dateTime={team.updatedAt} className="font-medium">
-                    {formatDate(team.updatedAt)}
-                  </time>
-                </div>
-              </div>
-
-              {serverError && (
-                <Alert variant="destructive" className="mt-4">
-                  <AlertTitle>Unable to save changes</AlertTitle>
-
-                  <AlertDescription>{serverError.message}</AlertDescription>
-                </Alert>
-              )}
-            </CardFooter>
-          </Card>
-        </section>
-
-        <aside
-          id={propertiesPanelId}
-          aria-label="Team properties"
-          aria-hidden={!isPropertiesOpen}
-          inert={!isPropertiesOpen}
-          className={cn(
-            'h-full min-w-0 overflow-hidden',
-            'transition-[opacity,transform]',
-            'duration-300 ease-out',
-            'motion-reduce:transition-none',
-            isPropertiesOpen
-              ? 'translate-x-0 opacity-100'
-              : 'pointer-events-none -translate-x-2 opacity-0'
-          )}
-        >
-          <Card className="flex h-full max-h-[calc(100dvh-7rem)] min-h-0 flex-col overflow-hidden rounded-2xl shadow-sm lg:sticky lg:top-4">
-            <CardHeader className="flex shrink-0 flex-row items-center justify-between gap-3">
-              <h2 className="text-sm font-semibold">Properties</h2>
-            </CardHeader>
-
-            <ScrollArea className="min-h-0 flex-1">
-              <CardContent className="space-y-5 p-4 pt-1">
-                <Controller
-                  name="status"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <SearchableSelect
-                      id="team-status"
-                      label="Status"
-                      value={field.value ?? team.status}
-                      options={TEAM_STATUS_OPTIONS}
-                      placeholder="Select status"
-                      invalid={fieldState.invalid}
-                      side="left"
-                      icon={
-                        <CircleDashed className="size-3.5" aria-hidden="true" />
-                      }
-                      onChange={(value) => {
-                        field.onChange(value)
-
-                        void handlePropertyChange('status', value)
-                      }}
-                    />
-                  )}
+            </div>
+            {updateTeam.isPending ? (
+              <span
+                role="status"
+                className="flex items-center gap-1 text-xs text-muted-foreground"
+              >
+                <Spinner aria-hidden="true" className="size-3" /> Saving…
+              </span>
+            ) : null}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-5 px-5 py-6 sm:px-6">
+          <Controller
+            name="description"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="team-description">
+                  About this team
+                </FieldLabel>
+                <Textarea
+                  {...field}
+                  id="team-description"
+                  aria-invalid={fieldState.invalid}
+                  placeholder="What does your team work on?"
+                  onBlur={(event) => {
+                    field.onBlur()
+                    void saveText('description', event.currentTarget.value)
+                  }}
+                  className="min-h-32 resize-y"
                 />
-              </CardContent>
-            </ScrollArea>
-          </Card>
-        </aside>
-      </div>
+                {fieldState.invalid ? (
+                  <FieldError errors={[fieldState.error]} />
+                ) : null}
+              </Field>
+            )}
+          />
+          {errors.root?.serverError ? (
+            <Alert variant="destructive" role="alert">
+              <AlertTitle>Unable to save changes</AlertTitle>
+              <AlertDescription>
+                {errors.root.serverError.message}
+              </AlertDescription>
+            </Alert>
+          ) : null}
+        </CardContent>
+      </Card>
+      <aside aria-label="Team properties">
+        <Card className="gap-0 rounded-xl py-0 shadow-none">
+          <CardHeader className="border-b px-5 py-4">
+            <h2 className="text-sm font-semibold">Properties</h2>
+          </CardHeader>
+          <CardContent className="space-y-5 px-5 py-5">
+            <Controller
+              name="status"
+              control={control}
+              render={({ field, fieldState }) => (
+                <SearchableSelect
+                  id="team-status"
+                  label="Status"
+                  value={field.value ?? team.status}
+                  options={Object.values(TeamStatus)}
+                  placeholder="Select status"
+                  invalid={fieldState.invalid}
+                  icon={<CircleDashed aria-hidden="true" className="size-4" />}
+                  onChange={(value) => {
+                    field.onChange(value)
+                    void saveField('status', value)
+                  }}
+                />
+              )}
+            />
+            <div className="space-y-1 text-xs text-muted-foreground">
+              <p>
+                Created by{' '}
+                <span className="font-medium text-foreground">
+                  {team.createdBy.displayName}
+                </span>
+              </p>
+              <p>
+                Created{' '}
+                <time dateTime={team.createdAt}>
+                  {formatDate(team.createdAt)}
+                </time>
+              </p>
+              <p>
+                Updated{' '}
+                <time dateTime={team.updatedAt}>
+                  {formatDate(team.updatedAt)}
+                </time>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </aside>
     </div>
   )
 }

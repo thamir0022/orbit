@@ -4,6 +4,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 
 import { useTeamQuery } from '@/entities/team/queries/use-team.query'
+import { useWorkspace } from '@/entities/workspace/model/workspace.store'
+import { TeamDetailHeader } from '@/widgets/team-detail/ui/team-detail-header'
 
 import { UpdateTeamForm } from '@/features/update-team'
 
@@ -15,6 +17,7 @@ interface TeamOverviewPageProps {
 
 export function TeamOverviewPage({ teamKey }: TeamOverviewPageProps) {
   const { data: team, isPending, isError, refetch } = useTeamQuery(teamKey)
+  const workspace = useWorkspace()
 
   if (isPending) {
     return <TeamOverviewSkeleton />
@@ -43,5 +46,16 @@ export function TeamOverviewPage({ teamKey }: TeamOverviewPageProps) {
     )
   }
 
-  return <UpdateTeamForm team={team} />
+  return (
+    <main className="mx-auto flex h-full min-h-0 w-full max-w-[1600px] flex-col gap-6 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
+      <TeamDetailHeader
+        team={team}
+        workspaceSlug={workspace?.slug ?? ''}
+        activeTab="overview"
+      />
+      <section aria-label="Team overview">
+        <UpdateTeamForm team={team} />
+      </section>
+    </main>
+  )
 }

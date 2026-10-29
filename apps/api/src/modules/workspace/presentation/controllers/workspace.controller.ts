@@ -106,10 +106,17 @@ import {
 } from '../../application/usecases/delete-workspace-role.interface'
 import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
 import { AuthContext } from '@/shared/domain/types'
+import {
+  GET_WORKSPACE_MEMBER_SUMMARIES,
+  type IGetWorkspaceMemberSummariesUseCase,
+} from '../../application/usecases/get-workspace-member-summaries.interface'
+import { GetWorkspaceMemberSummariesRequest } from '../dtos/requests/get-workspace-member-summaries.request'
 
 @Controller('workspaces')
 export class WorkspaceController {
   constructor(
+    @Inject(GET_WORKSPACE_MEMBER_SUMMARIES)
+    private readonly getWorkspaceMemberSummariesUseCase: IGetWorkspaceMemberSummariesUseCase,
     @Inject(GET_ACTIVE_WORKSPACE)
     private readonly getActiveWorkspace: IGetActiveWorkspace,
     @Inject(GET_USER_WORKSPACES)
@@ -203,6 +210,19 @@ export class WorkspaceController {
       roleId,
       search,
       status,
+    })
+  }
+
+  /** Returns a page of member identities for the authenticated workspace. */
+  @Get('members/summary')
+  async getWorkspaceMemberSummaries(
+    @CurrentAuth('workspaceId') workspaceId: string,
+    @Query() query: GetWorkspaceMemberSummariesRequest
+  ) {
+    return this.getWorkspaceMemberSummariesUseCase.execute({
+      workspaceId,
+      page: query.page,
+      limit: query.limit,
     })
   }
 

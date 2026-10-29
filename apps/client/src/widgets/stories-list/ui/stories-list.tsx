@@ -2,11 +2,10 @@
 
 import {
   AlertCircle,
-  Flag,
+  ChevronRight,
   Grid2X2,
   List,
   ListFilter,
-  RefreshCw,
   Search,
   Users,
   X,
@@ -70,12 +69,13 @@ import {
   InputGroupInput,
 } from '@/shared/ui/input-group'
 import { getInitials } from '@/shared/lib/get-initials'
-import { ScrollArea } from '@/shared/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/shared/ui/scroll-area'
 import { Separator } from '@/shared/ui/separator'
 import { Skeleton } from '@/shared/ui/skeleton'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
 import { StoriesPagination } from './stories-pagination'
+import { CreateStoryDialog } from '@/features/create-story/ui/create-story-dialog'
 
 const STORIES_PER_PAGE = 12
 
@@ -232,10 +232,10 @@ export function StoriesList({
   return (
     <section
       aria-labelledby="stories-heading"
-      className="mx-auto flex w-full max-w-[1600px] flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8"
+      className="mx-auto flex h-full min-h-0 w-full max-w-[1600px] flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8"
     >
       <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 space-y-1.5">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           <Combobox
             items={teams}
             value={teams.find((team) => team.key === teamKey) ?? null}
@@ -252,17 +252,6 @@ export function StoriesList({
                   aria-label={`Select team: ${teamName}`}
                   aria-busy={teamsQuery.isPending}
                 >
-                  <Avatar aria-hidden="true" className="size-5">
-                    <AvatarImage
-                      src={
-                        teams.find((team) => team.key === teamKey)?.avatarUrl
-                      }
-                      alt=""
-                    />
-                    <AvatarFallback className="text-[9px]">
-                      {getInitials(teamName) ?? 'TM'}
-                    </AvatarFallback>
-                  </Avatar>
                   <ComboboxValue placeholder="Select a team">
                     <span className="truncate">{teamName}</span>
                   </ComboboxValue>
@@ -298,7 +287,11 @@ export function StoriesList({
             </ComboboxContent>
           </Combobox>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center gap-2">
+            <ChevronRight
+              aria-hidden="true"
+              className="size-4 text-muted-foreground"
+            />
             <h1
               id="stories-heading"
               className="text-xl font-semibold tracking-tight"
@@ -315,9 +308,6 @@ export function StoriesList({
               </Badge>
             ) : null}
           </div>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            Track the user stories your team is delivering.
-          </p>
         </div>
 
         <ToggleGroup
@@ -385,6 +375,11 @@ export function StoriesList({
             className="my-auto hidden h-7 shrink-0 sm:block"
           />
 
+          <ListFilter
+            aria-hidden="true"
+            className="hidden size-4 shrink-0 text-muted-foreground sm:block"
+          />
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -394,7 +389,6 @@ export function StoriesList({
                 className="h-8 gap-1.5 px-2.5"
                 aria-label="Filter stories by status"
               >
-                <ListFilter aria-hidden="true" className="size-3.5" />
                 Status
                 {selectedStatuses.length ? (
                   <Badge
@@ -430,7 +424,6 @@ export function StoriesList({
                 className="h-8 gap-1.5 px-2.5"
                 aria-label="Filter stories by priority"
               >
-                <Flag aria-hidden="true" className="size-3.5" />
                 Priority
                 {selectedPriorities.length ? (
                   <Badge
@@ -477,19 +470,7 @@ export function StoriesList({
               Refreshing stories
             </span>
           ) : null}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => void storiesQuery.refetch()}
-            disabled={storiesQuery.isFetching}
-          >
-            <RefreshCw
-              aria-hidden="true"
-              className={`size-3.5 ${storiesQuery.isFetching ? 'animate-spin' : ''}`}
-            />
-            Refresh
-          </Button>
+          <CreateStoryDialog teamKey={teamKey} workspaceSlug={workspaceSlug} />
         </div>
       </div>
 
@@ -527,9 +508,9 @@ export function StoriesList({
                 ? 'Stories board'
                 : 'Stories table'
             }
-            className="min-w-0 overflow-hidden rounded-lg border"
+            className="min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border"
           >
-            <ScrollArea className="h-[clamp(22rem,calc(100dvh-21rem),48rem)] w-full">
+            <ScrollArea className="h-full w-full">
               {view === STORY_VIEW_MODES.BOARD ? (
                 <StoriesBoard stories={stories} />
               ) : (
@@ -539,23 +520,18 @@ export function StoriesList({
                   onSortingChange={handleSortingChange}
                 />
               )}
+              {view === STORY_VIEW_MODES.BOARD ? (
+                <ScrollBar orientation="horizontal" />
+              ) : null}
             </ScrollArea>
-          </div>
-
-          <div className="flex flex-col gap-1 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-            <p aria-live="polite" aria-atomic="true">
-              Showing {firstStoryIndex}–{lastStoryIndex} of {totalStories}{' '}
-              stories
-            </p>
-            {view === STORY_VIEW_MODES.LIST ? (
-              <p>Select a supported column heading to sort.</p>
-            ) : null}
           </div>
 
           <StoriesPagination
             page={currentPage}
             totalPages={totalPages}
             total={totalStories}
+            firstStoryIndex={firstStoryIndex}
+            lastStoryIndex={lastStoryIndex}
             onPageChange={setPage}
           />
         </>

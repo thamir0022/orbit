@@ -7,17 +7,20 @@ import { TeamMemberDto } from '../contracts/team-member.dto'
 import { TeamMemberDocument } from '../../infrastructure/persistance/schemas/team-member.schema'
 import { TeamId } from '../../domain/value-objects/team-id.vo'
 
+/** Maps hydrated UUID-backed membership documents to domain entities. */
 export class TeamMemberMapper {
   static toDomainDto(document: TeamMemberDocument): TeamMember {
     return TeamMember.reconstitute({
-      id: TeamMemberId.fromString(document.id),
-      workspaceId: WorkspaceId.fromString(document.workspaceId),
-      teamId: TeamId.fromString(document.teamId),
-      userId: UserId.fromString(document.userId),
+      id: TeamMemberId.fromString(String(document.id)),
+      workspaceId: WorkspaceId.fromString(String(document.workspaceId)),
+      teamId: TeamId.fromString(String(document.teamId)),
+      userId: UserId.fromString(String(document.userId)),
       status: document.status,
-      addedBy: UserId.fromString(document.userId),
+      addedBy: UserId.fromString(String(document.addedBy)),
       joinedAt: document.joinedAt,
-      removedBy: document.removedBy ? UserId.create(document.removedBy) : null,
+      removedBy: document.removedBy
+        ? UserId.create(String(document.removedBy))
+        : null,
       removedAt: document.removedAt ? document.removedAt : null,
       createdAt: document.createdAt,
       updatedAt: document.updatedAt,

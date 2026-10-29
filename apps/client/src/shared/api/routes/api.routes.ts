@@ -1,4 +1,7 @@
 export const API_ROUTES = {
+  WORK_ITEMS: {
+    BY_KEY: (key: string) => `/work-items/${encodeURIComponent(key)}`,
+  },
   AUTH: {
     SIGN_IN: '/auth/sign-in',
     SIGN_UP_INITIATE: '/auth/sign-up/initiate',
@@ -63,6 +66,7 @@ export const API_ROUTES = {
   TEAMS: {
     BASE: '/teams',
     BY_KEY: (key: string) => `/teams/${encodeURIComponent(key)}`,
+    MEMBERS: (key: string) => `/teams/${encodeURIComponent(key)}/members`,
     STORIES: (key: string) => `/teams/${encodeURIComponent(key)}/stories`,
   },
 } as const

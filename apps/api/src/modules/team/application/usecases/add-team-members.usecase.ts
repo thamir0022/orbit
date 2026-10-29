@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
+import { ITransactionManager, TRANSACTION_MANAGER } from '@/shared/application'
 
 import {
   WorkspaceId,
@@ -33,6 +34,8 @@ import { IAddTeamMembersUseCase } from './add-team-members.interface'
 import {
   WorkspaceNotActiveException,
   WorkspaceNotFoundException,
+  WorkspaceMemberNotFoundException,
+  WorkspaceMemberNotActiveException,
 } from '@/modules/workspace/domain/exceptions/workspace.exception'
 import {
   TEAM_MEMBER_QUERY_REPOSITORY,
@@ -40,14 +43,17 @@ import {
 } from '../ports/team-member-query-repository.port'
 import { TeamKey } from '../../domain/value-objects/team-key.vo'
 
+/** Validates all requested users, restores removed members, and adds new memberships. */
 @Injectable()
 export class AddTeamMembersUseCase implements IAddTeamMembersUseCase {
   constructor(
+    @Inject(TRANSACTION_MANAGER)
+    private readonly transactionManager: ITransactionManager,
     @Inject(WORKSPACE_REPOSITORY)
     private readonly workspaceRepository: IWorkspaceRepository,
 
     @Inject(WORKSPACE_MEMBER_REPOSITORY)
-    private workspaceMemberRepository: IWorkspaceMemberRepository,
+    private readonly workspaceMemberRepository: IWorkspaceMemberRepository,
 
     @Inject(TEAM_REPOSITORY)
     private readonly teamRepository: TeamRepository,
@@ -66,14 +72,9 @@ export class AddTeamMembersUseCase implements IAddTeamMembersUseCase {
     /**
      * Deduplicate user IDs before querying MongoDB.
      */
-    const userIds = [...new Set(input.memberIds)].map((userId) =>
+    const userIds = [...new Set(input.userIds)].map((userId) =>
       UserId.create(userId)
     )
-
-    if (userIds.length === 0)
-      return {
-        members: [],
-      }
 
     /**
      * Validate workspace and team in parallel.
@@ -137,16 +138,21 @@ export class AddTeamMembersUseCase implements IAddTeamMembersUseCase {
      * 1. User is an active workspace member
      * 2. User is not already a team member
      */
+    const workspaceUserIds = new Set(
+      workspaceMembers.map((member) => member.userId.value)
+    )
+    for (const userId of userIds) {
+      if (!workspaceUserIds.has(userId.value))
+        throw new WorkspaceMemberNotFoundException()
+      if (!activeWorkspaceMemberIds.has(userId.value))
+        throw new WorkspaceMemberNotActiveException()
+    }
+
     const membersToAdd = userIds.filter(
       (userId) =>
         activeWorkspaceMemberIds.has(userId.value) &&
         !existingTeamMemberIds.has(userId.value)
     )
-
-    if (membersToAdd.length === 0)
-      return {
-        members: [],
-      }
 
     /**
      * Create domain aggregates.
@@ -163,7 +169,18 @@ export class AddTeamMembersUseCase implements IAddTeamMembersUseCase {
     /**
      * Persist all new memberships in one database operation.
      */
-    await this.teamMemberRepository.saveMany(teamMembers)
+    const membersToRestore = existingTeamMembers.filter((member) =>
+      member.isInactive()
+    )
+    for (const member of membersToRestore) member.restore()
+    if (teamMembers.length || membersToRestore.length) {
+      await this.transactionManager.executeTransaction(async (session) => {
+        await this.teamMemberRepository.saveMany(teamMembers, { session })
+        for (const member of membersToRestore) {
+          await this.teamMemberRepository.save(member, { session })
+        }
+      })
+    }
 
     const members =
       await this.teamMemberQueryRepository.findByWorkspaceIdAndTeamId({

@@ -9,7 +9,7 @@ export class RemoveTeamMemberRequest {
     example: 'ABC-A1B2C3D4',
   })
   @Transform(trim)
-  @Matches(/^[A-Z0-9]{3}-[A-F0-9]{8}$/, {
+  @Matches(/^[A-Z][A-Z0-9]{0,9}$/, {
     message: 'Team key must be in the format ABC-A1B2C3D4',
   })
   readonly key!: string

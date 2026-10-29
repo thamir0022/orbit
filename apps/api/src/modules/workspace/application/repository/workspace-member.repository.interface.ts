@@ -5,6 +5,7 @@ import { Email, UserId } from '@/modules/user/domain'
 import { PaginatedResult } from '@/shared/application/repository/paginated-result'
 import { WorkspaceMemberDto } from '../model/workspace-member'
 import { RoleId } from '@/modules/authorization/domain/value-objects/role-id.vo'
+import { WorkspaceMemberSummary } from '../model/workspace-member-summary'
 
 export interface FindWorkspaceMembersQuery {
   readonly workspaceId: string
@@ -41,6 +42,10 @@ export interface IWorkspaceMemberRepository extends IBaseRepository<
   string
 > {
   exists(query: ExistsWorkspaceMemberQuery): Promise<boolean>
+  /** Returns only identity fields for a page of workspace members. */
+  findSummaries(
+    query: Pick<FindWorkspaceMembersQuery, 'workspaceId' | 'page' | 'limit'>
+  ): Promise<PaginatedResult<WorkspaceMemberSummary[]>>
   findAll(
     query: FindWorkspaceMembersQuery
   ): Promise<PaginatedResult<WorkspaceMemberDto[]>>

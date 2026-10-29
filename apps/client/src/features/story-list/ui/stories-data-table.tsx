@@ -91,7 +91,10 @@ export function StoriesDataTable({
             {table.getRowModel().rows.map((row) => (
               <TableRow key={row.id} className="group">
                 {row.getAllCells().map((cell) => (
-                  <TableCell key={cell.id} className="py-3">
+                  <TableCell
+                    key={cell.id}
+                    className="min-w-0 py-3 align-middle"
+                  >
                     <table.FlexRender cell={cell} />
                   </TableCell>
                 ))}

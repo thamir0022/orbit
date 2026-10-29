@@ -19,6 +19,7 @@ import {
   TeamMemberModel,
 } from '../schemas/team-member.schema'
 
+/** Persists memberships and hydrates UUID getters before domain mapping. */
 @Injectable()
 export class MongoTeamMemberRepository implements TeamMemberRepository {
   constructor(
@@ -40,7 +41,6 @@ export class MongoTeamMemberRepository implements TeamMemberRepository {
           session: options?.session,
         }
       )
-      .lean()
       .exec()
 
     return document ? TeamMemberMapper.toDomainDto(document) : null
@@ -64,7 +64,6 @@ export class MongoTeamMemberRepository implements TeamMemberRepository {
       .sort({
         joinedAt: -1,
       })
-      .lean()
       .exec()
 
     return documents.map((document) => TeamMemberMapper.toDomainDto(document))
@@ -86,7 +85,6 @@ export class MongoTeamMemberRepository implements TeamMemberRepository {
           session: options?.session,
         }
       )
-      .lean()
       .exec()
 
     return document ? TeamMemberMapper.toDomainDto(document) : null
@@ -165,7 +163,6 @@ export class MongoTeamMemberRepository implements TeamMemberRepository {
           session: options?.session,
         }
       )
-      .lean()
       .exec()
 
     return documents.map((document) => TeamMemberMapper.toDomainDto(document))

@@ -14,6 +14,8 @@ interface StoriesPaginationProps {
   readonly page: number
   readonly totalPages: number
   readonly total: number
+  readonly firstStoryIndex: number
+  readonly lastStoryIndex: number
   readonly onPageChange: (page: number) => void
 }
 
@@ -39,22 +41,21 @@ export function StoriesPagination({
   page,
   totalPages,
   total,
+  firstStoryIndex,
+  lastStoryIndex,
   onPageChange,
 }: StoriesPaginationProps) {
-  if (totalPages <= 1) {
-    return null
-  }
-
   return (
     <Pagination
       aria-label="Stories pagination"
-      className="flex-col gap-3 sm:flex-row sm:justify-between"
+      className="shrink-0 flex-col gap-3 sm:flex-row sm:justify-between"
     >
       <p
         className="text-center text-xs text-muted-foreground sm:text-left"
         aria-live="polite"
       >
-        {total} stories · Page {page} of {totalPages}
+        Showing {firstStoryIndex}–{lastStoryIndex} of {total} stories · Page{' '}
+        {page} of {totalPages}
       </p>
 
       <PaginationContent>

@@ -6,4 +6,6 @@ export const teamKeys = {
   details: () => [...teamKeys.all, 'detail'] as const,
 
   detail: (teamId: string) => [...teamKeys.details(), teamId] as const,
+  members: (teamKey: string) =>
+    [...teamKeys.detail(teamKey), 'members'] as const,
 }
