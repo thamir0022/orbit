@@ -1,3 +1,6 @@
+import { SprintAccessGuard } from './presentation/http/guards/sprint-access.guard'
+import { TRANSITION_SPRINT_USE_CASE } from './application/usecases/transition-sprint/transition-sprint.interface'
+import { TransitionSprintUseCase } from './application/usecases/transition-sprint/transition-sprint.usecase'
 import { Module } from '@nestjs/common'
 import { sprintProviders } from './infrastructure/providers/sprint.provider'
 import { MongooseModule } from '@nestjs/mongoose'
@@ -39,6 +42,9 @@ import {
   controllers: [SprintController],
   providers: [
     ...sprintProviders,
+    // Register sprint access and lifecycle orchestration.
+    SprintAccessGuard,
+    { provide: TRANSITION_SPRINT_USE_CASE, useClass: TransitionSprintUseCase },
     {
       provide: CREATE_SPRINT_USE_CASE,
       useClass: CreateSprintUseCase,
