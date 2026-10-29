@@ -8,8 +8,8 @@ import { IsNotEmpty, Matches, MaxLength, MinLength } from 'class-validator'
 export class GetWorkItemRequest {
   @ApiProperty({
     description: 'Unique human-readable work item key within the workspace.',
-    example: 'ORB-001-001',
-    minLength: 7,
+    example: 'ORB-01',
+    minLength: 6,
     maxLength: 32,
   })
   @Transform(({ value }): unknown =>
@@ -18,13 +18,13 @@ export class GetWorkItemRequest {
   @IsNotEmpty({
     message: 'Work item key is required',
   })
-  @MinLength(7, {
-    message: 'Work item key must be at least 7 characters',
+  @MinLength(6, {
+    message: 'Work item key must be at least 6 characters',
   })
   @MaxLength(32, {
     message: 'Work item key must not exceed 32 characters',
   })
-  @Matches(/^[A-Z0-9]{3}-\d+-\d+$/, {
+  @Matches(/^[A-Z][A-Z0-9]{0,9}-[1-9]\d*$/, {
     message: 'Work item key must be a valid work item key',
   })
   readonly key!: string
