@@ -6,7 +6,7 @@ export interface Team {
   readonly name: string
   readonly description?: string
   readonly avatarUrl?: string
-  readonly lead: UserSummary
+  readonly lead: UserSummary | null
   readonly status: TeamStatus
   readonly createdBy: UserSummary
   readonly createdAt: string
