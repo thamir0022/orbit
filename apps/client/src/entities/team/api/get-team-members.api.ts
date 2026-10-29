@@ -1,12 +1,21 @@
 import { httpClient } from '@/shared/api/config/http-client'
 import { API_ROUTES } from '@/shared/api/routes/api.routes'
-import type { UserSummary } from '@/shared/types/user-summary'
 
+/** Team membership returned by both list and add member endpoints. */
 export interface TeamMember {
-  readonly userId: UserSummary
+  readonly id: string
+  readonly firstName: string
+  readonly lastName: string
+  readonly displayName: string
+  readonly email: string
   readonly status: 'active' | 'inactive'
-  readonly addedBy: UserSummary
   readonly joinedAt: string
+  readonly addedBy: {
+    readonly id: string
+    readonly email: string
+    readonly displayName: string
+    readonly avatarUrl: string | null
+  }
 }
 
 export async function getTeamMembers(key: string): Promise<TeamMember[]> {

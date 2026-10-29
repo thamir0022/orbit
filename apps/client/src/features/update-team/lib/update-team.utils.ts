@@ -6,7 +6,7 @@ export function getUpdateTeamDefaultValues(team: Team): UpdateTeamFormValues {
   return {
     name: team.name,
     description: team.description ?? '',
-    leadId: team.lead.id ?? '',
+    leadId: team.lead?.id ?? '',
     status: team.status ?? '',
   }
 }

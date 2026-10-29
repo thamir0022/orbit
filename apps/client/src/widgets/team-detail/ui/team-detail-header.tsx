@@ -7,6 +7,8 @@ import { MoreHorizontal, Trash2 } from 'lucide-react'
 import type { Team } from '@/entities/team'
 import { DeleteTeamButton } from '@/features/delete-team/ui/delete-team-button'
 import { BackButton } from '@/shared/ui/back-button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
+import { getInitials } from '@/shared/lib/get-initials'
 import { Button } from '@/shared/ui/button'
 import {
   DropdownMenu,
@@ -63,8 +65,11 @@ export function TeamDetailHeader({
           onOpenChange={setDeleteOpen}
         />
       </div>
-      <div className="min-w-0">
-        <p className="text-xs font-medium text-muted-foreground">Team</p>
+      <div className="flex min-w-0 items-center gap-3">
+        <Avatar className="size-9 shrink-0">
+          <AvatarImage src={team.avatarUrl || undefined} alt="" />
+          <AvatarFallback>{getInitials(team.name)}</AvatarFallback>
+        </Avatar>
         <h1 className="truncate text-2xl font-semibold tracking-tight">
           {team.name}
         </h1>

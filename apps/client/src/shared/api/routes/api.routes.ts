@@ -34,6 +34,7 @@ export const API_ROUTES = {
     CREATE: '/workspaces',
     ALL: '/workspaces',
     MEMBERS: {
+      SUMMARIES: '/workspaces/members/summary',
       ALL: (query: string) => `/workspaces/members${query}`,
       UPDATE: (id: string) => `/workspaces/members/${id}`,
       REMOVE: (id: string) => `/workspaces/members/${id}/remove`,
@@ -67,6 +68,8 @@ export const API_ROUTES = {
     BASE: '/teams',
     BY_KEY: (key: string) => `/teams/${encodeURIComponent(key)}`,
     MEMBERS: (key: string) => `/teams/${encodeURIComponent(key)}/members`,
+    MEMBER: (key: string, memberId: string) =>
+      `/teams/${encodeURIComponent(key)}/members/${encodeURIComponent(memberId)}`,
     STORIES: (key: string) => `/teams/${encodeURIComponent(key)}/stories`,
   },
 } as const

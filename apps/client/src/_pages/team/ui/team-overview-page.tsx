@@ -53,7 +53,7 @@ export function TeamOverviewPage({ teamKey }: TeamOverviewPageProps) {
         workspaceSlug={workspace?.slug ?? ''}
         activeTab="overview"
       />
-      <section aria-label="Team overview">
+      <section aria-label="Team overview" className="min-h-0 flex-1">
         <UpdateTeamForm team={team} />
       </section>
     </main>
