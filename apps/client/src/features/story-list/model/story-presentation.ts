@@ -35,9 +35,10 @@ export const STORY_STATUS_STYLES: Record<
     indicator: 'bg-foreground/35',
   },
   [WORK_ITEM_STATUSES.TODO]: {
-    badge: 'bg-secondary text-secondary-foreground',
-    column: 'bg-secondary/45',
-    indicator: 'bg-secondary-foreground/45',
+    badge:
+      'border border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-900 dark:bg-sky-950 dark:text-sky-300',
+    column: 'bg-sky-500/5',
+    indicator: 'bg-sky-500/70',
   },
   [WORK_ITEM_STATUSES.IN_PROGRESS]: {
     badge:
