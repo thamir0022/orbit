@@ -39,6 +39,8 @@ import {
   TableRow,
 } from '@/shared/ui/table'
 import { TeamDetailHeader } from '@/widgets/team-detail/ui/team-detail-header'
+import { AddTeamMembersDialog } from '@/features/manage-team-members/ui/add-team-members-dialog'
+import { RemoveTeamMemberButton } from '@/features/manage-team-members/ui/remove-team-member-button'
 
 interface TeamMembersPageProps {
   readonly teamKey: string
@@ -50,43 +52,101 @@ const columnHelper = createColumnHelper<
   typeof memberTableFeatures,
   TeamMember
 >()
-const columns = columnHelper.columns([
-  columnHelper.accessor((member) => member.userId.displayName, {
-    id: 'name',
-    header: 'Member',
-    cell: ({ row }) => (
-      <div className="flex items-center gap-3">
-        <Avatar className="size-8">
-          <AvatarImage src={row.original.userId.avatarUrl} alt="" />
-          <AvatarFallback>
-            {getInitials(row.original.userId.displayName)}
-          </AvatarFallback>
-        </Avatar>
-        <span className="font-medium">{row.original.userId.displayName}</span>
-      </div>
-    ),
-  }),
-  columnHelper.accessor('status', {
-    header: 'Status',
-    cell: ({ getValue }) => (
-      <Badge variant="secondary" className="capitalize">
-        {getValue()}
-      </Badge>
-    ),
-  }),
-  columnHelper.accessor((member) => member.addedBy.displayName, {
-    id: 'addedBy',
-    header: 'Added by',
-  }),
-  columnHelper.accessor('joinedAt', {
-    header: 'Joined',
-    cell: ({ getValue }) => (
-      <time dateTime={getValue()}>{formatDate(getValue())}</time>
-    ),
-  }),
-])
+/** Builds member columns with a team-scoped removal action. */
+const createColumns = (teamKey: string) =>
+  columnHelper.columns([
+    columnHelper.accessor('displayName', {
+      id: 'name',
+      header: 'Name',
+      cell: ({ row }) => (
+        <div className="flex items-center gap-3">
+          <Avatar className="size-8">
+            <AvatarFallback className="text-xs">
+              {getInitials(row.original.displayName)}
+            </AvatarFallback>
+          </Avatar>
+          <span className="font-medium">{row.original.displayName}</span>
+        </div>
+      ),
+    }),
+    columnHelper.accessor('email', {
+      header: 'Email',
+      cell: ({ getValue }) => (
+        <span className="text-muted-foreground">{getValue()}</span>
+      ),
+    }),
+    columnHelper.accessor('status', {
+      header: 'Status',
+      cell: ({ getValue }) => (
+        <Badge variant="secondary" className="capitalize">
+          {getValue()}
+        </Badge>
+      ),
+    }),
+    columnHelper.accessor((member) => member.addedBy.displayName, {
+      id: 'addedBy',
+      header: 'Added by',
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <Avatar className="size-6">
+            <AvatarImage
+              src={row.original.addedBy.avatarUrl ?? undefined}
+              alt=""
+            />
+            <AvatarFallback className="text-xs">
+              {getInitials(row.original.addedBy.displayName)}
+            </AvatarFallback>
+          </Avatar>
+          <span>{row.original.addedBy.displayName}</span>
+        </div>
+      ),
+    }),
+    columnHelper.accessor('joinedAt', {
+      header: 'Joined',
+      cell: ({ getValue }) => (
+        <time dateTime={getValue()}>
+          {formatDate(getValue(), {
+            year: '2-digit',
+            month: 'short',
+            weekday: undefined,
+          })}
+        </time>
+      ),
+    }),
+    columnHelper.display({
+      id: 'actions',
+      header: 'Action',
+      enableSorting: false,
+      cell: ({ row }) =>
+        row.original.status === 'active' ? (
+          <RemoveTeamMemberButton
+            teamKey={teamKey}
+            userId={row.original.id}
+            name={row.original.displayName}
+          />
+        ) : (
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            disabled
+            title="Restore member is coming soon"
+          >
+            Restore
+          </Button>
+        ),
+    }),
+  ])
 
-function MembersTable({ members }: { readonly members: TeamMember[] }) {
+/** Renders sortable members with accessible desktop and mobile actions. */
+function MembersTable({
+  members,
+  teamKey,
+}: {
+  readonly members: TeamMember[]
+  readonly teamKey: string
+}) {
+  const columns = useMemo(() => createColumns(teamKey), [teamKey])
   const [sorting, setSorting] = useState<SortingState>([])
   const data = useMemo(() => members, [members])
   const table = useTable({
@@ -117,15 +177,19 @@ function MembersTable({ members }: { readonly members: TeamMember[] }) {
                           : 'none'
                     }
                   >
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      className="-ml-2"
-                      onClick={header.column.getToggleSortingHandler()}
-                    >
-                      {header.column.columnDef.header as string}
-                    </Button>
+                    {header.column.getCanSort() ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="-ml-2"
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        {header.column.columnDef.header as string}
+                      </Button>
+                    ) : (
+                      (header.column.columnDef.header as string)
+                    )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -150,15 +214,41 @@ function MembersTable({ members }: { readonly members: TeamMember[] }) {
             <CardContent className="flex items-center justify-between gap-3 px-4">
               <div className="min-w-0">
                 <p className="truncate font-medium">
-                  {row.original.userId.displayName}
+                  {row.original.displayName}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Joined {formatDate(row.original.joinedAt)}
+                  {row.original.email}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Added by {row.original.addedBy.displayName}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Joined{' '}
+                  <time dateTime={row.original.joinedAt}>
+                    {formatDate(row.original.joinedAt)}
+                  </time>
                 </p>
               </div>
               <Badge variant="secondary" className="capitalize">
                 {row.original.status}
               </Badge>
+              {row.original.status === 'active' ? (
+                <RemoveTeamMemberButton
+                  teamKey={teamKey}
+                  userId={row.original.id}
+                  name={row.original.displayName}
+                />
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  disabled
+                  title="Restore member is coming soon"
+                >
+                  Restore
+                </Button>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -167,6 +257,7 @@ function MembersTable({ members }: { readonly members: TeamMember[] }) {
   )
 }
 
+/** Composes the team directory and membership management controls. */
 export function TeamMembersPage({
   teamKey,
   workspaceSlug,
@@ -200,13 +291,21 @@ export function TeamMembersPage({
         aria-labelledby="members-heading"
         className="min-h-0 flex-1 overflow-y-auto"
       >
-        <div className="mb-4">
-          <h2 id="members-heading" className="text-lg font-semibold">
-            Members
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            People working with this team.
-          </p>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 id="members-heading" className="text-lg font-semibold">
+              Members
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              People working with this team.
+            </p>
+          </div>
+          {membersQuery.isSuccess ? (
+            <AddTeamMembersDialog
+              teamKey={teamKey}
+              members={membersQuery.data}
+            />
+          ) : null}
         </div>
         {membersQuery.isPending ? (
           <Skeleton className="h-64 w-full" />
@@ -225,7 +324,7 @@ export function TeamMembersPage({
             </AlertDescription>
           </Alert>
         ) : membersQuery.data?.length ? (
-          <MembersTable members={membersQuery.data} />
+          <MembersTable members={membersQuery.data} teamKey={teamKey} />
         ) : (
           <Empty className="border border-dashed">
             <EmptyHeader>
