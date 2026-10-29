@@ -5,7 +5,8 @@ import {
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model, PipelineStage } from 'mongoose'
-import { UUID } from 'mongodb'
+import { Binary, UUID } from 'mongodb'
+import { WorkspaceMemberSummary } from '../../../application/model/workspace-member-summary'
 import {
   ExistsWorkspaceMemberQuery,
   FindMemberQuery,
@@ -31,6 +32,73 @@ export class WorkspaceMemberRepository implements IWorkspaceMemberRepository {
 
   async findById(id: string): Promise<WorkspaceMember | null> {
     return this.memberModel.findOne({ id })
+  }
+
+  /** Projects public identity fields and counts members without joining roles. */
+  async findSummaries({
+    workspaceId,
+    page,
+    limit,
+  }: Pick<
+    FindWorkspaceMembersQuery,
+    'workspaceId' | 'page' | 'limit'
+  >): Promise<PaginatedResult<WorkspaceMemberSummary[]>> {
+    type MemberRecord = Omit<WorkspaceMemberSummary, 'id'> & { id: Binary }
+    const [result] = await this.memberModel.aggregate<{
+      data: MemberRecord[]
+      total: { count: number }[]
+    }>([
+      { $match: { workspaceId: new UUID(workspaceId) } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: 'id',
+          pipeline: [
+            {
+              $project: {
+                _id: 0,
+                id: 1,
+                firstName: 1,
+                lastName: 1,
+                displayName: 1,
+                avatarUrl: 1,
+              },
+            },
+          ],
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $facet: {
+          data: [
+            { $sort: { userId: 1 } },
+            { $skip: (page - 1) * limit },
+            { $limit: limit },
+            {
+              $project: {
+                _id: 0,
+                id: '$user.id',
+                firstName: '$user.firstName',
+                lastName: '$user.lastName',
+                displayName: '$user.displayName',
+                avatarUrl: { $ifNull: ['$user.avatarUrl', null] },
+              },
+            },
+          ],
+          total: [{ $count: 'count' }],
+        },
+      },
+    ])
+    const total = result?.total[0]?.count ?? 0
+    return {
+      data: (result?.data ?? []).map((member) => ({
+        ...member,
+        id: member.id.toUUID().toString(),
+      })),
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    }
   }
 
   async findMember(query: FindMemberQuery): Promise<WorkspaceMemberDto | null> {
@@ -316,6 +384,7 @@ export class WorkspaceMemberRepository implements IWorkspaceMemberRepository {
     )
   }
 
+  /** Hydrates UUID fields for canonical string conversion in the domain mapper. */
   async findMembersByWorkspaceIdAndUserIds(
     props: FindWorkspaceMembersByWorkspaceIdAndUserIdsProps,
     options?: ITransactionOptions
@@ -333,7 +402,6 @@ export class WorkspaceMemberRepository implements IWorkspaceMemberRepository {
           session: options?.session,
         }
       )
-      .lean()
       .exec()
 
     return documents.map((document) => WorkspaceMemberMapper.toDomain(document))

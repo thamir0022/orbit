@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common'
+import { GET_WORKSPACE_MEMBER_SUMMARIES } from './application/usecases/get-workspace-member-summaries.interface'
+import { GetWorkspaceMemberSummariesUseCase } from './application/usecases/get-workspace-member-summaries.usecase'
 import { MongooseModule } from '@nestjs/mongoose'
 import {
   WorkspaceModel,
@@ -73,6 +75,10 @@ import { DeleteWorkspaceUseCase } from './application/usecases/delete-workspace-
   ],
   controllers: [WorkspaceController],
   providers: [
+    {
+      provide: GET_WORKSPACE_MEMBER_SUMMARIES,
+      useClass: GetWorkspaceMemberSummariesUseCase,
+    },
     ...workspaceProviders,
     {
       provide: WORKSPACE_INVITATION_SERVICE,
