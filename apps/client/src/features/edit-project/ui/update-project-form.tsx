@@ -3,7 +3,6 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  ArrowLeft,
   CalendarDays,
   CircleDashed,
   CircleGauge,
@@ -16,6 +15,7 @@ import {
   Users,
 } from 'lucide-react'
 import Link from 'next/link'
+import { BackButton } from '@/shared/ui/back-button'
 import { usePathname } from 'next/navigation'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 
@@ -370,12 +370,12 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
       {/* Project navigation */}
       <div className="mb-4">
         <div>
-          <Link href={workspace?.slug ? `/${workspace.slug}/projects` : '#'}>
-            <Button type="button" variant="ghost" size="sm">
-              <ArrowLeft className="size-3.5" aria-hidden="true" />
-              <span>Projects</span>
-            </Button>
-          </Link>
+          <BackButton
+            title="Projects"
+            fallbackHref={
+              workspace?.slug ? `/${workspace.slug}/projects` : undefined
+            }
+          />
         </div>
         {/* Project sections */}
         <nav

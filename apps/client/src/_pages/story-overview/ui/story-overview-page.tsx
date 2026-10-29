@@ -1,7 +1,7 @@
 'use client'
-import Link from 'next/link'
 import { useState } from 'react'
-import { MoreHorizontal, ArrowLeft, Trash2 } from 'lucide-react'
+import { MoreHorizontal, Trash2 } from 'lucide-react'
+import { BackButton } from '@/shared/ui/back-button'
 import { useStoryEditor } from '@/features/edit-story/model/use-story-editor'
 import { useTeamRoute } from '@/widgets/team-route'
 import { StoryForm } from '@/features/story-form/ui/story-form'
@@ -74,11 +74,7 @@ export function StoryOverviewPage({ storyKey }: { storyKey: string }) {
     <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-8">
       <header className="mb-8 flex items-center justify-between gap-4 border-b pb-4">
         <div className="flex min-w-0 items-center gap-3">
-          <Button asChild size="icon" variant="ghost">
-            <Link href={listPath} aria-label="Back to stories">
-              <ArrowLeft aria-hidden="true" />
-            </Link>
-          </Button>
+          <BackButton title="Stories" fallbackHref={listPath} />
           <span className="text-sm text-muted-foreground">{storyKey}</span>
         </div>
         <DropdownMenu>
