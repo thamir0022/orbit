@@ -1,3 +1,11 @@
+import {
+  TEAM_REPOSITORY,
+  TeamRepository,
+} from '@/modules/team/application/ports/team-repository.port'
+import {
+  TeamInactiveException,
+  TeamNotFoundException,
+} from '@/modules/team/domain/exceptions'
 import { Inject, Injectable } from '@nestjs/common'
 
 import { TeamId } from '@/modules/team/domain'
@@ -32,13 +40,22 @@ export class UpdateSprintUseCase implements IUpdateSprintUseCase {
     private readonly sprintRepository: SprintRepository,
 
     @Inject(SPRINT_QUERY_REPOSITORY)
-    private readonly sprintQueryRepository: SprintQueryRepository
+    private readonly sprintQueryRepository: SprintQueryRepository,
+    @Inject(TEAM_REPOSITORY) private readonly teamRepository: TeamRepository
   ) {}
 
   async execute(input: UpdateSprintInput): Promise<UpdateSprintOutput> {
     const workspaceId = WorkspaceId.create(input.workspaceId)
     const teamId = TeamId.create(input.teamId)
     const sprintId = SprintId.create(input.sprintId)
+
+    // Archived teams cannot accept planning edits.
+    const team = await this.teamRepository.findByWorkspaceIdAndId(
+      workspaceId,
+      teamId
+    )
+    if (!team) throw new TeamNotFoundException()
+    if (!team.isActive) throw new TeamInactiveException()
 
     /**
      * Resolve the aggregate through a workspace and team scoped lookup.
@@ -67,9 +84,10 @@ export class UpdateSprintUseCase implements IUpdateSprintUseCase {
     /**
      * Persist the updated aggregate.
      *
-     * Mongoose timestamps update updatedAt automatically.
+     * The repository advances updatedAt after checking the loaded revision.
      */
-    await this.sprintRepository.save(sprint)
+    // Reject stale edits instead of overwriting a concurrent transition.
+    await this.sprintRepository.update(sprint)
 
     /**
      * Return the enriched read model instead of exposing

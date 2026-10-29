@@ -71,6 +71,7 @@ export class SprintModel {
 
   @Prop({
     required: true,
+    type: String,
     enum: SprintStatus,
     default: SprintStatus.PLANNED,
   })
@@ -122,9 +123,11 @@ SprintSchema.index(
     workspaceId: 1,
     teamId: 1,
     startDate: -1,
+    // Match the stable pagination tie-breaker.
+    id: 1,
   },
   {
-    name: 'workspace_team_start_date_idx',
+    name: 'workspace_team_start_date_id_idx',
   }
 )
 
@@ -135,9 +138,11 @@ SprintSchema.index(
     teamId: 1,
     status: 1,
     startDate: -1,
+    // Match the stable pagination tie-breaker.
+    id: 1,
   },
   {
-    name: 'workspace_team_status_start_date_idx',
+    name: 'workspace_team_status_start_date_id_idx',
   }
 )
 
@@ -146,9 +151,11 @@ SprintSchema.index(
   {
     workspaceId: 1,
     startDate: -1,
+    // Match the stable pagination tie-breaker.
+    id: 1,
   },
   {
-    name: 'workspace_start_date_idx',
+    name: 'workspace_start_date_id_idx',
   }
 )
 

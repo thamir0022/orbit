@@ -53,12 +53,13 @@ export interface CreateSprintProps {
 }
 
 /**
+ * Null text values explicitly clear the stored field.
  * Fields that can be changed while a sprint is still planned.
  */
 export interface UpdateSprintProps {
   name?: string
-  goal?: string
-  description?: string
+  goal?: string | null
+  description?: string | null
 
   startDate?: Date | string
   endDate?: Date | string

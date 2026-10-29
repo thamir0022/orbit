@@ -1,3 +1,4 @@
+import { SprintValidationException } from '../exceptions/sprint-validation.exception'
 import { TeamId } from '@/modules/team/domain'
 import { UserId } from '@/modules/user/domain'
 import { WorkspaceId } from '@/modules/workspace/domain'
@@ -326,14 +327,18 @@ export class Sprint extends AggregateRoot<SprintId> {
   }
 
   private normalizeName(name: string): string {
-    const normalized = name.trim()
+    // Normalize names consistently for HTTP and internal callers.
+    const normalized =
+      typeof name === 'string'
+        ? name.normalize('NFKC').trim().replace(/\s+/g, ' ')
+        : ''
 
     if (!normalized) {
-      throw new TypeError('Sprint name cannot be empty.')
+      throw new SprintValidationException('Sprint name cannot be empty.')
     }
 
     if (normalized.length > SPRINT_NAME_MAX_LENGTH) {
-      throw new RangeError(
+      throw new SprintValidationException(
         `Sprint name cannot exceed ${SPRINT_NAME_MAX_LENGTH} characters.`
       )
     }
@@ -353,7 +358,7 @@ export class Sprint extends AggregateRoot<SprintId> {
     }
 
     if (normalized.length > maxLength) {
-      throw new RangeError(
+      throw new SprintValidationException(
         `${fieldName} cannot exceed ${maxLength} characters.`
       )
     }
@@ -363,7 +368,7 @@ export class Sprint extends AggregateRoot<SprintId> {
 
   private assertValidTimestamp(value: Date, fieldName: string): void {
     if (!(value instanceof Date) || Number.isNaN(value.getTime())) {
-      throw new TypeError(`${fieldName} must be a valid date.`)
+      throw new SprintValidationException(`${fieldName} must be a valid date.`)
     }
   }
 

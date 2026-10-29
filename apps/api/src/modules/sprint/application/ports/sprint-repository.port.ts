@@ -32,6 +32,9 @@ export interface FindSprintByWorkspaceIdAndTeamIdAndStatusProps {
  * layer without exposing infrastructure concerns.
  */
 export interface SprintRepository extends IBaseRepository<Sprint, SprintId> {
+  // Updates an existing revision without recreating a deleted sprint.
+  update(sprint: Sprint, options?: ITransactionOptions): Promise<void>
+
   /**
    * Returns all sprints belonging to a team.
    */
