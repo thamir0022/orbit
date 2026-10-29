@@ -1,6 +1,7 @@
 import { ArrowDown, ArrowRight, ArrowUp, ChevronsUp } from 'lucide-react'
 
 import type { Story } from '@/entities/story'
+import { StoryLink } from './story-link'
 import {
   WORK_ITEM_PRIORITIES,
   type WorkItemPriority,
@@ -62,19 +63,13 @@ export function StoryCard({ story }: StoryCardProps) {
       className="gap-0 py-0 shadow-none transition-colors hover:border-foreground/20"
     >
       <CardContent className="p-3.5">
-        <div className="flex min-w-0 items-start gap-3">
-          <Avatar aria-hidden="true" className="size-8 shrink-0">
-            <AvatarFallback className="text-xs font-medium">
-              {getInitials(story.title) ?? 'ST'}
-            </AvatarFallback>
-          </Avatar>
-
-          <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 items-center">
+          <div className="min-w-0 w-full">
             <h3
               id={titleId}
               className="line-clamp-2 text-sm font-medium leading-5"
             >
-              {story.title}
+              <StoryLink storyKey={story.key} title={story.title} />
             </h3>
           </div>
         </div>
@@ -113,15 +108,17 @@ export function StoryCard({ story }: StoryCardProps) {
             className="flex min-w-0 items-center gap-2"
             aria-label={`Assignee: ${assigneeName}`}
           >
-            <Avatar className="size-5 shrink-0">
-              <AvatarImage
-                src={story.assignee?.avatarUrl ?? undefined}
-                alt={assigneeName}
-              />
-              <AvatarFallback className="text-[9px]">
-                {story.assignee ? getInitials(assigneeName) : '?'}
-              </AvatarFallback>
-            </Avatar>
+            {story.assignee ? (
+              <Avatar className="size-5 shrink-0">
+                <AvatarImage
+                  src={story.assignee.avatarUrl ?? undefined}
+                  alt={assigneeName}
+                />
+                <AvatarFallback className="text-[9px]">
+                  {getInitials(assigneeName)}
+                </AvatarFallback>
+              </Avatar>
+            ) : null}
             <span className="min-w-0 truncate text-xs">{assigneeName}</span>
           </div>
 

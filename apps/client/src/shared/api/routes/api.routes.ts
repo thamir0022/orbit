@@ -1,4 +1,7 @@
 export const API_ROUTES = {
+  WORK_ITEMS: {
+    BY_KEY: (key: string) => `/work-items/${encodeURIComponent(key)}`,
+  },
   AUTH: {
     SIGN_IN: '/auth/sign-in',
     SIGN_UP_INITIATE: '/auth/sign-up/initiate',

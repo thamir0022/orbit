@@ -10,6 +10,7 @@ import {
 import { createColumnHelper, type Column } from '@tanstack/react-table'
 
 import type { Story } from '@/entities/story'
+import { StoryLink } from './story-link'
 import type { WorkItemPriority, WorkItemStatus } from '@/entities/work-item'
 import { WORK_ITEM_PRIORITIES } from '@/entities/work-item'
 import { getInitials } from '@/shared/lib/get-initials'
@@ -133,16 +134,14 @@ export const createStoryColumns = () =>
         const story = row.original
 
         return (
-          <div className="flex min-w-64 items-start gap-3 py-0.5">
+          <div className="flex min-w-0 items-center gap-3 py-0.5">
             <Avatar aria-hidden="true" className="size-8 shrink-0">
               <AvatarFallback className="text-xs font-medium">
                 {getInitials(story.title) ?? 'ST'}
               </AvatarFallback>
             </Avatar>
-            <div className="min-w-0">
-              <span className="line-clamp-2 block font-medium leading-5 text-foreground">
-                {story.title}
-              </span>
+            <div className="min-w-0 flex-1">
+              <StoryLink storyKey={story.key} title={story.title} />
             </div>
           </div>
         )
@@ -187,10 +186,7 @@ export const createStoryColumns = () =>
 
         if (!assignee) {
           return (
-            <div className="flex min-w-32 items-center gap-2 text-muted-foreground">
-              <Avatar aria-hidden="true" className="size-6">
-                <AvatarFallback className="text-[10px]">?</AvatarFallback>
-              </Avatar>
+            <div className="flex min-w-0 items-center text-muted-foreground">
               <span className="text-sm">Unassigned</span>
             </div>
           )
