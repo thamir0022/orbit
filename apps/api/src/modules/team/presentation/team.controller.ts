@@ -146,6 +146,7 @@ export class TeamController {
     })
   }
 
+  /** Adds workspace users to the team using authenticated actor and tenant IDs. */
   @Post(':key/members')
   async addTeamMembers(
     @CurrentAuth() auth: AuthContext,
@@ -156,7 +157,7 @@ export class TeamController {
       workspaceId: auth.workspaceId!,
       teamKey: key,
       actorId: auth.userId,
-      memberIds: req.userIds,
+      userIds: req.userIds,
     })
   }
 
