@@ -33,6 +33,7 @@ export class MongoNotificationRepository implements NotificationRepository {
       .session(options?.session ?? null)
       .lean()
       .exec()
+
     return doc ? NotificationMapper.toDomain(doc) : null
   }
 
@@ -47,6 +48,7 @@ export class MongoNotificationRepository implements NotificationRepository {
       .session(options?.session ?? null)
       .lean()
       .exec()
+
     return doc ? NotificationMapper.toDomain(doc) : null
   }
 
@@ -55,12 +57,11 @@ export class MongoNotificationRepository implements NotificationRepository {
     notification: Notification,
     options?: ITransactionOptions
   ): Promise<void> {
-    await this.notificationModel.create(
-      [NotificationMapper.toPersistence(notification)],
-      {
-        session: options?.session,
-      }
+    const document = new this.notificationModel(
+      NotificationMapper.toPersistence(notification)
     )
+
+    await document.save({ session: options?.session })
   }
 
   /** Persists only mutable read state, without replacing immutable notification content. */
