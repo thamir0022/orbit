@@ -445,9 +445,9 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
                 current: true,
                 $expr: {
                   $and: [
-                    { $eq: ['$workItemId', '$itemId'] },
-                    { $eq: ['$workspaceId', '$workspaceId'] },
-                    { $eq: ['$teamId', '$teamId'] },
+                    { $eq: ['$workItemId', '$$itemId'] },
+                    { $eq: ['$workspaceId', '$$workspaceId'] },
+                    { $eq: ['$teamId', '$$teamId'] },
                   ],
                 },
               },
