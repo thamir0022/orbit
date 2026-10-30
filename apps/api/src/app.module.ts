@@ -19,6 +19,8 @@ import { TeamModule } from './modules/team/team.module'
 import { SprintModule } from './modules/sprint/sprint.module'
 import { WorkItemModule } from './modules/workitem/work-item.module'
 import { DocumentModule } from './modules/document/document.module'
+import { NotificationModule } from './modules/notification/notification.module'
+import { RealtimeModule } from './modules/realtime/realtime.module'
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule()
 @Module({
@@ -46,6 +48,8 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule()
     SprintModule,
     WorkItemModule,
     DocumentModule,
+    NotificationModule,
+    RealtimeModule,
 
     // NestJs Observability
     ObserveModule.forRootAsync({
