@@ -101,6 +101,7 @@ export class MongoSprintQueryRepository implements SprintQueryRepository {
     const pipeline: PipelineStage[] = [
       {
         $match: {
+          deletedAt: null,
           workspaceId: new UUID(props.workspaceId.value),
           teamId: new UUID(props.teamId.value),
           id: new UUID(props.sprintId.value),
@@ -142,8 +143,8 @@ export class MongoSprintQueryRepository implements SprintQueryRepository {
         startDate: 1,
         endDate: 1,
 
-        committedPoints: { $ifNull: ['$committedPoints', null] },
-        completedPoints: { $ifNull: ['$completedPoints', null] },
+        committedPoints: { $ifNull: ['$commitment.points', null] },
+        completedPoints: { $ifNull: ['$outcome.completed.points', null] },
 
         startedAt: 1,
         completedAt: 1,
@@ -203,6 +204,7 @@ export class MongoSprintQueryRepository implements SprintQueryRepository {
     filters?: SprintQueryFilterProps
   ): Record<string, unknown> {
     const match: Record<string, unknown> = {
+      deletedAt: null,
       workspaceId: new UUID(workspaceId.value),
     }
 

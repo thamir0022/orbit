@@ -1,3 +1,4 @@
+import { SprintMetrics, SprintOutcome } from './sprint-snapshot.interface'
 import { WorkspaceId } from '@/modules/workspace/domain'
 import { TeamId } from '@/modules/team/domain'
 import { UserId } from '@/modules/user/domain'
@@ -6,6 +7,9 @@ import { SprintStatus } from '../enums/sprint-status.enum'
 
 /**
  * Properties required to reconstitute a sprint aggregate.
+ * - Sprint creation
+ * - Persistence
+ * - Planning contracts
  */
 export interface SprintProps {
   id: SprintId
@@ -22,8 +26,13 @@ export interface SprintProps {
 
   status: SprintStatus
 
-  committedPoints?: number | null
-  completedPoints?: number | null
+  commitment?: SprintMetrics | null
+  outcome?: SprintOutcome | null
+  startedBy?: string | null
+  completedBy?: string | null
+  cancellationReason?: string | null
+  deletedAt?: Date | null
+  deletedBy?: string | null
 
   createdBy: UserId
   createdAt: Date

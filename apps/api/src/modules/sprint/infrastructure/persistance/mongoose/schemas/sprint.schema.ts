@@ -1,9 +1,14 @@
+import {
+  SprintMetrics,
+  SprintOutcome,
+} from '../../../../domain/interfaces/sprint-snapshot.interface'
 import { SprintStatus } from '@/modules/sprint/domain/enums/sprint-status.enum'
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose'
 
 export type SprintDocument = HydratedDocument<SprintModel>
 
+/** Stores sprint lifecycle state, audit fields, and immutable measurements. */
 @Schema({
   collection: 'sprints',
   timestamps: true,
@@ -109,6 +114,43 @@ export class SprintModel {
     default: null,
   })
   cancelledBy!: string | null
+
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+    default: null,
+  })
+  commitment!: SprintMetrics | null
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+    default: null,
+  })
+  outcome!: SprintOutcome | null
+  @Prop({
+    type: String,
+    default: null,
+  })
+  startedBy!: string | null
+  @Prop({
+    type: String,
+    default: null,
+  })
+  completedBy!: string | null
+  @Prop({
+    type: String,
+    default: null,
+    maxlength: 1000,
+  })
+  cancellationReason!: string | null
+  @Prop({
+    type: Date,
+    default: null,
+  })
+  deletedAt!: Date | null
+  @Prop({
+    type: String,
+    default: null,
+  })
+  deletedBy!: string | null
 
   // Managed automatically by Mongoose's timestamps option.
   createdAt!: Date

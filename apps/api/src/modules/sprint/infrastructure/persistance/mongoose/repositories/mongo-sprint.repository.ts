@@ -36,7 +36,7 @@ export class MongoSprintRepository implements SprintRepository {
     options?: ITransactionOptions
   ): Promise<Sprint | null> {
     const document = await this.sprintModel
-      .findOne({ id: id.value })
+      .findOne({ id: id.value, deletedAt: null })
       .session(options?.session ?? null)
       .lean()
       .exec()
@@ -56,6 +56,7 @@ export class MongoSprintRepository implements SprintRepository {
   ): Promise<Sprint[]> {
     const documents = await this.sprintModel
       .find({
+        deletedAt: null,
         workspaceId: workspaceId.value,
         teamId: teamId.value,
       })
@@ -83,6 +84,7 @@ export class MongoSprintRepository implements SprintRepository {
     const document = await this.sprintModel
       .findOne({
         id: props.sprintId.value,
+        deletedAt: null,
         workspaceId: props.workspaceId.value,
         teamId: props.teamId.value,
       })
@@ -105,6 +107,7 @@ export class MongoSprintRepository implements SprintRepository {
   ): Promise<Sprint | null> {
     const document = await this.sprintModel
       .findOne({
+        deletedAt: null,
         workspaceId: props.workspaceId.value,
         teamId: props.teamId.value,
         status: props.status,
@@ -137,6 +140,7 @@ export class MongoSprintRepository implements SprintRepository {
         .updateOne(
           {
             id: sprint.id.value,
+            deletedAt: null,
             workspaceId: sprint.workspaceId.value,
             teamId: sprint.teamId.value,
             updatedAt: sprint.updatedAt,

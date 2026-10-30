@@ -1,4 +1,8 @@
 import {
+  TEAM_ACCESS_SERVICE,
+  ITeamAccessService,
+} from '@/modules/team/application/services/team-access.service.interface'
+import {
   TEAM_REPOSITORY,
   TeamRepository,
 } from '@/modules/team/application/ports/team-repository.port'
@@ -41,7 +45,8 @@ export class UpdateSprintUseCase implements IUpdateSprintUseCase {
 
     @Inject(SPRINT_QUERY_REPOSITORY)
     private readonly sprintQueryRepository: SprintQueryRepository,
-    @Inject(TEAM_REPOSITORY) private readonly teamRepository: TeamRepository
+    @Inject(TEAM_REPOSITORY) private readonly teamRepository: TeamRepository,
+    @Inject(TEAM_ACCESS_SERVICE) private readonly access: ITeamAccessService
   ) {}
 
   async execute(input: UpdateSprintInput): Promise<UpdateSprintOutput> {
@@ -55,6 +60,9 @@ export class UpdateSprintUseCase implements IUpdateSprintUseCase {
       teamId
     )
     if (!team) throw new TeamNotFoundException()
+    // Only the owning team lead can plan a sprint.
+    await this.access.assertLead(team, input.actorId)
+
     if (!team.isActive) throw new TeamInactiveException()
 
     /**

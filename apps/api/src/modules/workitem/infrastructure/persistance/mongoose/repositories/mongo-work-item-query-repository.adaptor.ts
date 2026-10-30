@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose'
 import { Model, PipelineStage } from 'mongoose'
-import { UUID } from 'mongodb'
+import { Binary, UUID } from 'mongodb'
 
 import { ITransactionOptions } from '@/shared/application'
 import { WorkspaceId } from '@/modules/workspace/domain'
@@ -52,6 +52,10 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
         $match: this.buildMatchStage(workspaceId, filters),
       },
 
+      ...this.buildSprintAssignmentStages(),
+      ...(filters?.sprintId
+        ? [{ $match: { sprintId: new UUID(filters.sprintId.value) } }]
+        : []),
       {
         $facet: {
           items: [
@@ -92,7 +96,7 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
     const total = result?.metadata[0]?.total ?? 0
 
     return {
-      items: result?.items ?? [],
+      items: (result?.items ?? []).map((item) => this.normalizeSprintId(item)),
       total,
       page,
       limit,
@@ -103,7 +107,7 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
   async findByWorkspaceIdAndKey(
     props: FindWorkItemByWorkspaceIdAndKeyProps,
     options: ITransactionOptions
-  ): Promise<WorkItemListItemOutput> {
+  ): Promise<WorkItemListItemOutput | null> {
     const pipeline: PipelineStage[] = [
       {
         $match: {
@@ -113,6 +117,7 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
         },
       },
 
+      ...this.buildSprintAssignmentStages(),
       ...this.buildUserEnrichmentStages(),
 
       {
@@ -129,7 +134,7 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
       options
     )
 
-    return result ?? null
+    return result ? this.normalizeSprintId(result) : null
   }
 
   async findByWorkspaceIdAndTeamIdAndId(
@@ -146,6 +151,7 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
         },
       },
 
+      ...this.buildSprintAssignmentStages(),
       ...this.buildUserEnrichmentStages(),
 
       {
@@ -162,7 +168,7 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
       options
     )
 
-    return result ?? null
+    return result ? this.normalizeSprintId(result) : null
   }
 
   /**
@@ -200,9 +206,6 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
     /**
      * Sprint filter.
      */
-    if (filters.sprintId) {
-      match.sprintId = new UUID(filters.sprintId.value)
-    }
 
     /**
      * Assignee filter.
@@ -425,6 +428,49 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
    * Enriches the read model with the user summaries required
    * by WorkItemListItemOutput.
    */
+  // Sprint membership is owned by assignment records, never by work-item fields.
+  private buildSprintAssignmentStages(): PipelineStage.FacetPipelineStage[] {
+    return [
+      {
+        $lookup: {
+          from: 'sprint_work_items',
+          let: {
+            itemId: '$id',
+            workspaceId: '$workspaceId',
+            teamId: '$teamId',
+          },
+          pipeline: [
+            {
+              $match: {
+                current: true,
+                $expr: {
+                  $and: [
+                    { $eq: ['$workItemId', '$itemId'] },
+                    { $eq: ['$workspaceId', '$workspaceId'] },
+                    { $eq: ['$teamId', '$teamId'] },
+                  ],
+                },
+              },
+            },
+            { $project: { _id: 0, sprintId: 1 } },
+            { $limit: 1 },
+          ],
+          as: 'sprintAssignment',
+        },
+      },
+      {
+        $set: {
+          sprintId: {
+            $ifNull: [
+              { $arrayElemAt: ['$sprintAssignment.sprintId', 0] },
+              null,
+            ],
+          },
+        },
+      },
+    ]
+  }
+
   private buildUserEnrichmentStages(): PipelineStage.FacetPipelineStage[] {
     return [
       {
@@ -484,6 +530,22 @@ export class MongoWorkItemQueryRepository implements WorkItemQueryRepository {
   /**
    * Projects only the fields required by WorkItemListItemOutput.
    */
+  // Aggregations bypass Mongoose UUID getters for the joined assignment.
+  private normalizeSprintId(
+    item: WorkItemListItemOutput
+  ): WorkItemListItemOutput {
+    const value: unknown = item.sprintId
+    return {
+      ...item,
+      sprintId:
+        value instanceof Binary
+          ? value.toUUID().toString()
+          : typeof value === 'string'
+            ? value
+            : null,
+    }
+  }
+
   private buildListProjectionStage(): Record<string, unknown> {
     return {
       _id: 0,

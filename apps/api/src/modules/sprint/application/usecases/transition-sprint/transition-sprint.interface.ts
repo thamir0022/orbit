@@ -6,6 +6,8 @@ export interface TransitionSprintInput {
   teamId: string
   sprintId: string
   actorId: string
+  targetSprintId?: string
+  reason?: string
   action: 'start' | 'complete' | 'cancel'
 }
 

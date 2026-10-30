@@ -33,6 +33,13 @@ export class SprintMapper {
       endDate: document.endDate,
 
       status: document.status,
+      deletedBy: document.deletedBy ?? null,
+      deletedAt: document.deletedAt ?? null,
+      cancellationReason: document.cancellationReason ?? null,
+      completedBy: document.completedBy ?? null,
+      startedBy: document.startedBy ?? null,
+      outcome: document.outcome ?? null,
+      commitment: document.commitment ?? null,
 
       createdBy: UserId.fromString(sprintUuid(document.createdBy)),
       createdAt: document.createdAt,
@@ -69,6 +76,13 @@ export class SprintMapper {
       endDate: sprint.endDate,
 
       status: sprint.status,
+      deletedBy: sprint.deletedBy?.value,
+      deletedAt: sprint.deletedAt,
+      cancellationReason: sprint.cancellationReason,
+      completedBy: sprint.completedBy?.value,
+      startedBy: sprint.startedBy?.value,
+      outcome: sprint.outcome,
+      commitment: sprint.commitment,
 
       createdBy: sprint.createdBy.value,
       // The repository owns persistence timestamps.

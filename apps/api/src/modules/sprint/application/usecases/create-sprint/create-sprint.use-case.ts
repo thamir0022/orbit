@@ -1,3 +1,7 @@
+import {
+  TEAM_ACCESS_SERVICE,
+  ITeamAccessService,
+} from '@/modules/team/application/services/team-access.service.interface'
 import { Inject, Injectable } from '@nestjs/common'
 import { ICreateSprintUseCase } from './create-sprint.interface'
 import {
@@ -34,7 +38,7 @@ import { SprintNotFoundException } from '@/modules/sprint/domain/exceptions'
 import { TeamKey } from '@/modules/team/domain/value-objects/team-key.vo'
 
 /**
- * Creates a new sprint for a team.
+ * Creates a new sprint for an authorized team lead.
  *
  * The use case is responsible for orchestration and application-level
  * validation. Domain invariants remain encapsulated by the Sprint aggregate.
@@ -55,7 +59,8 @@ export class CreateSprintUseCase implements ICreateSprintUseCase {
     private readonly sprintQueryRepository: SprintQueryRepository,
 
     @Inject(TRANSACTION_MANAGER)
-    private readonly transactionManager: ITransactionManager
+    private readonly transactionManager: ITransactionManager,
+    @Inject(TEAM_ACCESS_SERVICE) private readonly access: ITeamAccessService
   ) {}
 
   async execute(input: CreateSprintInput): Promise<CreateSprintOutput> {
@@ -90,6 +95,9 @@ export class CreateSprintUseCase implements ICreateSprintUseCase {
     if (!team) {
       throw new TeamNotFoundException()
     }
+
+    // Only the owning team lead can plan a sprint.
+    await this.access.assertLead(team, input.actorId)
 
     /**
      * Archived teams cannot receive new sprints.

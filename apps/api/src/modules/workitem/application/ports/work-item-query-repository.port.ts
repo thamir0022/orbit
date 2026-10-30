@@ -132,7 +132,7 @@ export interface WorkItemQueryRepository {
   findByWorkspaceIdAndKey(
     props: FindWorkItemByWorkspaceIdAndKeyProps,
     options?: ITransactionOptions
-  ): Promise<WorkItemListItemOutput>
+  ): Promise<WorkItemListItemOutput | null>
 
   findByWorkspaceIdAndTeamIdAndId(
     props: FindWorkItemByWorkspaceIdAndTeamIdAndIdQueryProps,

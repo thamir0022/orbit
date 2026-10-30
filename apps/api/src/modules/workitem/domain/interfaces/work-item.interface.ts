@@ -87,8 +87,6 @@ export interface UpdateWorkItemProps {
   readonly status?: WorkItemStatus
   readonly priority?: WorkItemPriority | null
 
-  readonly sprintId?: string | null
-
   readonly assigneeId?: string | null
 
   readonly storyPoints?: number | null

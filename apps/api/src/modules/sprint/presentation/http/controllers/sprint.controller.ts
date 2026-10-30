@@ -1,4 +1,8 @@
 import {
+  CompleteSprintRequest,
+  SprintReasonRequest,
+} from '../dtos/requests/sprint-management.request'
+import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiTags,
@@ -151,6 +155,7 @@ export class SprintController {
     const { teamId, name, goal, description, startDate, endDate } = req
 
     return this.updateSprintUseCase.execute({
+      actorId: auth.userId,
       workspaceId: auth.workspaceId!,
       teamId,
       sprintId,
@@ -187,7 +192,7 @@ export class SprintController {
   async completeSprint(
     @CurrentAuth() auth: AuthContext,
     @Param('sprintId', new ParseUUIDPipe({ version: '7' })) sprintId: string,
-    @Body() req: SprintTeamRequest
+    @Body() req: CompleteSprintRequest
   ): Promise<GetSprintResponse> {
     return this.transitionSprintUseCase.execute({
       workspaceId: auth.workspaceId!,
@@ -195,6 +200,8 @@ export class SprintController {
       teamId: req.teamId,
       sprintId,
       action: 'complete',
+      targetSprintId: req.targetSprintId,
+      reason: req.reason,
     })
   }
 
@@ -205,7 +212,7 @@ export class SprintController {
   async cancelSprint(
     @CurrentAuth() auth: AuthContext,
     @Param('sprintId', new ParseUUIDPipe({ version: '7' })) sprintId: string,
-    @Body() req: SprintTeamRequest
+    @Body() req: SprintReasonRequest
   ): Promise<GetSprintResponse> {
     return this.transitionSprintUseCase.execute({
       workspaceId: auth.workspaceId!,
@@ -213,6 +220,7 @@ export class SprintController {
       teamId: req.teamId,
       sprintId,
       action: 'cancel',
+      reason: req.reason,
     })
   }
 }
