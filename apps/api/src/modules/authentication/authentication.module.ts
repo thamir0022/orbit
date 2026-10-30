@@ -41,6 +41,7 @@ import { GET_ACTIVE_SESSIONS } from './application/usecases/get-active-sessions.
 import { GetActiveSessionsUseCase } from './application/usecases/get-active-sessions.usecase'
 import { REVOKE_SESSION } from './application/usecases/revoke-session.interface'
 import { RevokeSessionUseCase } from './application/usecases/revoke-session.usecase'
+import { AUTH_SERVICE } from './application/services/auth.service.interface'
 
 @Module({
   imports: [
@@ -127,5 +128,6 @@ import { RevokeSessionUseCase } from './application/usecases/revoke-session.usec
       useClass: RevokeSessionUseCase,
     },
   ],
+  exports: [AUTH_SERVICE],
 })
 export class AuthenticationModule {}
