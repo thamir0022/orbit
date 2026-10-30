@@ -30,7 +30,6 @@ export class AppConfigService
   }
 
   get corsOrigins(): string[] {
-    console.log('ENV CORS : ', this.configService.get<string>('CORS_ORIGINS'))
     return this.configService
       .get<string>('CORS_ORIGINS', '')
       .split(',')

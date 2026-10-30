@@ -1,3 +1,7 @@
+import {
+  TEAM_ACCESS_SERVICE,
+  ITeamAccessService,
+} from '../services/team-access.service.interface'
 import { Inject, Injectable } from '@nestjs/common'
 import { IDeleteTeamUseCase } from './delete-team.interface'
 import { DeleteTeamInput } from '../dtos'
@@ -15,13 +19,16 @@ import {
 import { TeamNotFoundException } from '../../domain/exceptions'
 import { TeamKey } from '../../domain/value-objects/team-key.vo'
 
+/** Deletes a team after verifying current team leadership. */
+
 @Injectable()
 export class DeleteTeamUseCase implements IDeleteTeamUseCase {
   constructor(
     @Inject(WORKSPACE_REPOSITORY)
     private readonly workspaceRepo: IWorkspaceRepository,
     @Inject(TEAM_REPOSITORY)
-    private readonly teamRepo: TeamRepository
+    private readonly teamRepo: TeamRepository,
+    @Inject(TEAM_ACCESS_SERVICE) private readonly access: ITeamAccessService
   ) {}
 
   async execute(input: DeleteTeamInput): Promise<void> {
@@ -42,6 +49,9 @@ export class DeleteTeamUseCase implements IDeleteTeamUseCase {
     })
 
     if (!team) throw new TeamNotFoundException()
+
+    // Protect team settings with current membership and leadership.
+    await this.access.assertLead(team, input.userId)
 
     team.delete(userId)
 

@@ -12,7 +12,10 @@ export interface SprintListItemOutput {
   id: string
 
   name: string
-  goal?: string
+  // Text fields mirror nullable persistence values.
+  goal?: string | null
+  description?: string | null
+  teamId: string
 
   status: SprintStatus
 

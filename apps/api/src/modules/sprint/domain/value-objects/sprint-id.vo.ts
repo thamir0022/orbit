@@ -1,3 +1,4 @@
+import { SprintValidationException } from '../exceptions/sprint-validation.exception'
 import { ValueObject } from '@/shared/domain'
 import { UuidUtil } from '@/shared/utils'
 
@@ -19,16 +20,17 @@ export class SprintId extends ValueObject<SprintIdProps> {
   }
 
   static create(id?: string): SprintId {
-    const value = id || UuidUtil.generate()
+    // Only omitted IDs request generation; empty IDs are invalid.
+    const value = id ?? UuidUtil.generate()
 
-    if (id && !UuidUtil.isValid(id)) {
-      throw new Error('Invalid UserId format')
+    if (!UuidUtil.isValid(value)) {
+      throw new SprintValidationException('Invalid sprint ID format')
     }
 
     return new SprintId({ value })
   }
 
   static fromString(id: string): SprintId {
-    return new SprintId({ value: id })
+    return SprintId.create(id)
   }
 }

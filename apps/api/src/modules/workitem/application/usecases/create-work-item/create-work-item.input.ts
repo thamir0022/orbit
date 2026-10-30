@@ -22,7 +22,6 @@ export interface CreateWorkItemInput {
 
   readonly priority?: WorkItemPriority | null
 
-  readonly sprintId?: string | null
   readonly assigneeId?: string | null
 
   readonly actorId: string

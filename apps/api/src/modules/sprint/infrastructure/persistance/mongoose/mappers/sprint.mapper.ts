@@ -1,3 +1,4 @@
+import { sprintUuid } from './sprint-uuid'
 import { TeamId } from '@/modules/team/domain'
 import { UserId } from '@/modules/user/domain'
 import { WorkspaceId } from '@/modules/workspace/domain'
@@ -19,10 +20,10 @@ export class SprintMapper {
    */
   static toDomain(document: SprintDocument): Sprint {
     return Sprint.reconstitute({
-      id: SprintId.fromString(document.id),
+      id: SprintId.fromString(sprintUuid(document.id)),
 
-      workspaceId: WorkspaceId.fromString(document.workspaceId),
-      teamId: TeamId.fromString(document.teamId),
+      workspaceId: WorkspaceId.fromString(sprintUuid(document.workspaceId)),
+      teamId: TeamId.fromString(sprintUuid(document.teamId)),
 
       name: document.name,
       goal: document.goal,
@@ -32,8 +33,15 @@ export class SprintMapper {
       endDate: document.endDate,
 
       status: document.status,
+      deletedBy: document.deletedBy ?? null,
+      deletedAt: document.deletedAt ?? null,
+      cancellationReason: document.cancellationReason ?? null,
+      completedBy: document.completedBy ?? null,
+      startedBy: document.startedBy ?? null,
+      outcome: document.outcome ?? null,
+      commitment: document.commitment ?? null,
 
-      createdBy: UserId.fromString(document.createdBy),
+      createdBy: UserId.fromString(sprintUuid(document.createdBy)),
       createdAt: document.createdAt,
       updatedAt: document.updatedAt,
 
@@ -42,7 +50,7 @@ export class SprintMapper {
 
       cancelledAt: document.cancelledAt ?? null,
       cancelledBy: document.cancelledBy
-        ? UserId.fromString(document.cancelledBy)
+        ? UserId.fromString(sprintUuid(document.cancelledBy))
         : null,
     })
   }
@@ -51,7 +59,7 @@ export class SprintMapper {
    * Converts a Sprint aggregate into its persistence representation.
    *
    * createdAt and updatedAt are intentionally omitted because
-   * they are managed by Mongoose timestamps.
+   * the repository owns persistence timestamps.
    */
   static toPersistence(sprint: Sprint): Partial<SprintDocument> {
     return {
@@ -68,10 +76,16 @@ export class SprintMapper {
       endDate: sprint.endDate,
 
       status: sprint.status,
+      deletedBy: sprint.deletedBy?.value,
+      deletedAt: sprint.deletedAt,
+      cancellationReason: sprint.cancellationReason,
+      completedBy: sprint.completedBy?.value,
+      startedBy: sprint.startedBy?.value,
+      outcome: sprint.outcome,
+      commitment: sprint.commitment,
 
       createdBy: sprint.createdBy.value,
-      createdAt: sprint.createdAt,
-      updatedAt: sprint.updatedAt,
+      // The repository owns persistence timestamps.
 
       startedAt: sprint.startedAt,
       completedAt: sprint.completedAt,

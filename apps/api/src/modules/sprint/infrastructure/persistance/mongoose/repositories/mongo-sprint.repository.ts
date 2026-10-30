@@ -1,3 +1,4 @@
+import { SprintConflictException } from '../../../../domain/exceptions/sprint-conflict.exception'
 import { TeamId } from '@/modules/team/domain'
 import { WorkspaceId } from '@/modules/workspace/domain'
 import { ITransactionOptions } from '@/shared/application'
@@ -35,7 +36,7 @@ export class MongoSprintRepository implements SprintRepository {
     options?: ITransactionOptions
   ): Promise<Sprint | null> {
     const document = await this.sprintModel
-      .findOne({ id: id.value })
+      .findOne({ id: id.value, deletedAt: null })
       .session(options?.session ?? null)
       .lean()
       .exec()
@@ -55,6 +56,7 @@ export class MongoSprintRepository implements SprintRepository {
   ): Promise<Sprint[]> {
     const documents = await this.sprintModel
       .find({
+        deletedAt: null,
         workspaceId: workspaceId.value,
         teamId: teamId.value,
       })
@@ -66,7 +68,7 @@ export class MongoSprintRepository implements SprintRepository {
       .lean()
       .exec()
 
-    return documents.map((docuemt) => SprintMapper.toDomain(docuemt))
+    return documents.map((document) => SprintMapper.toDomain(document))
   }
 
   /**
@@ -82,6 +84,7 @@ export class MongoSprintRepository implements SprintRepository {
     const document = await this.sprintModel
       .findOne({
         id: props.sprintId.value,
+        deletedAt: null,
         workspaceId: props.workspaceId.value,
         teamId: props.teamId.value,
       })
@@ -104,6 +107,7 @@ export class MongoSprintRepository implements SprintRepository {
   ): Promise<Sprint | null> {
     const document = await this.sprintModel
       .findOne({
+        deletedAt: null,
         workspaceId: props.workspaceId.value,
         teamId: props.teamId.value,
         status: props.status,
@@ -124,23 +128,49 @@ export class MongoSprintRepository implements SprintRepository {
   async save(sprint: Sprint, options?: ITransactionOptions) {
     const persistenceData = SprintMapper.toPersistence(sprint)
 
-    await this.sprintModel
-      .findOneAndUpdate(
-        {
-          id: sprint.id.value,
-        },
-        {
-          $set: persistenceData,
-        },
-        {
-          upsert: true,
-          setDefaultsOnInsert: true,
-          runValidators: true,
-          session: options?.session,
-        }
-      )
-      .lean()
-      .exec()
+    // Creation is insert-only; updates use a conditional write below.
+    await this.sprintModel.create([persistenceData], {
+      session: options?.session,
+    })
+  }
+
+  async update(sprint: Sprint, options?: ITransactionOptions): Promise<void> {
+    try {
+      const result = await this.sprintModel
+        .updateOne(
+          {
+            id: sprint.id.value,
+            deletedAt: null,
+            workspaceId: sprint.workspaceId.value,
+            teamId: sprint.teamId.value,
+            updatedAt: sprint.updatedAt,
+          },
+          {
+            $set: {
+              ...SprintMapper.toPersistence(sprint),
+              // Advance even when two writes happen within one millisecond.
+              updatedAt: new Date(
+                Math.max(Date.now(), sprint.updatedAt.getTime() + 1)
+              ),
+            },
+          },
+          { runValidators: true, timestamps: false, session: options?.session }
+        )
+        .exec()
+      if (result.matchedCount !== 1) throw new SprintConflictException()
+    } catch (error) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        error.code === 11000
+      ) {
+        throw new SprintConflictException(
+          'The team already has an active sprint.'
+        )
+      }
+      throw error
+    }
   }
 
   /**

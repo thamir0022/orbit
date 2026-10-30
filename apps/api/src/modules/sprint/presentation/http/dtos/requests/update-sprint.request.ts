@@ -8,6 +8,7 @@ import {
   IsUUID,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator'
 
 export class UpdateSprintRequest {
@@ -24,8 +25,8 @@ export class UpdateSprintRequest {
 
   @ApiPropertyOptional({
     description: 'Updated sprint name.',
-    minLength: 2,
-    maxLength: 100,
+    minLength: 1,
+    maxLength: 120,
     example: 'Authentication & Onboarding v2',
   })
   @Transform(({ value }): unknown => {
@@ -35,23 +36,26 @@ export class UpdateSprintRequest {
 
     const normalized = value.normalize('NFKC').trim().replace(/\s+/g, ' ')
 
-    return normalized || undefined
+    return normalized
   })
-  @IsOptional()
+  // Omission leaves required fields unchanged; null is invalid.
+  @ValidateIf((_object, value: unknown) => value !== undefined)
   @IsString({
     message: 'Sprint name must be a string',
   })
-  @MinLength(2, {
-    message: 'Sprint name must be at least 2 characters',
+  @MinLength(1, {
+    message: 'Sprint name must be at least 1 character',
   })
-  @MaxLength(100, {
-    message: 'Sprint name must not exceed 100 characters',
+  @MaxLength(120, {
+    message: 'Sprint name must not exceed 120 characters',
   })
   readonly name?: string
 
   @ApiPropertyOptional({
     description: 'Updated sprint goal.',
-    maxLength: 300,
+    type: String,
+    nullable: true,
+    maxLength: 500,
     example: 'Complete the authentication and onboarding experience.',
   })
   @Transform(({ value }): unknown => {
@@ -61,20 +65,22 @@ export class UpdateSprintRequest {
 
     const normalized = value.normalize('NFKC').trim().replace(/\s+/g, ' ')
 
-    return normalized || undefined
+    return normalized
   })
   @IsOptional()
   @IsString({
     message: 'Sprint goal must be a string',
   })
-  @MaxLength(300, {
-    message: 'Sprint goal must not exceed 300 characters',
+  @MaxLength(500, {
+    message: 'Sprint goal must not exceed 500 characters',
   })
-  readonly goal?: string
+  readonly goal?: string | null
 
   @ApiPropertyOptional({
     description: 'Updated sprint description.',
-    maxLength: 2000,
+    type: String,
+    nullable: true,
+    maxLength: 5000,
     example: 'Focus on sign-in, workspace selection, and onboarding.',
   })
   @Transform(({ value }): unknown => {
@@ -84,16 +90,16 @@ export class UpdateSprintRequest {
 
     const normalized = value.normalize('NFKC').trim().replace(/\s+/g, ' ')
 
-    return normalized || undefined
+    return normalized
   })
   @IsOptional()
   @IsString({
     message: 'Sprint description must be a string',
   })
-  @MaxLength(2000, {
-    message: 'Sprint description must not exceed 2000 characters',
+  @MaxLength(5000, {
+    message: 'Sprint description must not exceed 5000 characters',
   })
-  readonly description?: string
+  readonly description?: string | null
 
   @ApiPropertyOptional({
     description: 'Updated sprint start date and time in ISO 8601 format.',
@@ -104,7 +110,7 @@ export class UpdateSprintRequest {
     typeof value === 'string' ? value.trim() : value
   )
   @Type(() => Date)
-  @IsOptional()
+  @ValidateIf((_object, value: unknown) => value !== undefined)
   @IsDate({
     message: 'Start date must be a valid date',
   })
@@ -119,7 +125,7 @@ export class UpdateSprintRequest {
     typeof value === 'string' ? value.trim() : value
   )
   @Type(() => Date)
-  @IsOptional()
+  @ValidateIf((_object, value: unknown) => value !== undefined)
   @IsDate({
     message: 'End date must be a valid date',
   })

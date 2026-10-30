@@ -1,3 +1,8 @@
+import {
+  TEAM_ACCESS_SERVICE,
+  ITeamAccessService,
+} from '../services/team-access.service.interface'
+import { DomainException } from '@/shared/domain'
 import { Inject, Injectable } from '@nestjs/common'
 import { RemoveTeamMemberInput } from '../dtos'
 import { IRemoveTeamMemberUseCase } from './remove-team-member.interface'
@@ -23,6 +28,8 @@ import {
 } from '../../domain/exceptions'
 import { TeamKey } from '../../domain/value-objects/team-key.vo'
 
+/** Removes memberships while preserving the current team lead. */
+
 @Injectable()
 export class RemoveTeamMemberUseCase implements IRemoveTeamMemberUseCase {
   constructor(
@@ -31,7 +38,8 @@ export class RemoveTeamMemberUseCase implements IRemoveTeamMemberUseCase {
     @Inject(TEAM_REPOSITORY)
     private readonly teamRepository: TeamRepository,
     @Inject(TEAM_MEMBER_REPOSITORY)
-    private readonly teamMemberRepository: TeamMemberRepository
+    private readonly teamMemberRepository: TeamMemberRepository,
+    @Inject(TEAM_ACCESS_SERVICE) private readonly access: ITeamAccessService
   ) {}
 
   async execute(input: RemoveTeamMemberInput): Promise<void> {
@@ -55,6 +63,16 @@ export class RemoveTeamMemberUseCase implements IRemoveTeamMemberUseCase {
     if (!team) throw new TeamNotFoundException()
 
     if (!team.isActive) throw new TeamInactiveException()
+
+    // Only the lead can change membership and grant access to sprint scope.
+    await this.access.assertLead(team, input.actorId)
+
+    if (team.leadId?.value === input.memberId)
+      throw new DomainException({
+        code: 'TEAM_LEAD_REMOVAL_DENIED',
+        message: 'Assign another team lead before removing the current lead.',
+        statusCode: 409,
+      })
 
     const teamMember =
       await this.teamMemberRepository.findByWorkspaceIdAndTeamIdAndUserId({

@@ -49,6 +49,8 @@ import {
   UPDATE_WORK_ITEM_USE_CASE,
 } from '../../../application/usecases/update-workitem'
 
+/** Exposes shared CRUD endpoints for all work-item types. */
+
 @Controller('work-items')
 export class WorkItemController {
   constructor(
@@ -77,7 +79,6 @@ export class WorkItemController {
     const {
       projectId,
       teamId,
-      sprintId,
       title,
       description,
       type,
@@ -94,7 +95,6 @@ export class WorkItemController {
       workspaceId: auth.workspaceId!,
       projectId,
       teamId,
-      sprintId,
       title,
       description,
       type,

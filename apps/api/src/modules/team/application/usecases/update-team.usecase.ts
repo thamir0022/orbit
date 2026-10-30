@@ -1,3 +1,7 @@
+import {
+  TEAM_ACCESS_SERVICE,
+  ITeamAccessService,
+} from '../services/team-access.service.interface'
 import { Inject, Injectable } from '@nestjs/common'
 import { UpdateTeamInput, UpdateTeamOutput } from '../dtos'
 import { IUpdateTeamUseCase } from './update-team.interface'
@@ -30,6 +34,8 @@ import {
 import { UserId } from '@/modules/user/domain'
 import { TeamKey } from '../../domain/value-objects/team-key.vo'
 
+/** Updates team details and protects leadership and status changes. */
+
 @Injectable()
 export class UpdateTeamUseCase implements IUpdateTeamUseCase {
   constructor(
@@ -40,7 +46,8 @@ export class UpdateTeamUseCase implements IUpdateTeamUseCase {
     @Inject(TEAM_REPOSITORY)
     private readonly teamRepository: TeamRepository,
     @Inject(TEAM_QUERY_REPOSITORY)
-    private readonly teamQueryRepository: TeamQueryRepository
+    private readonly teamQueryRepository: TeamQueryRepository,
+    @Inject(TEAM_ACCESS_SERVICE) private readonly access: ITeamAccessService
   ) {}
 
   async execute(input: UpdateTeamInput): Promise<UpdateTeamOutput> {
@@ -62,6 +69,15 @@ export class UpdateTeamUseCase implements IUpdateTeamUseCase {
 
     if (!team) throw new TeamNotFoundException()
 
+    // Protect team settings with current membership and leadership.
+    if (
+      (input.leadId !== undefined &&
+        input.leadId !== (team.leadId?.value ?? null)) ||
+      (input.status !== undefined && input.status !== team.status)
+    )
+      await this.access.assertLead(team, input.actorId)
+    else await this.access.assertMember(team, input.actorId)
+
     if (input.name) {
       const teamWithSameName =
         await this.teamRepository.findByWorkspaceIdAndName({
@@ -74,6 +90,8 @@ export class UpdateTeamUseCase implements IUpdateTeamUseCase {
     }
 
     if (input.leadId) {
+      // A new lead must already be an active member of the owning team.
+      await this.access.assertMember(team, input.leadId)
       const leadId = UserId.create(input.leadId)
 
       const member = await this.workspaceMemberRepository.findMember({

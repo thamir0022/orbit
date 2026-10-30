@@ -1,3 +1,7 @@
+import {
+  TEAM_ACCESS_SERVICE,
+  ITeamAccessService,
+} from '../services/team-access.service.interface'
 import { Inject, Injectable } from '@nestjs/common'
 import { ITransactionManager, TRANSACTION_MANAGER } from '@/shared/application'
 
@@ -62,7 +66,8 @@ export class AddTeamMembersUseCase implements IAddTeamMembersUseCase {
     private readonly teamMemberRepository: TeamMemberRepository,
 
     @Inject(TEAM_MEMBER_QUERY_REPOSITORY)
-    private readonly teamMemberQueryRepository: TeamMemberQueryRepository
+    private readonly teamMemberQueryRepository: TeamMemberQueryRepository,
+    @Inject(TEAM_ACCESS_SERVICE) private readonly access: ITeamAccessService
   ) {}
 
   async execute(input: AddTeamMembersInput): Promise<AddTeamMembersOutput> {
@@ -96,6 +101,9 @@ export class AddTeamMembersUseCase implements IAddTeamMembersUseCase {
     if (!team) throw new TeamNotFoundException()
 
     if (!team.isActive) throw new TeamInactiveException()
+
+    // Only the lead can change membership and grant access to sprint scope.
+    await this.access.assertLead(team, input.actorId)
 
     /**
      * Fetch workspace memberships and existing team memberships

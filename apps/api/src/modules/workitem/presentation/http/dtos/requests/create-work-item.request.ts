@@ -17,6 +17,8 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { WorkItemPriority } from '../../../../domain/enums/work-item-priority.enum'
 import { WorkItemType } from '../../../../domain/enums/work-item-type.enum'
 
+/** Validates work-item creation fields without sprint membership. */
+
 export class CreateWorkItemRequest {
   @ApiProperty({
     description: 'Project containing the work item.',
@@ -102,16 +104,6 @@ export class CreateWorkItemRequest {
   @IsOptional()
   @IsEnum(WorkItemPriority)
   readonly priority?: WorkItemPriority | null
-
-  @ApiPropertyOptional({
-    description: 'Sprint to assign the work item to.',
-    format: 'uuid',
-    nullable: true,
-    example: '01996f1a-2f8b-7b9d-8f5e-1c4a6b7d8e93',
-  })
-  @IsOptional()
-  @IsUUID('7')
-  readonly sprintId?: string | null
 
   @ApiPropertyOptional({
     description: 'User to assign the work item to.',

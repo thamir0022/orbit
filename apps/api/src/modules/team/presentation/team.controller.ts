@@ -116,14 +116,15 @@ export class TeamController {
   @Put(':key')
   @ResponseMessage(TeamResponseMessage.TEAM_UPDATED)
   async updateTeam(
-    @CurrentAuth('workspaceId') workspaceId: string,
+    @CurrentAuth() auth: AuthContext,
     @Param('key') key: string,
     @Body() req: UpdateTeamRequest
   ): Promise<UpdateTeamResponse> {
     const { name, description, avatarUrl, leadId, status } = req
 
     return this.updateTeamUseCase.execute({
-      workspaceId,
+      workspaceId: auth.workspaceId!,
+      actorId: auth.userId,
       key,
       name,
       description,

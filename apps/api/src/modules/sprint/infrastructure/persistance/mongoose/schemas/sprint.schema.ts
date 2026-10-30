@@ -1,9 +1,14 @@
+import {
+  SprintMetrics,
+  SprintOutcome,
+} from '../../../../domain/interfaces/sprint-snapshot.interface'
 import { SprintStatus } from '@/modules/sprint/domain/enums/sprint-status.enum'
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose'
 
 export type SprintDocument = HydratedDocument<SprintModel>
 
+/** Stores sprint lifecycle state, audit fields, and immutable measurements. */
 @Schema({
   collection: 'sprints',
   timestamps: true,
@@ -71,6 +76,7 @@ export class SprintModel {
 
   @Prop({
     required: true,
+    type: String,
     enum: SprintStatus,
     default: SprintStatus.PLANNED,
   })
@@ -109,6 +115,43 @@ export class SprintModel {
   })
   cancelledBy!: string | null
 
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+    default: null,
+  })
+  commitment!: SprintMetrics | null
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+    default: null,
+  })
+  outcome!: SprintOutcome | null
+  @Prop({
+    type: String,
+    default: null,
+  })
+  startedBy!: string | null
+  @Prop({
+    type: String,
+    default: null,
+  })
+  completedBy!: string | null
+  @Prop({
+    type: String,
+    default: null,
+    maxlength: 1000,
+  })
+  cancellationReason!: string | null
+  @Prop({
+    type: Date,
+    default: null,
+  })
+  deletedAt!: Date | null
+  @Prop({
+    type: String,
+    default: null,
+  })
+  deletedBy!: string | null
+
   // Managed automatically by Mongoose's timestamps option.
   createdAt!: Date
   updatedAt!: Date
@@ -122,9 +165,11 @@ SprintSchema.index(
     workspaceId: 1,
     teamId: 1,
     startDate: -1,
+    // Match the stable pagination tie-breaker.
+    id: 1,
   },
   {
-    name: 'workspace_team_start_date_idx',
+    name: 'workspace_team_start_date_id_idx',
   }
 )
 
@@ -135,9 +180,11 @@ SprintSchema.index(
     teamId: 1,
     status: 1,
     startDate: -1,
+    // Match the stable pagination tie-breaker.
+    id: 1,
   },
   {
-    name: 'workspace_team_status_start_date_idx',
+    name: 'workspace_team_status_start_date_id_idx',
   }
 )
 
@@ -146,9 +193,11 @@ SprintSchema.index(
   {
     workspaceId: 1,
     startDate: -1,
+    // Match the stable pagination tie-breaker.
+    id: 1,
   },
   {
-    name: 'workspace_start_date_idx',
+    name: 'workspace_start_date_id_idx',
   }
 )
 

@@ -1,3 +1,4 @@
+import { SprintValidationException } from '../../../domain/exceptions/sprint-validation.exception'
 import { Inject, Injectable } from '@nestjs/common'
 
 import { WorkspaceId } from '@/modules/workspace/domain'
@@ -32,6 +33,18 @@ export class GetSprintsUseCase implements IGetSprintsUseCase {
 
     const teamId = input.teamId ? TeamId.create(input.teamId) : undefined
 
+    // Reject invalid ranges before building a database query.
+    for (const [from, to] of [
+      [input.startDateFrom, input.startDateTo],
+      [input.endDateFrom, input.endDateTo],
+    ]) {
+      const lower = this.toDate(from)
+      const upper = this.toDate(to)
+      if (lower && upper && lower > upper)
+        throw new SprintValidationException(
+          'Filter start must not be after filter end.'
+        )
+    }
     const result = await this.sprintQueryRepository.findMany({
       workspaceId,
 
@@ -55,12 +68,10 @@ export class GetSprintsUseCase implements IGetSprintsUseCase {
         limit: input.limit ?? 20,
       },
 
-      sort: input.sortField
-        ? {
-            field: input.sortField,
-            order: input.sortOrder ?? 'desc',
-          }
-        : undefined,
+      sort: {
+        field: input.sortField ?? 'startDate',
+        order: input.sortOrder ?? 'desc',
+      },
     })
 
     return {
@@ -80,10 +91,9 @@ export class GetSprintsUseCase implements IGetSprintsUseCase {
       return undefined
     }
 
-    if (value instanceof Date) {
-      return value
-    }
-
-    return new Date(value)
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime()))
+      throw new SprintValidationException('Filter date must be valid.')
+    return date
   }
 }

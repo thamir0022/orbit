@@ -1,3 +1,8 @@
+import {
+  SprintMetrics,
+  SprintOutcome,
+} from '../interfaces/sprint-snapshot.interface'
+import { SprintValidationException } from '../exceptions/sprint-validation.exception'
 import { TeamId } from '@/modules/team/domain'
 import { UserId } from '@/modules/user/domain'
 import { WorkspaceId } from '@/modules/workspace/domain'
@@ -55,6 +60,13 @@ export class Sprint extends AggregateRoot<SprintId> {
   private _completedAt: Date | null
   private _cancelledAt: Date | null
   private _cancelledBy: UserId | null
+  private _commitment: SprintMetrics | null
+  private _outcome: SprintOutcome | null
+  private _startedBy: UserId | null
+  private _completedBy: UserId | null
+  private _cancellationReason: string | null
+  private _deletedAt: Date | null
+  private _deletedBy: UserId | null
 
   private constructor(props: SprintProps) {
     super(props.id)
@@ -87,6 +99,15 @@ export class Sprint extends AggregateRoot<SprintId> {
     this._completedAt = this.cloneNullableDate(props.completedAt)
     this._cancelledAt = this.cloneNullableDate(props.cancelledAt)
     this._cancelledBy = props.cancelledBy ?? null
+    this._commitment = structuredClone(props.commitment ?? null)
+    this._outcome = structuredClone(props.outcome ?? null)
+    this._startedBy = props.startedBy ? UserId.create(props.startedBy) : null
+    this._completedBy = props.completedBy
+      ? UserId.create(props.completedBy)
+      : null
+    this._cancellationReason = props.cancellationReason ?? null
+    this._deletedAt = this.cloneNullableDate(props.deletedAt)
+    this._deletedBy = props.deletedBy ? UserId.create(props.deletedBy) : null
 
     this.validateDateRange()
     this.validateLifecycleState()
@@ -176,9 +197,10 @@ export class Sprint extends AggregateRoot<SprintId> {
    * Starts the Sprint.
    *
    * The application layer may supply the current time for deterministic
-   * testing. The default preserves compatibility with start().
+   * testing. The actor identifies the team lead starting the sprint.
    */
-  start(at: Date = new Date()): void {
+  start(at: Date = new Date(), actorId: UserId): void {
+    this.ensureNotDeleted()
     if (!this.isPlanned) {
       throw new SprintStartFailedException()
     }
@@ -193,12 +215,14 @@ export class Sprint extends AggregateRoot<SprintId> {
 
     this._status = SprintStatus.ACTIVE
     this._startedAt = this.cloneDate(at)
+    this._startedBy = actorId ?? null
   }
 
   /**
    * Completes an active Sprint.
    */
-  complete(at: Date = new Date()): void {
+  complete(at: Date = new Date(), actorId: UserId): void {
+    this.ensureNotDeleted()
     if (!this.isActive || !this._startedAt) {
       throw new SprintCompletionFailedException()
     }
@@ -213,12 +237,19 @@ export class Sprint extends AggregateRoot<SprintId> {
 
     this._status = SprintStatus.COMPLETED
     this._completedAt = this.cloneDate(at)
+    this._completedBy = actorId ?? null
   }
 
   /**
    * Cancels a planned or active Sprint.
    */
-  cancel(userId: UserId, at: Date = new Date()): void {
+  cancel(userId: UserId, at: Date = new Date(), reason?: string): void {
+    this.ensureNotDeleted()
+    const normalizedReason = this.normalizeOptionalText(
+      reason,
+      1000,
+      'Cancellation reason'
+    )
     if (!this.isPlanned && !this.isActive) {
       throw new SprintCancellationFailedException()
     }
@@ -234,6 +265,7 @@ export class Sprint extends AggregateRoot<SprintId> {
     this._status = SprintStatus.CANCELLED
     this._cancelledAt = this.cloneDate(at)
     this._cancelledBy = userId
+    this._cancellationReason = normalizedReason
   }
 
   /**
@@ -320,20 +352,25 @@ export class Sprint extends AggregateRoot<SprintId> {
    * Ensures only planned Sprints can be edited.
    */
   private ensurePlanned(): void {
+    this.ensureNotDeleted()
     if (!this.isPlanned) {
       throw new SprintNotEditableException()
     }
   }
 
   private normalizeName(name: string): string {
-    const normalized = name.trim()
+    // Normalize names consistently for HTTP and internal callers.
+    const normalized =
+      typeof name === 'string'
+        ? name.normalize('NFKC').trim().replace(/\s+/g, ' ')
+        : ''
 
     if (!normalized) {
-      throw new TypeError('Sprint name cannot be empty.')
+      throw new SprintValidationException('Sprint name cannot be empty.')
     }
 
     if (normalized.length > SPRINT_NAME_MAX_LENGTH) {
-      throw new RangeError(
+      throw new SprintValidationException(
         `Sprint name cannot exceed ${SPRINT_NAME_MAX_LENGTH} characters.`
       )
     }
@@ -353,7 +390,7 @@ export class Sprint extends AggregateRoot<SprintId> {
     }
 
     if (normalized.length > maxLength) {
-      throw new RangeError(
+      throw new SprintValidationException(
         `${fieldName} cannot exceed ${maxLength} characters.`
       )
     }
@@ -363,7 +400,7 @@ export class Sprint extends AggregateRoot<SprintId> {
 
   private assertValidTimestamp(value: Date, fieldName: string): void {
     if (!(value instanceof Date) || Number.isNaN(value.getTime())) {
-      throw new TypeError(`${fieldName} must be a valid date.`)
+      throw new SprintValidationException(`${fieldName} must be a valid date.`)
     }
   }
 
@@ -385,6 +422,56 @@ export class Sprint extends AggregateRoot<SprintId> {
 
   private cloneNullableDate(date?: Date | null): Date | null {
     return date == null ? null : this.cloneDate(date)
+  }
+
+  // Capture the baseline exactly once before starting the sprint.
+  recordCommitment(metrics: SprintMetrics): void {
+    this.ensurePlanned()
+    if (this._commitment)
+      throw new SprintValidationException('Commitment is already recorded.')
+    this._commitment = structuredClone(metrics)
+  }
+  // Persist closing measurements so later work-item edits cannot change history.
+  recordOutcome(outcome: SprintOutcome): void {
+    this.ensureScopeEditable()
+    if (this._outcome)
+      throw new SprintValidationException('Outcome is already recorded.')
+    this._outcome = structuredClone(outcome)
+  }
+  ensureScopeEditable(): void {
+    this.ensureNotDeleted()
+    if (!this.isPlanned && !this.isActive)
+      throw new SprintNotEditableException()
+  }
+  // Deletion hides a planned sprint while retaining its audit history.
+  delete(actorId: UserId, at: Date = new Date()): void {
+    this.ensurePlanned()
+    this._deletedAt = new Date(at)
+    this._deletedBy = actorId
+  }
+  private ensureNotDeleted(): void {
+    if (this._deletedAt) throw new SprintNotEditableException()
+  }
+  get commitment(): SprintMetrics | null {
+    return structuredClone(this._commitment)
+  }
+  get outcome(): SprintOutcome | null {
+    return structuredClone(this._outcome)
+  }
+  get startedBy(): UserId | null {
+    return this._startedBy
+  }
+  get completedBy(): UserId | null {
+    return this._completedBy
+  }
+  get cancellationReason(): string | null {
+    return this._cancellationReason
+  }
+  get deletedAt(): Date | null {
+    return this.cloneNullableDate(this._deletedAt)
+  }
+  get deletedBy(): UserId | null {
+    return this._deletedBy
   }
 
   get id(): SprintId {

@@ -1,3 +1,4 @@
+/** Validates work-item edits while keeping sprint scope separate. */
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import {
@@ -203,25 +204,6 @@ export class UpdateWorkItemRequest {
   // ---------------------------------------------------------------------------
   // Sprint
   // ---------------------------------------------------------------------------
-
-  @ApiPropertyOptional({
-    description: 'Sprint ID assigned to the work item.',
-    format: 'uuid',
-    nullable: true,
-    example: '0192f8c4-7a1b-7c32-8f4d-123456789abe',
-  })
-  @Transform(({ value }): unknown => {
-    if (value === null) {
-      return null
-    }
-
-    return typeof value === 'string' ? value.trim() : value
-  })
-  @IsOptional()
-  @IsUUID('7', {
-    message: 'Sprint ID must be a valid UUID v7',
-  })
-  readonly sprintId?: string | null
 
   // ---------------------------------------------------------------------------
   // Assignee

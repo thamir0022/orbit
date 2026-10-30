@@ -4,6 +4,7 @@ import { Transform } from 'class-transformer'
 import {
   IsDate,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -59,8 +60,8 @@ export class CreateSprintRequest {
 
   @ApiProperty({
     description: 'Sprint name',
-    minLength: 2,
-    maxLength: 100,
+    minLength: 1,
+    maxLength: 120,
     example: 'Authentication & Onboarding',
   })
   @Transform(normalizeString)
@@ -70,42 +71,49 @@ export class CreateSprintRequest {
   @IsNotEmpty({
     message: 'Sprint name is required',
   })
-  @MinLength(2, {
-    message: 'Sprint name must be at least 2 characters',
+  @MinLength(1, {
+    message: 'Sprint name must be at least 1 character',
   })
-  @MaxLength(100, {
-    message: 'Sprint name must not exceed 100 characters',
+  @MaxLength(120, {
+    message: 'Sprint name must not exceed 120 characters',
   })
   readonly name!: string
 
   @ApiPropertyOptional({
     description: 'Short objective or outcome the sprint aims to achieve',
-    maxLength: 300,
+    type: String,
+    nullable: true,
+    maxLength: 500,
     example: 'Complete the new authentication and onboarding flow.',
   })
   @Transform(normalizeString)
+  // Planning permits an empty goal until the sprint is started.
+  @IsOptional()
   @IsString({
     message: 'Sprint goal must be a string',
   })
-  @MaxLength(300, {
-    message: 'Sprint goal must not exceed 300 characters',
+  @MaxLength(500, {
+    message: 'Sprint goal must not exceed 500 characters',
   })
-  readonly goal!: string | null
+  readonly goal?: string | null
 
   @ApiPropertyOptional({
     description: 'Additional sprint context or notes',
-    maxLength: 2000,
+    type: String,
+    nullable: true,
+    maxLength: 5000,
     example:
       'Focus on the new sign-in, workspace selection, and onboarding experience.',
   })
   @Transform(normalizeString)
+  @IsOptional()
   @IsString({
     message: 'Sprint description must be a string',
   })
-  @MaxLength(2000, {
-    message: 'Sprint description must not exceed 2000 characters',
+  @MaxLength(5000, {
+    message: 'Sprint description must not exceed 5000 characters',
   })
-  readonly description!: string | null
+  readonly description?: string | null
 
   @ApiProperty({
     description: 'Sprint start date and time in ISO 8601 format',

@@ -18,7 +18,9 @@ export interface TeamRouteContextValue {
   readonly retryTeam: () => Promise<unknown>
 }
 
-export const TeamRouteContext = createContext<TeamRouteContextValue | null>(null)
+export const TeamRouteContext = createContext<TeamRouteContextValue | null>(
+  null
+)
 
 export function useTeamRoute(): TeamRouteContextValue {
   const context = useContext(TeamRouteContext)

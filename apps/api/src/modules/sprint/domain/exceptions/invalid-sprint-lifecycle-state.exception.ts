@@ -5,7 +5,8 @@ import { SprintId } from '../value-objects/sprint-id.vo'
 export class InvalidSprintLifeCycleState extends DomainException {
   constructor(sprintId: SprintId) {
     super({
-      code: 'SPRINT_START_FAILED',
+      // Distinguish corrupt stored state from a rejected start command.
+      code: 'INVALID_SPRINT_LIFECYCLE_STATE',
       message: `Invalid lifecycle state for Sprint "${sprintId.value}".`,
       statusCode: HttpStatus.CONFLICT,
     })

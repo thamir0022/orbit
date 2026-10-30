@@ -28,6 +28,8 @@ import { GetTeamMembersUseCase } from './application/usecases/get-team-members.u
 import { REMOVE_TEAM_MEMBER } from './application/usecases/remove-team-member.interface'
 import { RemoveTeamMemberUseCase } from './application/usecases/remove-team-member.usecase'
 import { TEAM_REPOSITORY } from './application/ports/team-repository.port'
+import { TEAM_ACCESS_SERVICE } from './application/services/team-access.service.interface'
+import { TeamAccessService } from './application/services/team-access.service'
 
 @Module({
   imports: [
@@ -45,6 +47,10 @@ import { TEAM_REPOSITORY } from './application/ports/team-repository.port'
   ],
   providers: [
     ...teamProviders,
+    {
+      provide: TEAM_ACCESS_SERVICE,
+      useClass: TeamAccessService,
+    },
     {
       provide: CREATE_TEAM,
       useClass: CreateTeamUseCase,
@@ -80,6 +86,6 @@ import { TEAM_REPOSITORY } from './application/ports/team-repository.port'
     },
   ],
   controllers: [TeamController],
-  exports: [TEAM_REPOSITORY],
+  exports: [TEAM_REPOSITORY, TEAM_ACCESS_SERVICE],
 })
 export class TeamModule {}
