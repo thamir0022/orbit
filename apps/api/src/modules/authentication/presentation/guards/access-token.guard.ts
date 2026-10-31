@@ -10,6 +10,8 @@ import { Reflector } from '@nestjs/core'
 
 import { AuthenticatedRequest } from '@/shared/domain/types'
 import { IS_PUBLIC_KEY } from '@/shared/presentation/decorators/public.decorator'
+import { SESSION_AUTH_KEY } from '@/shared/presentation/decorators/session-auth.decorator'
+import { RefreshTokenGuard } from './refresh-token.guard'
 
 import {
   AUTH_SERVICE,
@@ -28,13 +30,23 @@ export class AccessTokenGuard implements CanActivate {
     private readonly reflector: Reflector,
 
     @Inject(AUTH_SERVICE)
-    private readonly authService: IAuthService
+    private readonly authService: IAuthService,
+    private readonly refreshTokenGuard: RefreshTokenGuard
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     if (this.isPublicRoute(context)) return true
 
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>()
+
+    const acceptsSession = this.reflector.getAllAndOverride<boolean>(
+      SESSION_AUTH_KEY,
+      [context.getHandler(), context.getClass()]
+    )
+
+    if (acceptsSession && request.cookies?.refresh_token) {
+      return this.refreshTokenGuard.canActivate(context)
+    }
 
     const token = this.extractToken(request)
 

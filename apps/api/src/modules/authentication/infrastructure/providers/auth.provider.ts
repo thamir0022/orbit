@@ -14,7 +14,7 @@ import { UserAgentParserService } from '../services/user-agent-parser.service'
 import { AUTH_SERVICE } from '../../application/services/auth.service.interface'
 import { USER_AGENT_PARSER } from '../../application/ports/user-agent-parser.interface'
 import { APP_GUARD } from '@nestjs/core'
-import { AccessTokenGuard } from '../../presentation/guards'
+import { AccessTokenGuard, RefreshTokenGuard } from '../../presentation/guards'
 
 /**
  * Auth Module Providers
@@ -28,6 +28,7 @@ import { AccessTokenGuard } from '../../presentation/guards'
  */
 
 export const authProviders: Provider[] = [
+  RefreshTokenGuard,
   {
     provide: SESSION_MANAGER,
     useClass: RedisSessionManager,

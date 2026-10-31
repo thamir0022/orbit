@@ -20,6 +20,7 @@ import {
   type IEditUserProfileUseCase,
 } from '../../application/usecases/edit-user-profile.interface'
 import { CurrentAuth } from '@/shared/presentation/decorators/current-auth.decorator'
+import { SessionAuth } from '@/shared/presentation/decorators/session-auth.decorator'
 
 @Controller('users')
 export class UserController {
@@ -33,6 +34,7 @@ export class UserController {
   ) {}
 
   @Get('me')
+  @SessionAuth()
   @ResponseMessage(UserResponseMessages.GET_USER_SUCCESS)
   async getCurrentUser(
     @CurrentAuth('userId') userId: string

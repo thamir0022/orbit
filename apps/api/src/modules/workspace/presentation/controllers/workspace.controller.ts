@@ -14,6 +14,7 @@ import {
   Delete,
 } from '@nestjs/common'
 import { ResponseMessage } from '@/shared/presentation/decorators/response-message.decorator'
+import { SessionAuth } from '@/shared/presentation/decorators/session-auth.decorator'
 import { Messages } from '../enums/response-messages.enum'
 import {
   GET_ACTIVE_WORKSPACE,
@@ -154,6 +155,7 @@ export class WorkspaceController {
   ) {}
 
   @Get()
+  @SessionAuth()
   async getUserWorkspaces(
     @CurrentAuth('userId') userId: string
   ): Promise<GetUserWorkspacesResponseDto> {
@@ -263,6 +265,7 @@ export class WorkspaceController {
   }
 
   @Post()
+  @SessionAuth()
   async createWorkspace(
     @CurrentAuth('userId') userId: string,
     @Body() request: CreateWorkspaceRequest
