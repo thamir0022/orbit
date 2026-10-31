@@ -20,6 +20,21 @@ import {
 } from './infrastructure/persistence/mongoose/schemas/notification.schema'
 import { notificationProviders } from './infrastructure/providers/notification.provider'
 
+import { NotificationController } from './presentation/http/controllers/notification.controller'
+
+import {
+  GET_NOTIFICATIONS_USE_CASE,
+  GetNotificationsUseCase,
+} from './application/use-cases/get-notifications'
+import {
+  GET_UNREAD_COUNT_USE_CASE,
+  GetUnreadCountUseCase,
+} from './application/use-cases/get-unread-count'
+import {
+  MARK_NOTIFICATION_READ_USE_CASE,
+  MarkNotificationReadUseCase,
+} from './application/use-cases/mark-notification-read'
+
 /**
  * Composition root for the Notification bounded context.
  *
@@ -52,7 +67,24 @@ import { notificationProviders } from './infrastructure/providers/notification.p
           thumbnailUrl: process.env.ORBIT_WELCOME_TUTORIAL_THUMBNAIL_URL,
         }),
     },
+
+    // Notification inbox queries.
+    {
+      provide: GET_NOTIFICATIONS_USE_CASE,
+      useClass: GetNotificationsUseCase,
+    },
+    {
+      provide: GET_UNREAD_COUNT_USE_CASE,
+      useClass: GetUnreadCountUseCase,
+    },
+
+    // Notification read-state mutation.
+    {
+      provide: MARK_NOTIFICATION_READ_USE_CASE,
+      useClass: MarkNotificationReadUseCase,
+    },
   ],
+  controllers: [NotificationController],
   exports: [
     NOTIFICATION_REPOSITORY,
     NOTIFICATION_QUERY_REPOSITORY,
