@@ -21,12 +21,15 @@ import { WorkItemModule } from './modules/workitem/work-item.module'
 import { DocumentModule } from './modules/document/document.module'
 import { NotificationModule } from './modules/notification/notification.module'
 import { RealtimeModule } from './modules/realtime/realtime.module'
+import { EventEmitterModule } from '@nestjs/event-emitter'
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule()
 @Module({
   imports: [
     // App Configuration
     AppConfigModule,
+
+    EventEmitterModule.forRoot(),
 
     // Infrastructure
     MongoDbModule,
