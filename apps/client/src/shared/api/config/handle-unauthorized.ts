@@ -107,6 +107,12 @@ export const handleUnauthorized = async ({
     throw error
   }
 
+  // Pre-workspace pages use the session cookie and cannot exchange a tenant token.
+  // Let the caller display the failure instead of redirecting back to itself.
+  if (!getWorkspaceSlug()) {
+    throw error
+  }
+
   request._authRetry = true
 
   await refreshAccessToken()

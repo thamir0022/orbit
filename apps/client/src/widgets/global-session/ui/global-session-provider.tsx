@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { Loader } from 'lucide-react'
 
 import { getCurrentUserApi } from '@/entities/user/api/get-current-user.api'
 import { useUser, useUserActions } from '@/entities/user/model/user.store'
+import { Button } from '@/shared/ui/button'
 
 const GUEST_ROUTES = [
   '/sign-in',
@@ -36,7 +37,6 @@ function SessionLoader() {
 export function GlobalSessionProvider({
   children,
 }: GlobalSessionProviderProps) {
-  const router = useRouter()
   const pathname = usePathname()
 
   const user = useUser()
@@ -48,6 +48,7 @@ export function GlobalSessionProvider({
     data: currentUser,
     isPending,
     isError,
+    refetch,
   } = useQuery({
     queryKey: ['user', 'current'],
     queryFn: getCurrentUserApi,
@@ -69,22 +70,6 @@ export function GlobalSessionProvider({
   }, [currentUser, user?.id, setUser])
 
   /**
-   * Redirect unauthenticated users to sign-in.
-   *
-   * Navigation must happen inside an effect,
-   * never during render.
-   */
-  useEffect(() => {
-    if (isGuestRoute) {
-      return
-    }
-
-    if (isError && !user) {
-      router.replace('/sign-in')
-    }
-  }, [isGuestRoute, isError, user, router])
-
-  /**
    * Guest routes should render immediately without
    * initializing the session query.
    */
@@ -100,11 +85,16 @@ export function GlobalSessionProvider({
   }
 
   /**
-   * Session request failed and there is no authenticated
-   * user. Keep the screen stable while redirecting.
+   * A failed session request must not bounce between sign-in and workspaces
+   * while the refresh cookie is still present.
    */
   if (!user && isError) {
-    return <SessionLoader />
+    return (
+      <div className="flex size-full flex-col items-center justify-center gap-4">
+        <p role="alert">Unable to load your session. Please try again.</p>
+        <Button onClick={() => void refetch()}>Try again</Button>
+      </div>
+    )
   }
 
   return <>{children}</>
