@@ -1,9 +1,11 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common'
-import { type IAuthenticateWithOAuthUseCase } from './authenticate-with-oauth.interface'
+
+import type { IAuthenticateWithOAuthUseCase } from './authenticate-with-oauth.interface'
 import {
   OAUTH_FACTORY,
   type IOAuthFactory,
 } from '../ports/oauth-factory.interface'
+
 import {
   USER_REPOSITORY,
   type IUserRepository,
@@ -15,50 +17,78 @@ import {
   User,
 } from '@/modules/user/domain'
 import {
+  USER_REGISTERED_EVENT,
+  type UserRegisteredEvent,
+} from '@/modules/user/application/events/user-registered.event'
+import {
+  APPLICATION_EVENT_PUBLISHER,
+  type ApplicationEventPublisher,
+} from '@/shared/application/events/application-event-publisher.port'
+
+import {
   AUTH_SERVICE,
   type IAuthService,
 } from '../services/auth.service.interface'
-import { OAuthInputDto, OAuthOutputDto } from '../dto'
+import type { OAuthInputDto, OAuthOutputDto } from '../dto'
 
+/**
+ * Authenticates users through a supported OAuth provider.
+ *
+ * - Resolves or creates the user account.
+ * - Publishes registration only for newly persisted users.
+ * - Establishes authenticated sessions for both new and existing accounts.
+ */
 @Injectable()
 export class AuthenticateWithOAuthUseCase implements IAuthenticateWithOAuthUseCase {
   constructor(
     @Inject(OAUTH_FACTORY)
-    private readonly _oauthFactory: IOAuthFactory,
+    private readonly oauthFactory: IOAuthFactory,
+
     @Inject(USER_REPOSITORY)
-    private readonly _userRepository: IUserRepository,
+    private readonly userRepository: IUserRepository,
+
     @Inject(AUTH_SERVICE)
-    private readonly _authService: IAuthService
+    private readonly authService: IAuthService,
+
+    @Inject(APPLICATION_EVENT_PUBLISHER)
+    private readonly eventPublisher: ApplicationEventPublisher
   ) {}
 
+  /** Returns the authorization URL for the selected OAuth provider. */
   getRedirectUrl(provider: AuthProvider): string {
-    const oauthProvider = this._oauthFactory.getProvider(provider)
+    const oauthProvider = this.oauthFactory.getProvider(provider)
+
     return oauthProvider.getAuthUrl()
   }
 
+  /** Authenticates an OAuth user, registering the account when necessary. */
   async execute(input: OAuthInputDto): Promise<OAuthOutputDto> {
     const { code, provider, clientInfo } = input
-    const oauthProvider = this._oauthFactory.getProvider(provider)
+
+    // 1. Validate the OAuth authorization code.
+    const oauthProvider = this.oauthFactory.getProvider(provider)
 
     const oauthUser = await oauthProvider.validateAuthCode(code)
 
     const oauthUserEmail = Email.create(oauthUser.email)
 
-    if (oauthUserEmail.isFailure)
+    if (oauthUserEmail.isFailure) {
       throw new InvalidEmailException(oauthUserEmail.error)
+    }
 
-    let user = await this._userRepository.findByEmail(oauthUserEmail.value)
+    // 2. Resolve the existing user account.
+    let user = await this.userRepository.findByEmail(oauthUserEmail.value)
 
-    let newUser = false
-
-    if (user && user.authProvider !== AuthProvider.GOOGLE)
+    if (user && user.authProvider !== AuthProvider.GOOGLE) {
       throw new BadRequestException(
         `Your account is already linked with ${user.authProvider}, Please sign in with ${user.authProvider}.`
       )
+    }
+
+    // 3. Create the account when authenticating for the first time.
+    let isNewUser = false
 
     if (!user) {
-      newUser = true
-
       user = User.create({
         firstName: oauthUser.firstName,
         lastName: oauthUser.lastName,
@@ -69,14 +99,20 @@ export class AuthenticateWithOAuthUseCase implements IAuthenticateWithOAuthUseCa
         oauthProviderId: oauthUser.providerId,
       })
 
-      await this._userRepository.save(user)
+      await this.userRepository.save(user)
+
+      isNewUser = true
+
+      // 4. Publish registration only after the new account is persisted.
+      this.eventPublisher.publish(USER_REGISTERED_EVENT, {
+        userId: user.id.value,
+      } satisfies UserRegisteredEvent)
     }
 
-    // Generate a Refresh Token ID
-    const jti = this._authService.generateSecureToken()
+    // 5. Create an authenticated Redis session.
+    const jti = this.authService.generateSecureToken()
 
-    // Create session
-    const sid = await this._authService.createSession({
+    const sid = await this.authService.createSession({
       userId: user.id,
       jti,
       email: user.email,
@@ -84,16 +120,17 @@ export class AuthenticateWithOAuthUseCase implements IAuthenticateWithOAuthUseCa
       userAgent: clientInfo.userAgent,
     })
 
-    const refreshToken = await this._authService.createRefreshToken({
+    // 6. Generate refresh credentials.
+    const refreshToken = await this.authService.createRefreshToken({
       jti,
       sub: user.id.value,
       sid,
     })
 
-    const expiresIn = this._authService.extractTokenExpiry(refreshToken)
+    const expiresIn = this.authService.extractTokenExpiry(refreshToken)
 
     return {
-      isNewUser: newUser,
+      isNewUser,
       refreshToken,
       expiresIn,
     }

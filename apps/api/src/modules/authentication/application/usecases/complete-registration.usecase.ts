@@ -48,6 +48,14 @@ import {
   type IWorkspaceInvitationService,
   WORKSPACE_INVITATION_SERVICE,
 } from '@/modules/workspace/application/services/workspace-invitation.service.interface'
+import {
+  APPLICATION_EVENT_PUBLISHER,
+  ApplicationEventPublisher,
+} from '@/shared/application/events/application-event-publisher.port'
+import {
+  USER_REGISTERED_EVENT,
+  UserRegisteredEvent,
+} from '@/modules/user/application/events/user-registered.event'
 
 @Injectable()
 export class CompleteRegistrationUseCase implements ICompleteRegistrationUseCase {
@@ -67,7 +75,9 @@ export class CompleteRegistrationUseCase implements ICompleteRegistrationUseCase
     @Inject(WORKSPACE_INVITATION_SERVICE)
     private readonly invitationService: IWorkspaceInvitationService,
     @Inject(TRANSACTION_MANAGER)
-    private readonly transactionManager: ITransactionManager
+    private readonly transactionManager: ITransactionManager,
+    @Inject(APPLICATION_EVENT_PUBLISHER)
+    private readonly eventPublisher: ApplicationEventPublisher
   ) {}
 
   async execute({
@@ -158,6 +168,10 @@ export class CompleteRegistrationUseCase implements ICompleteRegistrationUseCase
     this.logger.log(
       `Workspace member registered. workspaceId=${workspace.id.value}, userId=${newUser.id.value}, invitationId=${invitation.id.value}`
     )
+
+    this.eventPublisher.publish(USER_REGISTERED_EVENT, {
+      userId: newUser.id.value,
+    } satisfies UserRegisteredEvent)
 
     await this.authService.completeOnboardingFlow(registrationToken)
 

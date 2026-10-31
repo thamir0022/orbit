@@ -17,6 +17,7 @@ import { NavUser } from './nav-user'
 import { NavTeams } from './nav-teams'
 import { sidebarConfig } from '../model/sidebar.config'
 import NavWorkspaces from './nav-workspaces'
+import { NavInbox } from './nav-inbox'
 
 interface AppSidebarProps {
   readonly slug: string
@@ -41,6 +42,8 @@ export function AppSidebar({ variant, slug }: AppSidebarProps) {
       <SidebarSeparator />
 
       <SidebarContent>
+        <NavInbox workspaceSlug={slug} />
+
         <NavGroup
           title="Workspace"
           items={sidebarConfig.workspace.map((item) => ({
