@@ -36,6 +36,14 @@ import {
   TRANSACTION_MANAGER,
 } from '@/shared/application'
 import { WorkspaceAlreadyExistsException } from '@/modules/workspace/domain/exceptions/workspace.exception'
+import {
+  APPLICATION_EVENT_PUBLISHER,
+  ApplicationEventPublisher,
+} from '@/shared/application/events/application-event-publisher.port'
+import {
+  USER_REGISTERED_EVENT,
+  UserRegisteredEvent,
+} from '@/modules/user/application/events/user-registered.event'
 
 @Injectable()
 export class SignUpCompleteUseCase implements ISignUpCompleteUseCase {
@@ -51,7 +59,9 @@ export class SignUpCompleteUseCase implements ISignUpCompleteUseCase {
     @Inject(TRANSACTION_MANAGER)
     private readonly transactionManager: ITransactionManager,
     @Inject(AUTH_SERVICE)
-    private readonly authService: IAuthService
+    private readonly authService: IAuthService,
+    @Inject(APPLICATION_EVENT_PUBLISHER)
+    private readonly eventPublisher: ApplicationEventPublisher
   ) {}
 
   async execute({
@@ -138,13 +148,18 @@ export class SignUpCompleteUseCase implements ISignUpCompleteUseCase {
       `User ${newUser.id.value} and Workspace ${newWorkspace.id.value} created atomically.`
     )
 
-    // 5. Post-Transaction Cleanup
+    // 5. Publish registration only after the database commit succeeds.
+    this.eventPublisher.publish(USER_REGISTERED_EVENT, {
+      userId: newUser.id.value,
+    } satisfies UserRegisteredEvent)
+
+    // 6. Post-Transaction Cleanup
     await this.authService.completeOnboardingFlow(registrationToken)
 
-    // 6. Generate Cryptographic Identifiers for Global Identity
+    // 7. Generate Cryptographic Identifiers for Global Identity
     const jti = this.authService.generateSecureToken()
 
-    // 7. Initialize the Global Identity Session (Redis)
+    // 8. Initialize the Global Identity Session (Redis)
     const sid = await this.authService.createSession({
       userId: newUser.id,
       email: newUser.email,
@@ -153,14 +168,14 @@ export class SignUpCompleteUseCase implements ISignUpCompleteUseCase {
       userAgent: clientInfo.userAgent,
     })
 
-    // 8. Mint the Global Identity JWT
+    // 9. Mint the Global Identity JWT
     const refreshToken = await this.authService.createRefreshToken({
       jti,
       sub: newUser.id.value,
       sid,
     })
 
-    // 9. Extract precise expiration for the cookie configuration
+    // 10. Extract precise expiration for the cookie configuration
     const expiresIn = this.authService.extractTokenExpiry(refreshToken)
 
     return {
