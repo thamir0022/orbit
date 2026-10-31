@@ -72,6 +72,17 @@ export const API_ROUTES = {
       `/teams/${encodeURIComponent(key)}/members/${encodeURIComponent(memberId)}`,
     STORIES: (key: string) => `/teams/${encodeURIComponent(key)}/stories`,
   },
+  NOTIFICATIONS: {
+    BASE: '/notifications',
+    UNREAD_COUNT: '/notifications/unread-count',
+    READ_ALL: '/notifications/read-all',
+
+    READ: (id: string) => `/notifications/${encodeURIComponent(id)}/read`,
+
+    UNREAD: (id: string) => `/notifications/${encodeURIComponent(id)}/unread`,
+
+    DELETE: (id: string) => `/notifications/${encodeURIComponent(id)}`,
+  },
 } as const
 
 // Export types for your routes
