@@ -15,6 +15,7 @@ import { TooltipProvider } from '@/shared/ui/tooltip'
 import { GlobalSessionProvider } from '@/widgets/global-session/ui/global-session-provider'
 
 import { QueryProvider } from './providers/query.provider'
+import { RealtimeProvider } from '@/widgets/realtime/ui/realtime-provider'
 
 const ralewayHeading = Raleway({
   subsets: ['latin'],
@@ -71,9 +72,11 @@ export default function RootLayout({
           <QueryProvider>
             <TooltipProvider>
               <GlobalSessionProvider>
-                <div className="box-border flex h-full w-full min-h-0 min-w-0 overflow-hidden p-1">
-                  {children}
-                </div>
+                <RealtimeProvider>
+                  <div className="box-border flex h-full w-full min-h-0 min-w-0 overflow-hidden p-1">
+                    {children}
+                  </div>
+                </RealtimeProvider>
               </GlobalSessionProvider>
             </TooltipProvider>
           </QueryProvider>
