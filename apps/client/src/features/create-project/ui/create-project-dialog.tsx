@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useId, useState } from 'react'
+import { useId, useState } from 'react'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -19,9 +19,12 @@ import {
   ProjectStage,
   ProjectType,
 } from '@/entities/project/model/project.types'
-
 import { useWorkspace } from '@/entities/workspace/model/workspace.store'
 
+import { FileUploadField } from '@/features/file-upload/ui/file-upload-field'
+import { useFileUploadQueue } from '@/features/file-upload/model/use-file-upload-queue'
+
+import { cn } from '@/shared/lib/utils'
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { Calendar } from '@/shared/ui/calendar'
@@ -62,7 +65,6 @@ import {
   type CreateProjectFormValues,
 } from '../model/create-project.schema'
 import { useCreateProjectMutation } from '../model/use-create-project.mutation'
-import { cn } from '@/shared/lib/utils'
 
 interface ProjectComboboxFieldProps<T extends string> {
   readonly id: string
@@ -89,7 +91,8 @@ const PROJECT_TYPE_OPTIONS = Object.values(ProjectType)
 const PROJECT_STAGE_OPTIONS = Object.values(ProjectStage)
 const PROJECT_PRIORITY_OPTIONS = Object.values(ProjectPriority)
 
-const ProjectComboboxField = <T extends string>({
+/** Compact enum selector used by the project form. */
+function ProjectComboboxField<T extends string>({
   id,
   label,
   value,
@@ -98,7 +101,7 @@ const ProjectComboboxField = <T extends string>({
   invalid,
   icon,
   onChange,
-}: ProjectComboboxFieldProps<T>) => {
+}: ProjectComboboxFieldProps<T>) {
   const displayValue = value ? formatEnumLabel(value) : placeholder
 
   return (
@@ -106,11 +109,9 @@ const ProjectComboboxField = <T extends string>({
       items={options}
       value={value ?? null}
       onValueChange={(nextValue) => {
-        if (nextValue !== null) {
-          onChange(nextValue)
-        }
+        if (nextValue !== null) onChange(nextValue)
       }}
-      itemToStringValue={(item) => formatEnumLabel(item)}
+      itemToStringValue={formatEnumLabel}
     >
       <ComboboxTrigger
         render={
@@ -119,17 +120,14 @@ const ProjectComboboxField = <T extends string>({
             type="button"
             variant="outline"
             size="sm"
-            className={[
-              'h-8 rounded-full px-2.5',
-              'justify-start gap-1.5',
-              'font-normal',
-              'shadow-none',
-              'hover:bg-accent',
-              'focus-visible:ring-1',
-              invalid ? 'border-destructive' : '',
-            ].join(' ')}
             aria-label={`${label}: ${displayValue}`}
             aria-invalid={invalid}
+            className={cn(
+              'h-8 justify-start gap-1.5 rounded-full px-2.5',
+              'font-normal shadow-none hover:bg-accent',
+              'focus-visible:ring-1',
+              invalid && 'border-destructive'
+            )}
           >
             <span aria-hidden="true" className="flex shrink-0 items-center">
               {icon}
@@ -168,7 +166,8 @@ const ProjectComboboxField = <T extends string>({
   )
 }
 
-const ProjectDateField = ({
+/** Date selector supporting start and target-date boundaries. */
+function ProjectDateField({
   id,
   label,
   value,
@@ -176,14 +175,14 @@ const ProjectDateField = ({
   minDate,
   maxDate,
   onChange,
-}: ProjectDateFieldProps) => {
+}: ProjectDateFieldProps) {
   const [open, setOpen] = useState(false)
 
   const selectedDate = parseDateValue(value)
   const minimumDate = parseDateValue(minDate)
   const maximumDate = parseDateValue(maxDate)
 
-  const bookedDates = [
+  const disabledDates = [
     ...(minimumDate ? [{ before: minimumDate }] : []),
     ...(maximumDate ? [{ after: maximumDate }] : []),
   ]
@@ -196,26 +195,22 @@ const ProjectDateField = ({
           type="button"
           variant="outline"
           size="sm"
-          className={[
-            'h-8 rounded-full px-2.5',
-            'justify-start gap-1.5',
-            'font-normal',
-            'shadow-none',
-            'hover:bg-accent',
-            'focus-visible:ring-1',
-            invalid ? 'border-destructive' : '',
-          ].join(' ')}
+          aria-invalid={invalid}
+          aria-haspopup="dialog"
           aria-label={
             value
               ? `${label}: ${formatDateLabel(value)}`
               : `Set ${label.toLowerCase()}`
           }
-          aria-invalid={invalid}
-          aria-haspopup="dialog"
+          className={cn(
+            'h-8 justify-start gap-1.5 rounded-full px-2.5',
+            'font-normal shadow-none hover:bg-accent',
+            'focus-visible:ring-1',
+            invalid && 'border-destructive'
+          )}
         >
           <CalendarDays className="size-3.5 shrink-0" aria-hidden="true" />
-
-          <span>{value ? formatDateLabel(value) : label}</span>
+          {value ? formatDateLabel(value) : label}
         </Button>
       </PopoverTrigger>
 
@@ -223,13 +218,11 @@ const ProjectDateField = ({
         <Calendar
           mode="single"
           selected={selectedDate}
-          disabled={bookedDates.length > 0 ? bookedDates : undefined}
-          onSelect={(nextDate) => {
-            if (!nextDate) {
-              return
-            }
+          disabled={disabledDates.length > 0 ? disabledDates : undefined}
+          onSelect={(date) => {
+            if (!date) return
 
-            onChange(formatDateValue(nextDate))
+            onChange(formatDateValue(date))
             setOpen(false)
           }}
         />
@@ -259,7 +252,8 @@ const ProjectDateField = ({
   )
 }
 
-const ProjectLeadField = ({ id }: { readonly id: string }) => {
+/** Placeholder until the project lead selector is enabled. */
+function ProjectLeadField({ id }: { readonly id: string }) {
   return (
     <Button
       id={id}
@@ -267,8 +261,8 @@ const ProjectLeadField = ({ id }: { readonly id: string }) => {
       variant="outline"
       size="sm"
       disabled
-      className="h-8 rounded-full px-2.5 font-normal opacity-100"
       aria-label="Project lead: No lead assigned"
+      className="h-8 rounded-full px-2.5 font-normal opacity-100"
     >
       <Users className="size-3.5 shrink-0" aria-hidden="true" />
       No lead
@@ -276,29 +270,44 @@ const ProjectLeadField = ({ id }: { readonly id: string }) => {
   )
 }
 
-export const CreateProjectDialog = () => {
+/** Creates a project and attaches selected files after creation. */
+export function CreateProjectDialog() {
   const workspace = useWorkspace()
   const createProjectMutation = useCreateProjectMutation()
 
+  const {
+    items,
+    validationErrors,
+    addFiles,
+    removeFile,
+    resetQueue,
+    uploadAll,
+  } = useFileUploadQueue()
+
   const [open, setOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [createdProjectId, setCreatedProjectId] = useState<string | null>(null)
 
   const titleId = useId()
   const descriptionId = useId()
-
   const nameId = useId()
   const projectDescriptionId = useId()
-
   const typeId = useId()
   const stageId = useId()
   const priorityId = useId()
   const leadId = useId()
-
   const startDateId = useId()
   const targetEndDateId = useId()
 
-  const form = useForm<CreateProjectFormValues>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setError,
+    clearErrors,
+    formState: { errors, isValid },
+  } = useForm<CreateProjectFormValues>({
     resolver: zodResolver(CreateProjectSchema),
-
     defaultValues: {
       name: '',
       description: '',
@@ -308,18 +317,8 @@ export const CreateProjectDialog = () => {
       startDate: undefined,
       targetEndDate: undefined,
     },
-
     mode: 'onTouched',
   })
-
-  const {
-    control,
-    handleSubmit,
-    reset,
-    setError,
-    clearErrors,
-    formState: { errors, isValid },
-  } = form
 
   const startDate = useWatch({
     control,
@@ -331,12 +330,15 @@ export const CreateProjectDialog = () => {
     name: 'targetEndDate',
   })
 
-  useEffect(() => {
-    if (!open) {
-      reset()
-      clearErrors()
-    }
-  }, [clearErrors, open, reset])
+  const closeDialog = () => {
+    if (isSubmitting) return
+
+    setOpen(false)
+    setCreatedProjectId(null)
+    reset()
+    clearErrors()
+    resetQueue()
+  }
 
   const onSubmit = async (values: CreateProjectFormValues) => {
     clearErrors('root.serverError')
@@ -346,40 +348,76 @@ export const CreateProjectDialog = () => {
         message:
           'Workspace context is unavailable. Please refresh and try again.',
       })
-
       return
     }
 
+    setIsSubmitting(true)
+
     try {
-      await createProjectMutation.mutateAsync(buildCreateProjectRequest(values))
+      let projectId = createdProjectId
+
+      // Create once. Retrying attachments must not create another project.
+      if (!projectId) {
+        const response = await createProjectMutation.mutateAsync(
+          buildCreateProjectRequest(values)
+        )
+
+        projectId = response.project.id
+        setCreatedProjectId(projectId)
+      }
+
+      const result = await uploadAll({
+        targetType: 'project',
+        targetId: projectId,
+      })
+
+      if (result.failed > 0) {
+        setError('root.serverError', {
+          message:
+            `Project created successfully, but ${result.failed} ` +
+            `attachment(s) could not be added. Retry the failed files.`,
+        })
+        return
+      }
 
       setOpen(false)
+      setCreatedProjectId(null)
       reset()
-    } catch (error) {
+      resetQueue()
+    } catch (error: unknown) {
       setError('root.serverError', {
         message:
           error instanceof Error
             ? error.message
-            : 'Failed to create the project.',
+            : createdProjectId
+              ? 'Project created, but attaching files failed.'
+              : 'Failed to create the project.',
       })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   const serverError = errors.root?.serverError
+  const hasCreatedProject = createdProjectId !== null
 
   return (
     <Dialog
       open={open}
       onOpenChange={(nextOpen) => {
-        if (!createProjectMutation.isPending) {
-          setOpen(nextOpen)
+        if (isSubmitting) return
+
+        if (nextOpen) {
+          setOpen(true)
+        } else {
+          closeDialog()
         }
       }}
     >
       <DialogTrigger
         render={
           <Button variant="ghost">
-            <Plus />
+            <Plus aria-hidden="true" />
             New Project
           </Button>
         }
@@ -389,13 +427,8 @@ export const CreateProjectDialog = () => {
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
         className={cn(
-          'w-full h-1/2',
-          'max-w-3xl!',
-          'gap-0',
-          'overflow-hidden',
-          'shadow-2xl',
-          'rounded-2xl',
-          'p-0'
+          'flex max-h-[85dvh] w-full max-w-3xl! flex-col',
+          'gap-0 overflow-hidden rounded-2xl p-0 shadow-2xl'
         )}
       >
         <DialogHeader>
@@ -413,171 +446,200 @@ export const CreateProjectDialog = () => {
           onSubmit={handleSubmit(onSubmit)}
           noValidate
           aria-label="New project form"
+          className="min-h-0 flex-1 overflow-y-auto"
         >
-          <div className="p-2">
-            <FieldGroup>
-              <Controller
-                name="name"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid} className="gap-1">
-                    <FieldLabel htmlFor={nameId} className="sr-only">
-                      Project name
-                    </FieldLabel>
+          <fieldset
+            disabled={isSubmitting || hasCreatedProject}
+            className="min-w-0"
+          >
+            <div className="p-3">
+              <FieldGroup>
+                <Controller
+                  name="name"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid} className="gap-1">
+                      <FieldLabel htmlFor={nameId} className="sr-only">
+                        Project name
+                      </FieldLabel>
 
-                    <Input
-                      {...field}
-                      id={nameId}
-                      autoFocus
-                      autoComplete="off"
-                      placeholder="Project name"
-                      required
-                      aria-required="true"
-                      aria-invalid={fieldState.invalid}
-                      className={cn(
-                        'text-2xl! font-semibold!',
-                        'focus-visible:ring-0',
-                        'max-w-full w-fit! border-none!',
-                        'field-sizing-content bg-transparent!'
+                      <Input
+                        {...field}
+                        id={nameId}
+                        autoFocus
+                        autoComplete="off"
+                        placeholder="Project name"
+                        required
+                        aria-required="true"
+                        aria-invalid={fieldState.invalid}
+                        className={cn(
+                          'max-w-full w-fit! border-none!',
+                          'bg-transparent! text-2xl! font-semibold!',
+                          'field-sizing-content focus-visible:ring-0'
+                        )}
+                      />
+
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
                       )}
+                    </Field>
+                  )}
+                />
+              </FieldGroup>
+
+              <div
+                role="group"
+                aria-label="Project properties"
+                className="mt-4 flex flex-wrap items-center gap-2"
+              >
+                <Controller
+                  name="stage"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <ProjectComboboxField
+                      id={stageId}
+                      label="Stage"
+                      value={field.value}
+                      options={PROJECT_STAGE_OPTIONS}
+                      placeholder="Stage"
+                      invalid={fieldState.invalid}
+                      icon={<Target className="size-3.5" />}
+                      onChange={field.onChange}
                     />
+                  )}
+                />
 
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-            </FieldGroup>
+                <Controller
+                  name="priority"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <ProjectComboboxField
+                      id={priorityId}
+                      label="Priority"
+                      value={field.value}
+                      options={PROJECT_PRIORITY_OPTIONS}
+                      placeholder="No priority"
+                      invalid={fieldState.invalid}
+                      icon={<CircleGauge className="size-3.5" />}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
 
-            <div
-              role="group"
-              aria-label="Project properties"
-              className="mt-4 flex flex-wrap items-center gap-2"
-            >
-              <Controller
-                name="stage"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <ProjectComboboxField
-                    id={stageId}
-                    label="Stage"
-                    value={field.value}
-                    options={PROJECT_STAGE_OPTIONS}
-                    placeholder="Stage"
-                    invalid={fieldState.invalid}
-                    icon={<Target className="size-3.5" />}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
+                <Controller
+                  name="type"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <ProjectComboboxField
+                      id={typeId}
+                      label="Type"
+                      value={field.value}
+                      options={PROJECT_TYPE_OPTIONS}
+                      placeholder="Type"
+                      invalid={fieldState.invalid}
+                      icon={<Settings2 className="size-3.5" />}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
 
-              <Controller
-                name="priority"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <ProjectComboboxField
-                    id={priorityId}
-                    label="Priority"
-                    value={field.value}
-                    options={PROJECT_PRIORITY_OPTIONS}
-                    placeholder="No priority"
-                    invalid={fieldState.invalid}
-                    icon={<CircleGauge className="size-3.5" />}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
+                <ProjectLeadField id={leadId} />
 
-              <Controller
-                name="type"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <ProjectComboboxField
-                    id={typeId}
-                    label="Type"
-                    value={field.value}
-                    options={PROJECT_TYPE_OPTIONS}
-                    placeholder="Type"
-                    invalid={fieldState.invalid}
-                    icon={<Settings2 className="size-3.5" />}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
+                <Controller
+                  name="startDate"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <ProjectDateField
+                      id={startDateId}
+                      label="Start"
+                      value={field.value}
+                      invalid={fieldState.invalid}
+                      maxDate={targetEndDate}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
 
-              <ProjectLeadField id={leadId} />
+                <MoveRight
+                  size={15}
+                  className="text-muted-foreground"
+                  aria-hidden="true"
+                />
 
-              <Controller
-                name="startDate"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <ProjectDateField
-                    id={startDateId}
-                    label="Start"
-                    value={field.value}
-                    invalid={fieldState.invalid}
-                    maxDate={targetEndDate}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
-
-              <MoveRight size={15} />
-
-              <Controller
-                name="targetEndDate"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <ProjectDateField
-                    id={targetEndDateId}
-                    label="Target"
-                    value={field.value}
-                    invalid={fieldState.invalid}
-                    minDate={startDate}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
+                <Controller
+                  name="targetEndDate"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <ProjectDateField
+                      id={targetEndDateId}
+                      label="Target"
+                      value={field.value}
+                      invalid={fieldState.invalid}
+                      minDate={startDate}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+              </div>
             </div>
-          </div>
 
-          <Separator className="mt-5" />
+            <Separator className="mt-4" />
 
-          <div className="p-2">
-            <Field data-invalid={!!errors.description} className="gap-1">
-              <FieldLabel htmlFor={projectDescriptionId} className="sr-only">
-                Project description
-              </FieldLabel>
+            <div className="p-3">
+              <Field data-invalid={!!errors.description} className="gap-1">
+                <FieldLabel htmlFor={projectDescriptionId} className="sr-only">
+                  Project description
+                </FieldLabel>
 
-              <Controller
-                name="description"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <>
-                    <Input
-                      {...field}
-                      id={projectDescriptionId}
-                      placeholder="Write a description, a project brief, or collect ideas..."
-                      aria-label="Project description"
-                      aria-invalid={fieldState.invalid}
-                      className={cn(
-                        'bg-transparent! focus-visible:ring-0',
-                        'border-none w-full'
+                <Controller
+                  name="description"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <Input
+                        {...field}
+                        id={projectDescriptionId}
+                        placeholder="Write a description, a project brief, or collect ideas..."
+                        aria-label="Project description"
+                        aria-invalid={fieldState.invalid}
+                        className={cn(
+                          'w-full border-none bg-transparent!',
+                          'focus-visible:ring-0'
+                        )}
+                      />
+
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
                       )}
-                    />
+                    </>
+                  )}
+                />
+              </Field>
+            </div>
+          </fieldset>
 
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </>
-                )}
-              />
-            </Field>
+          <div className="px-3 pb-3">
+            <FileUploadField
+              items={items}
+              errors={validationErrors}
+              disabled={isSubmitting}
+              onFilesSelected={addFiles}
+              onRemove={removeFile}
+            />
+
+            {hasCreatedProject && !serverError && (
+              <p className="mt-3 text-xs text-muted-foreground">
+                Project created. Finalizing attachments.
+              </p>
+            )}
 
             {serverError && (
-              <Alert variant="destructive" className="mt-5" role="alert">
-                <AlertTitle>Unable to create project</AlertTitle>
+              <Alert variant="destructive" className="mt-4" role="alert">
+                <AlertTitle>
+                  {hasCreatedProject
+                    ? 'Attachment upload incomplete'
+                    : 'Unable to create project'}
+                </AlertTitle>
 
                 <AlertDescription>{serverError.message}</AlertDescription>
               </Alert>
@@ -585,12 +647,12 @@ export const CreateProjectDialog = () => {
           </div>
         </form>
 
-        <DialogFooter className="my-auto border-t px-6 py-4">
+        <DialogFooter className="shrink-0 border-t px-4 py-3">
           <Button
             type="button"
             variant="ghost"
-            disabled={createProjectMutation.isPending}
-            onClick={() => setOpen(false)}
+            disabled={isSubmitting}
+            onClick={closeDialog}
           >
             Cancel
           </Button>
@@ -598,14 +660,14 @@ export const CreateProjectDialog = () => {
           <Button
             type="submit"
             form="create-project-form"
-            disabled={!isValid || createProjectMutation.isPending}
-            aria-disabled={!isValid || createProjectMutation.isPending}
-            aria-busy={createProjectMutation.isPending}
+            disabled={isSubmitting || (!hasCreatedProject && !isValid)}
+            aria-busy={isSubmitting}
           >
-            {createProjectMutation.isPending && (
+            {isSubmitting && (
               <Spinner aria-hidden="true" data-icon="inline-start" />
             )}
-            Create project
+
+            {hasCreatedProject ? 'Retry attachments' : 'Create project'}
           </Button>
         </DialogFooter>
       </DialogContent>
