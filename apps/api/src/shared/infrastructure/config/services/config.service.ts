@@ -6,6 +6,7 @@ import { IRedisConfig } from '@/shared/infrastructure/interfaces/redis.config.in
 import { ITokenConfig } from '@/modules/authentication/infrastructure/interfaces/token.config.interface'
 import { IOAuthConfig } from '@/modules/authentication/infrastructure/interfaces/oauth.config.interface'
 import { IMailConfig } from '@/modules/mail/infrastructure/config/mail.config.interface'
+import { IFileConfig } from '@/modules/file/application/ports/file-config.port'
 
 @Injectable()
 export class AppConfigService
@@ -15,7 +16,8 @@ export class AppConfigService
     IRedisConfig,
     ITokenConfig,
     IOAuthConfig,
-    IMailConfig
+    IMailConfig,
+    IFileConfig
 {
   constructor(
     private configService: ConfigService<EnvironmentVariables, true>
@@ -155,12 +157,58 @@ export class AppConfigService
   }
 
   get observeAppKey(): string {
-    console.log('OBSERVE APP KEY', this.configService.get('OBSERVE_APP_KEY'))
     return this.configService.get('OBSERVE_APP_KEY')
   }
 
   get observeAppSecret(): string {
-    console.log('SECRET', this.configService.get('OBSERVE_APP_SECRET'))
     return this.configService.get('OBSERVE_APP_SECRET')
+  }
+
+  get s3Bucket(): string {
+    return this.configService.get('FILE_S3_BUCKET')
+  }
+
+  get s3Region(): string {
+    return this.configService.get('FILE_S3_REGION')
+  }
+
+  get storageLocationId(): string {
+    return this.configService.get('FILE_STORAGE_LOCATION_ID')
+  }
+
+  get s3Endpoint(): string | undefined {
+    return this.configService.get('FILE_S3_ENDPOINT')
+  }
+
+  get s3ForcePathStyle(): boolean {
+    return this.configService.get('FILE_S3_FORCE_PATH_STYLE')
+  }
+
+  get workspaceQuotaBytes(): number {
+    return this.configService.get('FILE_WORKSPACE_QUOTA_BYTES')
+  }
+
+  get userQuotaBytes(): number {
+    return this.configService.get('FILE_USER_QUOTA_BYTES')
+  }
+
+  get uploadExpiresInSeconds(): number {
+    return this.configService.get('FILE_UPLOAD_TTL_SECONDS')
+  }
+
+  get accessExpiresInSeconds(): number {
+    return this.configService.get('FILE_ACCESS_TTL_SECONDS')
+  }
+
+  get clamAvHost(): string {
+    return this.configService.get('FILE_CLAMAV_HOST')
+  }
+
+  get clamAvPort(): number {
+    return this.configService.get('FILE_CLAMAV_PORT')
+  }
+
+  get clamAvTimeoutMs(): number {
+    return this.configService.get('FILE_CLAMAV_TIMEOUT_MS')
   }
 }

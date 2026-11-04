@@ -30,6 +30,9 @@
     ]
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1161.0",
+    "@aws-sdk/s3-presigned-post": "^3.1161.0",
+    "@aws-sdk/s3-request-presigner": "^3.1161.0",
     "@keyv/redis": "^5.1.6",
     "@nestjs/bullmq": "^12.0.0",
     "@nestjs/cache-manager": "^12.0.0",

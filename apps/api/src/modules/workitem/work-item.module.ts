@@ -54,6 +54,7 @@ import {
   DELETE_TEAM_STORY_USE_CASE,
   DeleteTeamStoryUseCase,
 } from './application/usecases/delete-team-story'
+import { WORK_ITEM_REPOSITORY } from './application/ports/work-item-repository.port'
 
 @Module({
   imports: [
@@ -115,5 +116,6 @@ import {
     },
   ],
   controllers: [WorkItemController, TeamStoriesController],
+  exports: [WORK_ITEM_REPOSITORY],
 })
 export class WorkItemModule {}

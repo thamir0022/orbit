@@ -7,6 +7,9 @@ import {
   Min,
   IsDefined,
   IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsBoolean,
 } from 'class-validator'
 import { Transform, Type } from 'class-transformer'
 
@@ -195,4 +198,64 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   OBSERVE_APP_SECRET!: string
+
+  // File Storage
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  FILE_S3_BUCKET!: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  FILE_S3_REGION!: string
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  FILE_STORAGE_LOCATION_ID!: string
+
+  @IsString()
+  @IsUrl({ protocols: ['https'] })
+  @IsOptional()
+  FILE_S3_ENDPOINT?: string
+
+  @IsDefined()
+  @IsBoolean()
+  FILE_S3_FORCE_PATH_STYLE!: boolean
+
+  @IsDefined()
+  @IsNumber()
+  @IsNotEmpty()
+  FILE_WORKSPACE_QUOTA_BYTES!: number
+
+  @IsDefined()
+  @IsNumber()
+  @IsNotEmpty()
+  FILE_USER_QUOTA_BYTES!: number
+
+  @IsDefined()
+  @IsNumber()
+  @IsNotEmpty()
+  FILE_UPLOAD_TTL_SECONDS!: number
+
+  @IsDefined()
+  @IsNumber()
+  @IsNotEmpty()
+  FILE_ACCESS_TTL_SECONDS!: number
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  FILE_CLAMAV_HOST!: string
+
+  @IsDefined()
+  @IsNumber()
+  @IsNotEmpty()
+  FILE_CLAMAV_PORT!: number
+
+  @IsDefined()
+  @IsNumber()
+  @IsNotEmpty()
+  FILE_CLAMAV_TIMEOUT_MS!: number
 }

@@ -22,6 +22,7 @@ import { DocumentModule } from './modules/document/document.module'
 import { NotificationModule } from './modules/notification/notification.module'
 import { RealtimeModule } from './modules/realtime/realtime.module'
 import { EventEmitterModule } from '@nestjs/event-emitter'
+import { FileModule } from './modules/file/file.module'
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule()
 @Module({
@@ -53,6 +54,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule()
     DocumentModule,
     NotificationModule,
     RealtimeModule,
+    FileModule,
 
     // NestJs Observability
     ObserveModule.forRootAsync({
