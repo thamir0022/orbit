@@ -83,6 +83,10 @@ export const API_ROUTES = {
 
     DELETE: (id: string) => `/notifications/${encodeURIComponent(id)}`,
   },
+  FILES: {
+    UPLOADS: '/files/uploads',
+    ATTACHMENTS: '/files/attachments',
+  },
 } as const
 
 // Export types for your routes
