@@ -71,6 +71,7 @@ import {
 } from '@/shared/ui/dropdown-menu'
 
 import { DeleteProjectButton } from '@/features/delete-project'
+import { AttachmentList } from '@/features/file/ui/attachment-list'
 
 interface UpdateProjectFormProps {
   readonly project: Project
@@ -638,6 +639,9 @@ export const UpdateProjectForm = ({ project }: UpdateProjectFormProps) => {
                   />
                 </div>
               </div>
+
+              <AttachmentList targetType="project" targetId={project.id} />
+
               <Controller
                 name="description"
                 control={control}

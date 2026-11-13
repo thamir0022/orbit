@@ -109,7 +109,8 @@ function ProjectComboboxField<T extends string>({
       items={options}
       value={value ?? null}
       onValueChange={(nextValue) => {
-        if (nextValue !== null) onChange(nextValue)
+        const option = options.find((option) => option === nextValue)
+        if (option !== undefined) onChange(option)
       }}
       itemToStringValue={formatEnumLabel}
     >
@@ -280,6 +281,7 @@ export function CreateProjectDialog() {
     validationErrors,
     addFiles,
     removeFile,
+    renameFile,
     resetQueue,
     uploadAll,
   } = useFileUploadQueue()
@@ -625,6 +627,7 @@ export function CreateProjectDialog() {
               disabled={isSubmitting}
               onFilesSelected={addFiles}
               onRemove={removeFile}
+              onTitleChange={renameFile}
             />
 
             {hasCreatedProject && !serverError && (
