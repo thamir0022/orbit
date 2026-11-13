@@ -10,6 +10,7 @@ import { FILE_UPLOAD_POLICY } from './application/ports/file-upload-policy.port'
 import { FILE_CONTENT_INSPECTOR } from './application/ports/file-content-inspector.port'
 import { FILE_SECURITY_SCANNER } from './application/ports/file-security-scanner.port'
 import { FILE_PROCESSING_DISPATCH } from './application/ports/file-processing-dispatch.port'
+import { FILE_PROCESSING_STATUS } from './application/ports/file-processing-status.port'
 import {
   OBJECT_STORAGE,
   type ObjectStoragePort,
@@ -26,7 +27,10 @@ import { GetAuthorizedAccess } from './application/use-cases/get-authorized-acce
 import { AttachFile } from './application/use-cases/attach-file/attach-file.use-case'
 import { ListAttachments } from './application/use-cases/list-attachments/list-attachments.use-case'
 import { RemoveAttachment } from './application/use-cases/remove-attachment/remove-attachment.use-case'
+import { UpdateAttachment } from './application/use-cases/update-attachment/update-attachment.use-case'
+import { ReorderAttachments } from './application/use-cases/reorder-attachments/reorder-attachments.use-case'
 import { ExpiredUploadCleanup } from './application/services/expired-upload-cleanup.service'
+import { DeletedFileCleanup } from './application/services/deleted-file-cleanup.service'
 
 import { WorkspaceModule } from '@/modules/workspace/workspace.module'
 import { ProjectModule } from '@/modules/project/project.module'
@@ -80,6 +84,8 @@ import { FileAttachmentController } from './presentation/http/controllers/file-a
     AttachFile,
     ListAttachments,
     RemoveAttachment,
+    UpdateAttachment,
+    ReorderAttachments,
 
     // Business authorization
     {
@@ -125,7 +131,12 @@ import { FileAttachmentController } from './presentation/http/controllers/file-a
       provide: FILE_PROCESSING_DISPATCH,
       useExisting: FileProcessingQueueAdapter,
     },
+    {
+      provide: FILE_PROCESSING_STATUS,
+      useExisting: FileProcessingQueueAdapter,
+    },
     ExpiredUploadCleanup,
+    DeletedFileCleanup,
     FileProcessingRecoveryScheduler,
     FileProcessingWorker,
   ],

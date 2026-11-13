@@ -74,6 +74,12 @@ export class CompleteUpload {
       actor: input.actor,
       file: fileSnapshot.entity,
     })
+    if (session.status === UploadSessionStatus.EXPIRED) {
+      throw new FileApplicationError(
+        FileApplicationErrorCode.EXPIRED_UPLOAD,
+        'Upload session expired'
+      )
+    }
     if (
       session.status !== UploadSessionStatus.INITIATED &&
       session.status !== UploadSessionStatus.COMPLETED

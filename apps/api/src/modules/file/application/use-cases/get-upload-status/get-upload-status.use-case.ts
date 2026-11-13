@@ -1,5 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { FileScopeType, UploadSessionId } from '@/modules/file/domain'
+import {
+  FileScopeType,
+  FileStatus,
+  UploadSessionId,
+  UploadSessionStatus,
+} from '@/modules/file/domain'
+import {
+  FILE_PROCESSING_STATUS,
+  type FileProcessingStatusPort,
+} from '../../ports/file-processing-status.port'
 import {
   FILE_REPOSITORY,
   type FileRepository,
@@ -26,7 +35,9 @@ export class GetUploadStatus {
     @Inject(UPLOAD_SESSION_REPOSITORY)
     private readonly uploads: UploadSessionRepository,
     @Inject(FILE_AUTHORIZATION)
-    private readonly authorization: FileAuthorizationPort
+    private readonly authorization: FileAuthorizationPort,
+    @Inject(FILE_PROCESSING_STATUS)
+    private readonly processing: FileProcessingStatusPort
   ) {}
 
   async execute(input: { actor: FileActor; sessionId: string }) {
@@ -59,6 +70,11 @@ export class GetUploadStatus {
       uploadStatus: session.status,
       fileStatus: file.status,
       sizeBytes: file.size?.bytes ?? null,
+      processingStatus:
+        session.status === UploadSessionStatus.COMPLETED &&
+        [FileStatus.PENDING_UPLOAD, FileStatus.PROCESSING].includes(file.status)
+          ? await this.processing.getStatus(file.id.value)
+          : null,
     }
   }
 }

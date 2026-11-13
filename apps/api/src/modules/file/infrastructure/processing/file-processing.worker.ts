@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common'
-import { Processor, WorkerHost } from '@nestjs/bullmq'
+import { Injectable, Logger } from '@nestjs/common'
+import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq'
 import type { Job } from 'bullmq'
 import { ExpiredUploadCleanup } from '@/modules/file/application/services/expired-upload-cleanup.service'
+import { DeletedFileCleanup } from '@/modules/file/application/services/deleted-file-cleanup.service'
 import { VerifyAndScanFile } from '@/modules/file/application/use-cases/verify-and-scan-file/verify-and-scan-file.use-case'
 import {
   FileProcessingQueueAdapter,
@@ -15,11 +16,14 @@ import { FileProcessingRecoveryQuery } from './file-processing-recovery.query'
 @Injectable()
 @Processor(FILE_PROCESSING_QUEUE, { concurrency: 2 })
 export class FileProcessingWorker extends WorkerHost {
+  private readonly logger = new Logger(FileProcessingWorker.name)
+
   constructor(
     private readonly verify: VerifyAndScanFile,
     private readonly recovery: FileProcessingRecoveryQuery,
     private readonly dispatch: FileProcessingQueueAdapter,
-    private readonly cleanup: ExpiredUploadCleanup
+    private readonly cleanup: ExpiredUploadCleanup,
+    private readonly deletedCleanup: DeletedFileCleanup
   ) {
     super()
   }
@@ -33,8 +37,22 @@ export class FileProcessingWorker extends WorkerHost {
       await this.cleanup.execute()
       const ids = await this.recovery.findPending()
       for (const fileId of ids) await this.dispatch.enqueueVerify(fileId)
+      await this.deletedCleanup.execute()
       return
     }
     throw new Error('Unknown file processing job')
+  }
+
+  @OnWorkerEvent('failed')
+  onFailed(job: Job<{ fileId?: string }> | undefined, error: Error): void {
+    // Keep URLs, credentials and file contents out of logs. The retained job
+    // has the failure details for an operator with access to the queue.
+    this.logger.error({
+      message: 'File processing job failed',
+      jobId: job?.id,
+      fileId: job?.data.fileId,
+      attemptsMade: job?.attemptsMade,
+      errorType: error.name,
+    })
   }
 }

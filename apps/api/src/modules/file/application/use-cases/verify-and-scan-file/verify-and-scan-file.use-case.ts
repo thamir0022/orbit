@@ -179,7 +179,7 @@ export class VerifyAndScanFile {
       fileId: id.value,
       sourceEtag: before.etag,
       sha256: verified.sha256,
-      stagingObject: staging,
+      stagingObject: snapshotObject,
     })
   }
 
