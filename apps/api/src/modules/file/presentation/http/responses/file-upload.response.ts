@@ -1,15 +1,23 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import type { InitiateUploadOutput } from '@/modules/file/application/use-cases/initiate-upload/initiate-upload.use-case'
 
-/** Short-lived signed POST instructions; never persist these fields in MongoDB. */
+/** Short-lived upload instructions; never persist these fields in MongoDB. */
 export class InitiateUploadResponse {
   @ApiProperty() fileId!: string
   @ApiProperty() uploadSessionId!: string
   @ApiProperty({ format: 'date-time' }) expiresAt!: Date
-  @ApiProperty({ enum: ['POST'] }) method!: 'POST'
+  @ApiProperty({ enum: ['POST', 'PUT'] }) method!: 'POST' | 'PUT'
   @ApiProperty() url!: string
-  @ApiProperty({ type: 'object', additionalProperties: { type: 'string' } })
-  fields!: Readonly<Record<string, string>>
+  @ApiPropertyOptional({
+    type: 'object',
+    additionalProperties: { type: 'string' },
+  })
+  fields?: Readonly<Record<string, string>>
+  @ApiPropertyOptional({
+    type: 'object',
+    additionalProperties: { type: 'string' },
+  })
+  headers?: Readonly<Record<string, string>>
 
   static from(output: InitiateUploadOutput): InitiateUploadResponse {
     return Object.assign(new InitiateUploadResponse(), {
@@ -18,7 +26,9 @@ export class InitiateUploadResponse {
       expiresAt: output.expiresAt,
       method: output.upload.method,
       url: output.upload.url,
-      fields: output.upload.fields,
+      ...(output.upload.method === 'POST'
+        ? { fields: output.upload.fields }
+        : { headers: output.upload.headers }),
     })
   }
 }

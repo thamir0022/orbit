@@ -1,11 +1,22 @@
 import type { StorageObjectRef } from '@/modules/file/domain'
 
-export interface BrowserUploadGrant {
-  readonly method: 'POST'
+interface UploadGrantBase {
   readonly url: string
-  readonly fields: Readonly<Record<string, string>>
   readonly expiresAt: Date
 }
+
+/** Provider instructions: multipart POST or a signed raw-body PUT. */
+export type BrowserUploadGrant = UploadGrantBase &
+  (
+    | {
+        readonly method: 'POST'
+        readonly fields: Readonly<Record<string, string>>
+      }
+    | {
+        readonly method: 'PUT'
+        readonly headers: Readonly<Record<string, string>>
+      }
+  )
 
 export interface StoredObjectInfo {
   readonly sizeBytes: number
@@ -49,7 +60,11 @@ export interface ObjectStoragePort {
     disposition: 'attachment' | 'inline'
     mimeType: string
   }): Promise<ReadObjectGrant>
-  delete(object: StorageObjectRef): Promise<void>
+  /** Permanent deletion removes the exact immutable revision, including a provider's unversioned revision. */
+  delete(
+    object: StorageObjectRef,
+    options?: { readonly permanent: boolean }
+  ): Promise<void>
 }
 
 export const OBJECT_STORAGE = Symbol('IObjectStoragePort')

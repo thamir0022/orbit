@@ -276,14 +276,19 @@ export class S3ObjectStorageAdapter
   }
 
   /** Deletes an object or a specific object version. */
-  async delete(object: StorageObjectRef): Promise<void> {
+  async delete(
+    object: StorageObjectRef,
+    options?: { readonly permanent: boolean }
+  ): Promise<void> {
     this.check(object)
 
     await this.client.send(
       new DeleteObjectCommand({
         Bucket: this.config.s3Bucket,
         Key: object.key,
-        VersionId: object.versionId ?? undefined,
+        // "null" pins an originally unversioned object even if versioning was enabled later.
+        VersionId:
+          object.versionId ?? (options?.permanent ? 'null' : undefined),
       })
     )
   }
