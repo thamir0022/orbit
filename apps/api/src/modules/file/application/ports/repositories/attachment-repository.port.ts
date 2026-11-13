@@ -21,6 +21,10 @@ export interface AttachmentRepository {
     query: AttachmentPageQuery
   ): Promise<ReadonlyArray<RepositorySnapshot<Attachment>>>
   hasActiveReferences(fileId: FileId): Promise<boolean>
+  findActiveLink(
+    query: Omit<AttachmentPageQuery, 'limit'> & { readonly fileId: FileId }
+  ): Promise<RepositorySnapshot<Attachment> | null>
+  nextPosition(query: Omit<AttachmentPageQuery, 'limit'>): Promise<number>
   insert(attachment: Attachment): Promise<void>
   update(attachment: Attachment, expectedRevision: number): Promise<number>
 }

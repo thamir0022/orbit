@@ -128,6 +128,16 @@ export class OrbitFileAuthorizationAdapter implements FileAuthorizationPort {
     await this.assertTargetAccessible(file.scope.id, target)
   }
 
+  /** Authorizes attachment metadata changes on an existing target. */
+  async assertCanManageAttachments(input: {
+    actor: FileActor
+    target: AttachmentTarget
+  }): Promise<void> {
+    const workspaceId = this.requireWorkspaceId(input.actor)
+    await this.assertActiveWorkspaceMember(input.actor, workspaceId)
+    await this.assertTargetAccessible(workspaceId, input.target)
+  }
+
   /** Authorizes listing attachments on an existing target. */
   async assertCanListAttachments(input: {
     actor: FileActor

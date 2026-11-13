@@ -1,6 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { AttachmentTarget } from '@/modules/file/domain'
+import { AttachmentTarget, FileScopeType } from '@/modules/file/domain'
 import { WorkspaceId } from '@/modules/workspace/domain'
+import {
+  FILE_REPOSITORY,
+  type FileRepository,
+} from '../../ports/repositories/file-repository.port'
 import {
   ATTACHMENT_REPOSITORY,
   type AttachmentRepository,
@@ -21,6 +25,9 @@ export interface ListedAttachment {
   readonly displayName: string | null
   readonly placement: string
   readonly createdAt: Date
+  readonly originalName: string
+  readonly position: number
+  readonly revision: number
 }
 
 /** Lists only attachments visible through the authorized business target. */
@@ -30,7 +37,8 @@ export class ListAttachments {
     @Inject(ATTACHMENT_REPOSITORY)
     private readonly attachments: AttachmentRepository,
     @Inject(FILE_AUTHORIZATION)
-    private readonly authorization: FileAuthorizationPort
+    private readonly authorization: FileAuthorizationPort,
+    @Inject(FILE_REPOSITORY) private readonly files: FileRepository
   ) {}
 
   async execute(input: {
@@ -53,12 +61,27 @@ export class ListAttachments {
       target: input.target,
       limit: input.limit,
     })
-    return records.map(({ entity }) => ({
+    const files = await this.files.findByIds(
+      records.map(({ entity }) => entity.fileId)
+    )
+    const names = new Map(
+      files
+        .filter(
+          ({ entity }) =>
+            entity.scope.type === FileScopeType.WORKSPACE &&
+            entity.scope.id === input.actor.workspaceId
+        )
+        .map(({ entity }) => [entity.id.value, entity.originalName])
+    )
+    return records.map(({ entity, revision }) => ({
       id: entity.id.value,
       fileId: entity.fileId.value,
       displayName: entity.displayName,
       placement: entity.placement,
       createdAt: entity.createdAt,
+      originalName: names.get(entity.fileId.value) ?? 'File unavailable',
+      position: entity.position,
+      revision,
     }))
   }
 }

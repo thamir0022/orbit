@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   UseFilters,
@@ -22,6 +23,10 @@ import { FilePrincipal } from '../decorators/file-principal.decorator'
 import { FileHttpExceptionFilter } from '../filters/file-http-exception.filter'
 import { AttachFileRequest } from '../requests/attach-file.request'
 import { ListAttachmentsRequest } from '../requests/list-attachments.request'
+import { UpdateAttachmentRequest } from '../requests/update-attachment.request'
+import { ReorderAttachmentsRequest } from '../requests/reorder-attachments.request'
+import { UpdateAttachment } from '@/modules/file/application/use-cases/update-attachment/update-attachment.use-case'
+import { ReorderAttachments } from '@/modules/file/application/use-cases/reorder-attachments/reorder-attachments.use-case'
 
 /** Authorized relationship endpoints; binary objects are managed separately. */
 @ApiTags('File Attachments')
@@ -39,7 +44,9 @@ export class FileAttachmentController {
   constructor(
     private readonly attach: AttachFile,
     private readonly list: ListAttachments,
-    private readonly remove: RemoveAttachment
+    private readonly remove: RemoveAttachment,
+    private readonly update: UpdateAttachment,
+    private readonly reorder: ReorderAttachments
   ) {}
 
   @Post()
@@ -71,6 +78,34 @@ export class FileAttachmentController {
       actor,
       target: AttachmentTarget.create(query.targetType, query.targetId),
       limit: query.limit,
+    })
+  }
+
+  @Patch('order')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  reorderFiles(
+    @Body() body: ReorderAttachmentsRequest,
+    @FilePrincipal() actor: FileActor
+  ): Promise<void> {
+    return this.reorder.execute({
+      actor,
+      target: AttachmentTarget.create(body.targetType, body.targetId),
+      items: body.items,
+    })
+  }
+
+  @Patch(':attachmentId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  updateFile(
+    @Param('attachmentId') attachmentId: string,
+    @Body() body: UpdateAttachmentRequest,
+    @FilePrincipal() actor: FileActor
+  ): Promise<void> {
+    return this.update.execute({
+      actor,
+      attachmentId,
+      displayName: body.displayName,
+      revision: body.revision,
     })
   }
 

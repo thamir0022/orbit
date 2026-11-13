@@ -9,6 +9,7 @@ import {
 } from '@/modules/file/domain'
 import { UserId } from '@/modules/user/domain'
 import { WorkspaceId } from '@/modules/workspace/domain'
+import { retryRepositoryConflict } from '../../services/repository-conflict-retry'
 import {
   FILE_UNIT_OF_WORK,
   type FileUnitOfWork,
@@ -50,35 +51,55 @@ export class AttachFile {
       )
     }
     const fileId = FileId.create(input.fileId)
-    return this.work.execute(async (repos) => {
-      const found = await repos.files.findById(fileId)
-      const file = found?.entity
-      if (
-        !file ||
-        file.status !== FileStatus.READY ||
-        file.scope.type !== FileScopeType.WORKSPACE ||
-        file.scope.id !== input.actor.workspaceId
-      ) {
-        throw new FileApplicationError(
-          FileApplicationErrorCode.NOT_FOUND,
-          'File not found'
-        )
-      }
-      await this.authorization.assertCanAttach({
-        actor: input.actor,
-        file,
-        target: input.target,
+    const workspaceId = WorkspaceId.create(input.actor.workspaceId)
+    return retryRepositoryConflict(() =>
+      this.work.execute(async (repos) => {
+        const found = await repos.files.findById(fileId)
+        const file = found?.entity
+        if (
+          !found ||
+          !file ||
+          file.status !== FileStatus.READY ||
+          file.scope.type !== FileScopeType.WORKSPACE ||
+          file.scope.id !== input.actor.workspaceId
+        ) {
+          throw new FileApplicationError(
+            FileApplicationErrorCode.NOT_FOUND,
+            'File not found'
+          )
+        }
+        await this.authorization.assertCanAttach({
+          actor: input.actor,
+          file,
+          target: input.target,
+        })
+        const existing = await repos.attachments.findActiveLink({
+          workspaceId,
+          target: input.target,
+          fileId,
+        })
+        if (existing)
+          return {
+            attachmentId: existing.entity.id.value,
+            fileId: fileId.value,
+          }
+        const attachment = Attachment.create({
+          workspaceId,
+          fileId,
+          target: input.target,
+          placement: input.placement,
+          displayName: input.displayName ?? file.originalName,
+          position: await repos.attachments.nextPosition({
+            workspaceId,
+            target: input.target,
+          }),
+          createdBy: UserId.create(input.actor.userId),
+        })
+        await repos.attachments.insert(attachment)
+        // Serialize link changes on their shared file to prevent last-reference races.
+        await repos.files.update(file, found.revision)
+        return { attachmentId: attachment.id.value, fileId: fileId.value }
       })
-      const attachment = Attachment.create({
-        workspaceId: WorkspaceId.create(input.actor.workspaceId),
-        fileId,
-        target: input.target,
-        placement: input.placement,
-        displayName: input.displayName,
-        createdBy: UserId.create(input.actor.userId),
-      })
-      await repos.attachments.insert(attachment)
-      return { attachmentId: attachment.id.value, fileId: fileId.value }
-    })
+    )
   }
 }

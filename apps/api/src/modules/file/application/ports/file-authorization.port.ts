@@ -14,6 +14,10 @@ export interface FileActor {
 
 /** Authorization must resolve business ownership, privacy and membership, not just workspace equality. */
 export interface FileAuthorizationPort {
+  assertCanManageAttachments(input: {
+    actor: FileActor
+    target: AttachmentTarget
+  }): Promise<void>
   assertCanUpload(input: {
     actor: FileActor
     scope: FileScope

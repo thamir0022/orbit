@@ -67,7 +67,7 @@ export class MongoAttachmentRepository implements AttachmentRepository {
         createdAt: 1,
         _id: 1,
       })
-      .limit(boundedLimit(query.limit))
+      .limit(boundedLimit(query.limit, 101))
       .session(this.session)
       .exec()
 
@@ -84,6 +84,38 @@ export class MongoAttachmentRepository implements AttachmentRepository {
       .exec()
 
     return result !== null
+  }
+
+  async nextPosition(
+    query: Omit<AttachmentPageQuery, 'limit'>
+  ): Promise<number> {
+    const last = await this.model
+      .findOne({
+        workspaceId: query.workspaceId.value,
+        'target.type': query.target.type,
+        'target.id': query.target.id,
+        deletedAt: null,
+      })
+      .sort({ position: -1 })
+      .session(this.session)
+      .exec()
+    return last ? last.position + 1 : 0
+  }
+
+  async findActiveLink(
+    query: Omit<AttachmentPageQuery, 'limit'> & { readonly fileId: FileId }
+  ): Promise<RepositorySnapshot<Attachment> | null> {
+    const doc = await this.model
+      .findOne({
+        workspaceId: query.workspaceId.value,
+        fileId: query.fileId.value,
+        'target.type': query.target.type,
+        'target.id': query.target.id,
+        deletedAt: null,
+      })
+      .session(this.session)
+      .exec()
+    return doc ? this.snapshot(doc) : null
   }
 
   async insert(entity: Attachment): Promise<void> {
@@ -119,9 +151,9 @@ export class MongoAttachmentRepository implements AttachmentRepository {
             $inc: { revision: 1 },
           },
           {
-            new: true,
             runValidators: true,
             session: this.session ?? undefined,
+            returnDocument: 'after',
           }
         )
         .exec()
