@@ -43,6 +43,8 @@ export class FileMapper {
       uploadedAt: doc.uploadedAt,
       readyAt: doc.readyAt,
       deletedAt: doc.deletedAt,
+      purgedAt: doc.purgedAt ?? null,
+      purgeAttemptedAt: doc.purgeAttemptedAt ?? null,
     })
   }
 
@@ -84,6 +86,8 @@ export class FileMapper {
       uploadedAt: file.uploadedAt,
       readyAt: file.readyAt,
       deletedAt: file.deletedAt,
+      purgedAt: file.purgedAt,
+      purgeAttemptedAt: file.purgeAttemptedAt,
     }
   }
 }

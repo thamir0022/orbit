@@ -21,9 +21,10 @@ export class ExpiredUploadCleanup {
   async execute(limit = 100): Promise<number> {
     const now = new Date()
     const expired = await this.uploads.findExpired(now, limit)
+    let cleaned = 0
     for (const snapshot of expired) {
       const session = snapshot.entity
-      await retryRepositoryConflict(() =>
+      const didExpire = await retryRepositoryConflict(() =>
         this.unitOfWork.execute(async (repos) => {
           const latestSession = await repos.uploads.findById(session.id)
           if (
@@ -31,7 +32,7 @@ export class ExpiredUploadCleanup {
             latestSession.entity.status !== UploadSessionStatus.INITIATED ||
             latestSession.entity.expiresAt > now
           )
-            return
+            return false
           const file = await repos.files.findById(latestSession.entity.fileId)
           if (!file) throw new Error('Expired upload references a missing file')
           const usage = await repos.usage.findByScope(file.entity.scope)
@@ -48,11 +49,15 @@ export class ExpiredUploadCleanup {
             latestSession.entity,
             latestSession.revision
           )
+          return true
         })
       )
+      // A completion may win after findExpired. Never delete its staging bytes.
+      if (!didExpire) continue
+      cleaned += 1
       // Garbage collection is best-effort; S3 lifecycle must also expire staging objects.
       await this.storage.delete(session.stagingObject).catch(() => undefined)
     }
-    return expired.length
+    return cleaned
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable, Optional } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import type { ClientSession, HydratedDocument, Model } from 'mongoose'
-import { File, FileId } from '@/modules/file/domain'
+import { File, FileId, FileStatus } from '@/modules/file/domain'
 import type { FileRepository } from '@/modules/file/application/ports/repositories/file-repository.port'
 import type { RepositorySnapshot } from '@/modules/file/application/ports/repositories/repository-snapshot'
 import { FileMapper } from '../mappers/file.mapper'
@@ -10,6 +10,7 @@ import {
   assertUpdated,
   mapWriteError,
   requireRevision,
+  boundedLimit,
 } from '../utils/mongo-mapping.utils'
 
 /** Mongoose repository for File aggregates. */
@@ -59,6 +60,35 @@ export class MongoFileRepository implements FileRepository {
     }
   }
 
+  async findByIds(
+    ids: readonly FileId[]
+  ): Promise<ReadonlyArray<RepositorySnapshot<File>>> {
+    if (ids.length === 0) return []
+    const records = await this.model
+      .find({ id: { $in: ids.map((id) => id.value) } })
+      .session(this.session)
+      .exec()
+    return records.map((doc) => this.snapshot(doc))
+  }
+
+  async findDeletedBefore(
+    before: Date,
+    limit: number
+  ): Promise<ReadonlyArray<RepositorySnapshot<File>>> {
+    const records = await this.model
+      .find({
+        status: FileStatus.DELETED,
+        deletedAt: { $lte: before },
+        purgedAt: null,
+        storageObject: { $ne: null },
+      })
+      .sort({ purgeAttemptedAt: 1, deletedAt: 1 })
+      .limit(boundedLimit(limit))
+      .session(this.session)
+      .exec()
+    return records.map((doc) => this.snapshot(doc))
+  }
+
   async update(entity: File, expectedRevision: number): Promise<number> {
     requireRevision(expectedRevision)
 
@@ -79,7 +109,7 @@ export class MongoFileRepository implements FileRepository {
             $inc: { revision: 1 },
           },
           {
-            new: true,
+            returnDocument: 'after',
             runValidators: true,
             session: this.session ?? undefined,
           }

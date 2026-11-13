@@ -113,6 +113,12 @@ export class FileMongoModel {
   @Prop({ type: Date, default: null })
   deletedAt!: Date | null
 
+  @Prop({ type: Date, default: null })
+  purgedAt!: Date | null
+
+  @Prop({ type: Date, default: null })
+  purgeAttemptedAt!: Date | null
+
   @Prop({ type: Number, default: 0, required: true, min: 0 })
   revision!: number
 }
@@ -121,3 +127,4 @@ export const FileSchema = SchemaFactory.createForClass(FileMongoModel)
 FileSchema.index({ 'scope.type': 1, 'scope.id': 1, status: 1, createdAt: -1 })
 FileSchema.index({ createdBy: 1, createdAt: -1 })
 FileSchema.index({ status: 1, createdAt: 1 })
+FileSchema.index({ status: 1, purgedAt: 1, purgeAttemptedAt: 1, deletedAt: 1 })

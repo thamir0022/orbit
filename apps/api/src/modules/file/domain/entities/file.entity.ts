@@ -36,6 +36,8 @@ export interface FileProps {
   readonly uploadedAt: Date | null
   readonly readyAt: Date | null
   readonly deletedAt: Date | null
+  readonly purgedAt?: Date | null
+  readonly purgeAttemptedAt?: Date | null
 }
 
 /** Required properties for creating a pending file. */
@@ -78,6 +80,8 @@ export class File extends AggregateRoot<FileId> {
   private _uploadedAt: Date | null
   private _readyAt: Date | null
   private _deletedAt: Date | null
+  private _purgedAt: Date | null
+  private _purgeAttemptedAt: Date | null
 
   private constructor(props: FileProps) {
     super(props.id)
@@ -101,6 +105,10 @@ export class File extends AggregateRoot<FileId> {
     this._uploadedAt = props.uploadedAt ? new Date(props.uploadedAt) : null
     this._readyAt = props.readyAt ? new Date(props.readyAt) : null
     this._deletedAt = props.deletedAt ? new Date(props.deletedAt) : null
+    this._purgedAt = props.purgedAt ? new Date(props.purgedAt) : null
+    this._purgeAttemptedAt = props.purgeAttemptedAt
+      ? new Date(props.purgeAttemptedAt)
+      : null
 
     this.validatePersistedState()
   }
@@ -254,6 +262,23 @@ export class File extends AggregateRoot<FileId> {
     this.touch(now)
   }
 
+  /** Rotates a disposal candidate behind files not yet attempted. */
+  recordPurgeAttempt(now: Date = new Date()): void {
+    this.ensureStatus(FileStatus.DELETED)
+    assertValidDate(now, 'now')
+    this._purgeAttemptedAt = new Date(now)
+    this.touch(now)
+  }
+
+  /** Records confirmed removal of stored bytes while retaining the audit record. */
+  markPurged(now: Date = new Date()): void {
+    this.ensureStatus(FileStatus.DELETED)
+    if (this._purgedAt) return
+    assertValidDate(now, 'now')
+    this._purgedAt = new Date(now)
+    this.touch(now)
+  }
+
   private ensureStatus(expected: FileStatus): void {
     if (this._status !== expected) {
       throw new FileDomainException(
@@ -322,6 +347,8 @@ export class File extends AggregateRoot<FileId> {
       ['uploadedAt', this._uploadedAt],
       ['readyAt', this._readyAt],
       ['deletedAt', this._deletedAt],
+      ['purgedAt', this._purgedAt],
+      ['purgeAttemptedAt', this._purgeAttemptedAt],
     ] as const) {
       if (date) {
         assertValidDate(date, field)
@@ -372,7 +399,10 @@ export class File extends AggregateRoot<FileId> {
       )
     }
 
-    if (this._deletedAt && this._status !== FileStatus.DELETED) {
+    if (
+      (this._deletedAt || this._purgedAt || this._purgeAttemptedAt) &&
+      this._status !== FileStatus.DELETED
+    ) {
       throw new FileDomainException(
         FileDomainErrorCode.INVALID_STATE,
         'Only a deleted file can have deletedAt'
@@ -504,5 +534,13 @@ export class File extends AggregateRoot<FileId> {
 
   get deletedAt(): Date | null {
     return this._deletedAt ? new Date(this._deletedAt) : null
+  }
+
+  get purgedAt(): Date | null {
+    return this._purgedAt ? new Date(this._purgedAt) : null
+  }
+
+  get purgeAttemptedAt(): Date | null {
+    return this._purgeAttemptedAt ? new Date(this._purgeAttemptedAt) : null
   }
 }
