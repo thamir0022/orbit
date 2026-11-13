@@ -62,7 +62,7 @@ interface UploadToStorageOptions {
   readonly onProgress?: (percentage: number) => void
 }
 
-/** Transfers file bytes directly using the signed S3 POST fields. */
+/** Transfers bytes using the provider's short-lived upload instructions. */
 export function uploadToStorage({
   file,
   upload,
@@ -70,17 +70,24 @@ export function uploadToStorage({
 }: UploadToStorageOptions): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     const request = new XMLHttpRequest()
-    const formData = new FormData()
-
-    // Signed fields must be submitted before the file part.
-    for (const [key, value] of Object.entries(upload.fields)) {
-      formData.append(key, value)
-    }
-
-    formData.append('file', file, file.name)
-
-    request.open('POST', upload.url)
+    request.open(upload.method, upload.url)
     request.withCredentials = false
+    request.timeout = 5 * 60 * 1000
+
+    let body: FormData | File = file
+    if (upload.method === 'POST') {
+      const formData = new FormData()
+      // Signed fields must precede the file; the browser sets the boundary.
+      for (const [key, value] of Object.entries(upload.fields)) {
+        formData.append(key, value)
+      }
+      formData.append('file', file, file.name)
+      body = formData
+    } else {
+      for (const [key, value] of Object.entries(upload.headers)) {
+        request.setRequestHeader(key, value)
+      }
+    }
 
     request.upload.onprogress = (event) => {
       if (!event.lengthComputable || event.total === 0) return
@@ -115,6 +122,10 @@ export function uploadToStorage({
       reject(new Error('File upload was cancelled.'))
     }
 
-    request.send(formData)
+    request.ontimeout = () => {
+      reject(new Error('File upload timed out. Please retry.'))
+    }
+
+    request.send(body)
   })
 }

@@ -36,6 +36,7 @@ import {
   AttachmentTitle,
 } from '@/shared/ui/attachment'
 import { Button } from '@/shared/ui/button'
+import { Input } from '@/shared/ui/input'
 
 interface FileUploadFieldProps {
   readonly items: readonly FileQueueItem[]
@@ -43,6 +44,7 @@ interface FileUploadFieldProps {
   readonly disabled?: boolean
   readonly onFilesSelected: (files: File[]) => void
   readonly onRemove: (id: string) => void
+  readonly onTitleChange: (id: string, title: string) => void
 }
 
 function getAttachmentState(
@@ -95,6 +97,7 @@ export function FileUploadField({
   disabled = false,
   onFilesSelected,
   onRemove,
+  onTitleChange,
 }: FileUploadFieldProps) {
   const inputId = useId()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -158,7 +161,7 @@ export function FileUploadField({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="min-w-0 space-y-3">
       <input
         ref={inputRef}
         id={inputId}
@@ -214,7 +217,7 @@ export function FileUploadField({
         </div>
 
         {items.length > 0 && (
-          <AttachmentGroup className="mt-3 max-h-44 overflow-y-auto">
+          <AttachmentGroup className="mt-3 max-h-64 flex-col gap-2 overflow-x-hidden overflow-y-auto">
             {items.map((item) => {
               const Icon = getFileIcon(item.mimeType)
 
@@ -223,17 +226,32 @@ export function FileUploadField({
                   key={item.id}
                   state={getAttachmentState(item.status)}
                   size="sm"
+                  className="w-full min-w-0 flex-nowrap"
                 >
                   <AttachmentMedia>
                     <Icon className="size-4" aria-hidden="true" />
                   </AttachmentMedia>
 
                   <AttachmentContent>
-                    <AttachmentTitle title={item.file.name}>
-                      {item.file.name}
-                    </AttachmentTitle>
+                    {item.status === 'done' ? (
+                      <AttachmentTitle title={item.displayName}>
+                        {item.displayName || item.file.name}
+                      </AttachmentTitle>
+                    ) : (
+                      <Input
+                        aria-label={`Attachment title for ${item.file.name}`}
+                        value={item.displayName}
+                        maxLength={255}
+                        placeholder={item.file.name}
+                        disabled={item.status === 'attaching'}
+                        onChange={(event) =>
+                          onTitleChange(item.id, event.target.value)
+                        }
+                        className="h-8 min-w-0 border-transparent bg-transparent px-1 text-sm shadow-none hover:border-border focus-visible:border-ring"
+                      />
+                    )}
 
-                    <AttachmentDescription>
+                    <AttachmentDescription className="overflow-visible text-clip whitespace-normal [overflow-wrap:anywhere]">
                       {formatFileSize(item.file.size)}
                       {' · '}
                       {getFileStatus(item)}

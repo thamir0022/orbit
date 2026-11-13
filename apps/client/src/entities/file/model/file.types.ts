@@ -23,14 +23,24 @@ export interface InitiateFileUploadRequest {
   readonly targetId: string
 }
 
-export interface InitiateFileUploadResponse {
+interface FileUploadGrantBase {
   readonly fileId: string
   readonly uploadSessionId: string
   readonly expiresAt: string
-  readonly method: 'POST'
   readonly url: string
-  readonly fields: Readonly<Record<string, string>>
 }
+
+export type InitiateFileUploadResponse = FileUploadGrantBase &
+  (
+    | {
+        readonly method: 'POST'
+        readonly fields: Readonly<Record<string, string>>
+      }
+    | {
+        readonly method: 'PUT'
+        readonly headers: Readonly<Record<string, string>>
+      }
+  )
 
 export interface CompleteFileUploadResponse {
   readonly fileId: string
@@ -42,9 +52,12 @@ export interface FileUploadStatusResponse {
   readonly uploadStatus: string
   readonly fileStatus: FileLifecycleStatus
   readonly sizeBytes: number | null
+  readonly processingStatus?:
+    'queued' | 'processing' | 'retrying' | 'failed' | null
 }
 
 export interface AttachFileRequest {
+  readonly displayName?: string
   readonly fileId: string
   readonly targetType: AttachmentTargetType
   readonly targetId: string
@@ -61,9 +74,10 @@ export type FileQueueStatus =
   'queued' | 'uploading' | 'processing' | 'attaching' | 'done' | 'error'
 
 /** Tracks which steps have completed to support safe retries. */
-export type FileQueueStage = 'new' | 'processing' | 'ready'
+export type FileQueueStage = 'new' | 'uploaded' | 'processing' | 'ready'
 
 export interface FileQueueItem {
+  readonly displayName: string
   readonly id: string
   readonly file: File
   readonly mimeType: string

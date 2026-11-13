@@ -3,6 +3,8 @@
 import { useCallback, useRef, useState } from 'react'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { ApiError } from '@orbit/http-client'
+import { attachmentKeys } from '@/entities/file/api/file-attachment.api'
 
 import {
   attachFile,
@@ -51,6 +53,18 @@ async function waitForFileReady(uploadSessionId: string): Promise<void> {
     if (status.fileStatus === 'ready') return
 
     if (
+      status.processingStatus === 'failed' ||
+      status.processingStatus === 'retrying'
+    ) {
+      // Keep the session so retry resumes verification, without uploading again.
+      throw new Error(
+        'File verification is temporarily unavailable. Your upload is saved. Retry after the processing service is restored.'
+      )
+    }
+
+    if (
+      status.uploadStatus === 'expired' ||
+      status.uploadStatus === 'aborted' ||
       status.fileStatus === 'rejected' ||
       status.fileStatus === 'failed' ||
       status.fileStatus === 'deleted'
@@ -130,6 +144,7 @@ export function useFileUploadQueue() {
         next.push({
           id: crypto.randomUUID(),
           file,
+          displayName: file.name,
           mimeType: result.data.mimeType,
           status: 'queued',
           stage: 'new',
@@ -192,9 +207,7 @@ export function useFileUploadQueue() {
             },
           })
 
-          await completeFileUpload(uploadSessionId)
-
-          stage = 'processing'
+          stage = 'uploaded'
 
           updateItem(item.id, {
             fileId,
@@ -205,7 +218,7 @@ export function useFileUploadQueue() {
           })
         }
 
-        if (stage === 'processing') {
+        if (stage === 'uploaded' || stage === 'processing') {
           if (!uploadSessionId) {
             throw new Error('Upload session is missing.')
           }
@@ -215,6 +228,11 @@ export function useFileUploadQueue() {
             error: '',
           })
 
+          // Completion is idempotent and redrives failed dispatches on retry.
+          // Preserve uploaded bytes when its response is lost or Redis is down.
+          await completeFileUpload(uploadSessionId)
+          stage = 'processing'
+          updateItem(item.id, { stage })
           await waitForFileReady(uploadSessionId)
 
           stage = 'ready'
@@ -232,6 +250,10 @@ export function useFileUploadQueue() {
         })
 
         await attachFile({
+          displayName:
+            itemsRef.current
+              .find((current) => current.id === item.id)
+              ?.displayName.trim() || item.file.name,
           fileId,
           targetType: target.targetType,
           targetId: target.targetId,
@@ -247,7 +269,9 @@ export function useFileUploadQueue() {
 
         return true
       } catch (error: unknown) {
-        const rejected = error instanceof RejectedFileError
+        const rejected =
+          error instanceof RejectedFileError ||
+          (error instanceof ApiError && error.statusCode === 410)
 
         updateItem(item.id, {
           status: 'error',
@@ -305,23 +329,40 @@ export function useFileUploadQueue() {
     onSuccess: async (summary, target) => {
       if (summary.succeeded > 0) {
         await queryClient.invalidateQueries({
-          queryKey: ['attachments', target.targetType, target.targetId],
+          queryKey: attachmentKeys.target(target.targetType, target.targetId),
         })
       }
     },
   })
 
+  const { reset: resetUploadMutation } = uploadMutation
+  const renameFile = useCallback(
+    (id: string, displayName: string) => {
+      updateItems((current) =>
+        current.map((item) =>
+          item.id === id &&
+          item.status !== 'done' &&
+          item.status !== 'attaching'
+            ? { ...item, displayName }
+            : item
+        )
+      )
+    },
+    [updateItems]
+  )
+
   const resetQueue = useCallback(() => {
     updateItems(() => [])
     setValidationErrors([])
-    uploadMutation.reset()
-  }, [updateItems, uploadMutation.reset])
+    resetUploadMutation()
+  }, [updateItems, resetUploadMutation])
 
   return {
     items,
     validationErrors,
     addFiles,
     removeFile,
+    renameFile,
     resetQueue,
     uploadAll: uploadMutation.mutateAsync,
     isUploading: uploadMutation.isPending,
