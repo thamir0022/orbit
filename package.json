@@ -5,6 +5,7 @@
   "packageManager": "pnpm@12.11.2",
   "scripts": {
     "api:dev": "docker compose up --watch",
+    "files:scanner": "powershell -NoProfile -File scripts/start-file-scanner.ps1",
     "client:dev": "pnpm --filter client dev",
     "admin:dev": "pnpm --filter admin dev",
     "permission:sync": "docker compose exec api pnpm cli:permission-sync",
