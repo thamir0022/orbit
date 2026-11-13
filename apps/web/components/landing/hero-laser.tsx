@@ -59,7 +59,7 @@ export function HeroLaser({ intro, children }: HeroLaserProps) {
             beamWidth={1.5}
             flare={1.5}
             spread={1.18}
-            spill={.5 }
+            spill={0.5}
             fog={0.2}
             dust={1.6}
             revealImage="/product-bg.jpg"

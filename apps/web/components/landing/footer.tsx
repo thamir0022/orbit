@@ -18,7 +18,7 @@ export async function Footer() {
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-12 md:grid-cols-[1.4fr_2fr] lg:gap-24">
           <div>
-            <OrbitLogo className="invert" size="medium"/>
+            <OrbitLogo className="invert" size="medium" />
             <p className="mt-5 max-w-[240px] text-sm leading-6 text-zinc-500">
               A calmer, clearer place for your team&apos;s work.
             </p>

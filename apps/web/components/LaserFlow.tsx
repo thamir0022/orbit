@@ -1,8 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, type HTMLAttributes, type RefObject } from 'react';
+import { useEffect, useRef, type HTMLAttributes, type RefObject } from "react";
 
-export interface LaserFlowProps extends Omit<HTMLAttributes<HTMLDivElement>, 'color'> {
+export interface LaserFlowProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "color"
+> {
   surfaceRef?: RefObject<HTMLElement | null>;
   beamPosition?: number;
   surfaceLevel?: number;
@@ -24,7 +27,7 @@ export interface LaserFlowProps extends Omit<HTMLAttributes<HTMLDivElement>, 'co
   revealRadius?: number;
   revealOpacity?: number;
   intro?: boolean;
-  theme?: 'dark' | 'light';
+  theme?: "dark" | "light";
   paused?: boolean;
   dpr?: number;
 }
@@ -51,7 +54,7 @@ type Settings = {
   revealRadius: number;
   revealOpacity: number;
   intro: boolean;
-  theme: 'dark' | 'light';
+  theme: "dark" | "light";
   paused: boolean;
   dpr?: number;
 };
@@ -399,7 +402,7 @@ const TINTS = [
   [113.6, 0.28],
   [-7.5, 0.13],
   [-2.7, 0.32],
-  [7.5, 0.81]
+  [7.5, 0.81],
 ];
 
 const BASE_SATURATION = 0.78;
@@ -407,14 +410,18 @@ const MAX_RENDER_DIM = 2048;
 const INTRO_DROP = 1.25;
 const INTRO_END = 5;
 
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value));
 const easeOut = (x: number) => 1 - Math.pow(1 - clamp(x, 0, 1), 3);
 const spring = (time: number) => {
   const omega = 8;
   const zeta = 0.62;
   const damped = omega * Math.sqrt(1 - zeta * zeta);
   return (
-    1 - Math.exp(-zeta * omega * time) * (Math.cos(damped * time) + ((zeta * omega) / damped) * Math.sin(damped * time))
+    1 -
+    Math.exp(-zeta * omega * time) *
+      (Math.cos(damped * time) +
+        ((zeta * omega) / damped) * Math.sin(damped * time))
   );
 };
 
@@ -437,7 +444,17 @@ const fromHsv = (hue: number, saturation: number): number[] => {
   const x = c * (1 - Math.abs((h % 2) - 1));
   const m = 1 - c;
   const [r, g, b] =
-    h < 1 ? [c, x, 0] : h < 2 ? [x, c, 0] : h < 3 ? [0, c, x] : h < 4 ? [0, x, c] : h < 5 ? [x, 0, c] : [c, 0, x];
+    h < 1
+      ? [c, x, 0]
+      : h < 2
+        ? [x, c, 0]
+        : h < 3
+          ? [0, c, x]
+          : h < 4
+            ? [0, x, c]
+            : h < 5
+              ? [x, 0, c]
+              : [c, 0, x];
   return [r + m, g + m, b + m];
 };
 
@@ -446,7 +463,10 @@ const buildTints = (rgb: number[]) => {
   const strength = saturation / BASE_SATURATION;
   const data = new Float32Array(TINTS.length * 3);
   TINTS.forEach(([shift, scale], index) => {
-    data.set(fromHsv(hue + shift, clamp(BASE_SATURATION * scale * strength, 0, 1)), index * 3);
+    data.set(
+      fromHsv(hue + shift, clamp(BASE_SATURATION * scale * strength, 0, 1)),
+      index * 3,
+    );
   });
   return data;
 };
@@ -461,7 +481,11 @@ const compile = (gl: WebGL2RenderingContext, type: number, source: string) => {
   return null;
 };
 
-const link = (gl: WebGL2RenderingContext, vertexSource: string, fragmentSource: string) => {
+const link = (
+  gl: WebGL2RenderingContext,
+  vertexSource: string,
+  fragmentSource: string,
+) => {
   const vertex = compile(gl, gl.VERTEX_SHADER, vertexSource);
   const fragment = compile(gl, gl.FRAGMENT_SHADER, fragmentSource);
   const program = gl.createProgram();
@@ -476,7 +500,11 @@ const link = (gl: WebGL2RenderingContext, vertexSource: string, fragmentSource: 
   return null;
 };
 
-const locate = (gl: WebGL2RenderingContext, program: WebGLProgram, names: string[]) => {
+const locate = (
+  gl: WebGL2RenderingContext,
+  program: WebGLProgram,
+  names: string[],
+) => {
   const result: Record<string, WebGLUniformLocation | null> = {};
   for (const name of names) result[name] = gl.getUniformLocation(program, name);
   return result;
@@ -486,7 +514,7 @@ export const LaserFlow = ({
   surfaceRef,
   beamPosition = 0.6,
   surfaceLevel = 1,
-  color = '#3847ff',
+  color = "#3847ff",
   intensity = 1.8,
   beamWidth = 1.5,
   flare = 1.5,
@@ -504,7 +532,7 @@ export const LaserFlow = ({
   revealRadius = 220,
   revealOpacity = 0.6,
   intro = true,
-  theme = 'dark',
+  theme = "dark",
   paused = false,
   dpr,
   ...rest
@@ -536,7 +564,7 @@ export const LaserFlow = ({
     intro,
     theme,
     paused,
-    dpr
+    dpr,
   };
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
@@ -544,12 +572,12 @@ export const LaserFlow = ({
   useEffect(() => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
-    const gl = canvas?.getContext('webgl2', {
+    const gl = canvas?.getContext("webgl2", {
       alpha: true,
       premultipliedAlpha: true,
       antialias: false,
       depth: false,
-      stencil: false
+      stencil: false,
     });
     if (!container || !canvas || !gl) return undefined;
 
@@ -557,63 +585,84 @@ export const LaserFlow = ({
     if (!program) return undefined;
 
     const uniforms = locate(gl, program, [
-      'uResolution',
-      'uDpr',
-      'uScale',
-      'uTime',
-      'uBeamX',
-      'uSurface',
-      'uRadius',
-      'uIntro',
-      'uPour',
-      'uRun',
-      'uLens',
-      'uReveal',
-      'uRevealMap',
-      'uRevealInfo',
-      'uAtmosphere',
-      'uAmount',
-      'uShape',
-      'uExtra',
-      'uTheme',
-      'uTint'
+      "uResolution",
+      "uDpr",
+      "uScale",
+      "uTime",
+      "uBeamX",
+      "uSurface",
+      "uRadius",
+      "uIntro",
+      "uPour",
+      "uRun",
+      "uLens",
+      "uReveal",
+      "uRevealMap",
+      "uRevealInfo",
+      "uAtmosphere",
+      "uAmount",
+      "uShape",
+      "uExtra",
+      "uTheme",
+      "uTint",
     ]);
 
     const vao = gl.createVertexArray();
     const buffer = gl.createBuffer();
     gl.bindVertexArray(vao);
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    const positionLocation = gl.getAttribLocation(program, 'aPosition');
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 3, -1, -1, 3]),
+      gl.STATIC_DRAW,
+    );
+    const positionLocation = gl.getAttribLocation(program, "aPosition");
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
     gl.bindVertexArray(null);
 
     const revealTexture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, revealTexture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 0]));
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      1,
+      1,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      new Uint8Array([0, 0, 0, 0]),
+    );
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-    const probe = document.createElement('canvas');
+    const probe = document.createElement("canvas");
     probe.width = 1;
     probe.height = 1;
-    const probeContext = probe.getContext('2d', { willReadFrequently: true });
-    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    const probeContext = probe.getContext("2d", { willReadFrequently: true });
+    const reduce =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
     const state = {
       time: 0,
       introTime: settingsRef.current.intro && !reduce ? 0 : INTRO_END,
       width: 1,
       height: 1,
       ratio: 1,
-      colorKey: '',
+      colorKey: "",
       tints: buildTints([0.22, 0.28, 1]),
       observed: null as HTMLElement | null,
       pointer: { x: 0, y: 0, inside: false },
       lens: { x: 0, y: 0, vx: 0, vy: 0, strength: 0, placed: false },
-      reveal: { src: '', ready: false, width: 1, height: 1, image: null as HTMLImageElement | null }
+      reveal: {
+        src: "",
+        ready: false,
+        width: 1,
+        height: 1,
+        image: null as HTMLImageElement | null,
+      },
     };
     let raf = 0;
     let last = 0;
@@ -623,7 +672,7 @@ export const LaserFlow = ({
     const toRgb = (value: string): number[] => {
       if (!probeContext) return [0.22, 0.28, 1];
       probeContext.clearRect(0, 0, 1, 1);
-      probeContext.fillStyle = '#3847ff';
+      probeContext.fillStyle = "#3847ff";
       probeContext.fillStyle = value;
       probeContext.fillRect(0, 0, 1, 1);
       const [r, g, b] = probeContext.getImageData(0, 0, 1, 1).data;
@@ -637,7 +686,7 @@ export const LaserFlow = ({
     };
 
     const resolveReveal = (s: Settings) => {
-      const src = s.revealImage ? String(s.revealImage) : '';
+      const src = s.revealImage ? String(s.revealImage) : "";
       const reveal = state.reveal;
       if (src === reveal.src) return;
       reveal.src = src;
@@ -645,20 +694,29 @@ export const LaserFlow = ({
       if (reveal.image) reveal.image.onload = null;
       if (!src) return;
       const image = new Image();
-      image.crossOrigin = 'anonymous';
-      image.decoding = 'async';
+      image.crossOrigin = "anonymous";
+      image.decoding = "async";
       image.onload = () => {
         if (!alive || reveal.src !== src) return;
         const width = image.naturalWidth || image.width || 1;
         const height = image.naturalHeight || image.height || 1;
         const scale = Math.min(1, 2048 / Math.max(width, height));
-        const sheet = document.createElement('canvas');
+        const sheet = document.createElement("canvas");
         sheet.width = Math.max(1, Math.round(width * scale));
         sheet.height = Math.max(1, Math.round(height * scale));
-        sheet.getContext('2d')?.drawImage(image, 0, 0, sheet.width, sheet.height);
+        sheet
+          .getContext("2d")
+          ?.drawImage(image, 0, 0, sheet.width, sheet.height);
         gl.bindTexture(gl.TEXTURE_2D, revealTexture);
         gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, sheet);
+        gl.texImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          sheet,
+        );
         gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         reveal.width = sheet.width;
         reveal.height = sheet.height;
@@ -683,7 +741,7 @@ export const LaserFlow = ({
           const computed = getComputedStyle(element);
           const radius = Math.max(
             parseFloat(computed.borderTopLeftRadius) || 0,
-            parseFloat(computed.borderTopRightRadius) || 0
+            parseFloat(computed.borderTopRightRadius) || 0,
           );
           return {
             left: rect.left - box.left,
@@ -691,7 +749,7 @@ export const LaserFlow = ({
             right: rect.right - box.left,
             bottom: rect.bottom - box.top,
             radius: Math.min(radius, rect.width / 2, rect.height / 2),
-            real: true
+            real: true,
           };
         }
       }
@@ -701,7 +759,7 @@ export const LaserFlow = ({
         right: width * 3,
         bottom: height * 3,
         radius: 0,
-        real: false
+        real: false,
       };
     };
 
@@ -711,7 +769,10 @@ export const LaserFlow = ({
       const s = settingsRef.current;
       const baseDpr = Math.min(s.dpr || window.devicePixelRatio || 1, 2);
       const longest = Math.max(width, height) * baseDpr;
-      const ratio = longest > MAX_RENDER_DIM ? (baseDpr * MAX_RENDER_DIM) / longest : baseDpr;
+      const ratio =
+        longest > MAX_RENDER_DIM
+          ? (baseDpr * MAX_RENDER_DIM) / longest
+          : baseDpr;
       const pixelWidth = Math.max(1, Math.round(width * ratio));
       const pixelHeight = Math.max(1, Math.round(height * ratio));
       if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
@@ -736,21 +797,42 @@ export const LaserFlow = ({
         if (beamX >= surface.left && beamX <= surface.right) {
           beamX = clamp(beamX, surface.left + margin, surface.right - margin);
         } else {
-          surface = { left: -width * 2, top: height, right: width * 3, bottom: height * 3, radius: 0, real: false };
+          surface = {
+            left: -width * 2,
+            top: height,
+            right: width * 3,
+            bottom: height * 3,
+            radius: 0,
+            real: false,
+          };
         }
       }
       const startY = -0.15 * height;
       const span = surface.top - startY + 0.3 * height;
       const it = state.introTime;
       const settled = it >= INTRO_END;
-      const front = settled ? surface.top + 0.3 * height : startY + span * Math.pow(clamp(it / INTRO_DROP, 0, 1), 1.3);
-      const impact = INTRO_DROP * Math.pow(Math.max(0, surface.top - startY) / span, 1 / 1.3);
+      const front = settled
+        ? surface.top + 0.3 * height
+        : startY + span * Math.pow(clamp(it / INTRO_DROP, 0, 1), 1.3);
+      const impact =
+        INTRO_DROP *
+        Math.pow(Math.max(0, surface.top - startY) / span, 1 / 1.3);
       const tau = it - impact;
       const bloom = settled ? 1 : tau <= 0 ? 0 : spring(tau);
-      const flash = settled || tau <= 0 ? 0 : Math.exp(-tau / 0.35) * (1 - Math.exp(-tau / 0.05));
+      const flash =
+        settled || tau <= 0
+          ? 0
+          : Math.exp(-tau / 0.35) * (1 - Math.exp(-tau / 0.05));
       const runRange = s.spread * 250 * 1.3 + 80;
-      const runFront = settled ? 100000 : tau <= 0 ? -40 : runRange * (1 - Math.exp(-1.15 * tau));
-      const beadStrength = settled || tau <= 0 ? 0 : Math.exp(-1.15 * tau) * (1 - Math.exp(-tau / 0.08));
+      const runFront = settled
+        ? 100000
+        : tau <= 0
+          ? -40
+          : runRange * (1 - Math.exp(-1.15 * tau));
+      const beadStrength =
+        settled || tau <= 0
+          ? 0
+          : Math.exp(-1.15 * tau) * (1 - Math.exp(-tau / 0.08));
       const pour = (reach: number): [number, number] => {
         if (settled) return [1000, 1];
         if (tau <= 0) return [-reach, 0];
@@ -781,12 +863,24 @@ export const LaserFlow = ({
       gl.uniform1f(uniforms.uScale, scale);
       gl.uniform1f(uniforms.uTime, state.time);
       gl.uniform1f(uniforms.uBeamX, beamX);
-      gl.uniform4f(uniforms.uSurface, surface.left, surface.top, surface.right, surface.bottom);
+      gl.uniform4f(
+        uniforms.uSurface,
+        surface.left,
+        surface.top,
+        surface.right,
+        surface.bottom,
+      );
       gl.uniform1f(uniforms.uRadius, surface.radius);
       gl.uniform3f(uniforms.uIntro, front, bloom, flash);
       gl.uniform4f(uniforms.uPour, frontL, frontR, fillL, fillR);
       gl.uniform2f(uniforms.uRun, runFront, beadStrength);
-      gl.uniform4f(uniforms.uLens, state.lens.x, state.lens.y, 95 * scale, state.lens.strength);
+      gl.uniform4f(
+        uniforms.uLens,
+        state.lens.x,
+        state.lens.y,
+        95 * scale,
+        state.lens.strength,
+      );
       resolveReveal(s);
       const { reveal } = state;
       const cover = Math.max(width / reveal.width, height / reveal.height);
@@ -800,14 +894,24 @@ export const LaserFlow = ({
         1 / coverWidth,
         1 / coverHeight,
         (coverWidth - width) / 2 / coverWidth,
-        (coverHeight - height) / 2 / coverHeight
+        (coverHeight - height) / 2 / coverHeight,
       );
-      gl.uniform2f(uniforms.uRevealInfo, s.revealRadius, reveal.ready ? s.revealOpacity : 0);
+      gl.uniform2f(
+        uniforms.uRevealInfo,
+        s.revealRadius,
+        reveal.ready ? s.revealOpacity : 0,
+      );
       gl.uniform1f(uniforms.uAtmosphere, atmosphere);
       gl.uniform4f(uniforms.uAmount, s.intensity, s.fog, s.dust, s.streaks);
       gl.uniform4f(uniforms.uShape, s.beamWidth, s.flare, s.spread, s.spill);
-      gl.uniform4f(uniforms.uExtra, s.pulse, s.dots, 34.34 + seedValue * 7.31, 11.58 + seedValue * 3.17);
-      gl.uniform1f(uniforms.uTheme, s.theme === 'light' ? 1 : 0);
+      gl.uniform4f(
+        uniforms.uExtra,
+        s.pulse,
+        s.dots,
+        34.34 + seedValue * 7.31,
+        11.58 + seedValue * 3.17,
+      );
+      gl.uniform1f(uniforms.uTheme, s.theme === "light" ? 1 : 0);
       gl.uniform3fv(uniforms.uTint, state.tints);
       gl.bindVertexArray(vao);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -823,7 +927,8 @@ export const LaserFlow = ({
       const moving = !s.paused && !reduce;
       if (moving) state.time += dt * s.speed;
       const introducing = state.introTime < INTRO_END;
-      if (introducing) state.introTime = Math.min(INTRO_END, state.introTime + dt);
+      if (introducing)
+        state.introTime = Math.min(INTRO_END, state.introTime + dt);
 
       const { pointer, lens } = state;
       const active = s.mouseInteraction && pointer.inside && !reduce;
@@ -841,19 +946,24 @@ export const LaserFlow = ({
       lens.x += lens.vx * dt;
       lens.y += lens.vy * dt;
       const goal = active ? 1 : 0;
-      lens.strength += (goal - lens.strength) * (1 - Math.exp(-dt / (goal > lens.strength ? 0.3 : 0.55)));
+      lens.strength +=
+        (goal - lens.strength) *
+        (1 - Math.exp(-dt / (goal > lens.strength ? 0.3 : 0.55)));
       if (lens.strength < 0.001 && !active) lens.placed = false;
 
       render();
       const settling =
-        Math.abs(state.lens.strength - (s.mouseInteraction && state.pointer.inside ? 1 : 0)) > 0.002 ||
-        Math.hypot(state.lens.vx, state.lens.vy) > 0.5;
+        Math.abs(
+          state.lens.strength -
+            (s.mouseInteraction && state.pointer.inside ? 1 : 0),
+        ) > 0.002 || Math.hypot(state.lens.vx, state.lens.vy) > 0.5;
       if (moving || introducing || settling) raf = requestAnimationFrame(frame);
       else last = 0;
     };
 
     const wake = () => {
-      if (!raf && alive && visible && !document.hidden) raf = requestAnimationFrame(frame);
+      if (!raf && alive && visible && !document.hidden)
+        raf = requestAnimationFrame(frame);
     };
 
     const onPointerMove = (event: PointerEvent) => {
@@ -862,7 +972,8 @@ export const LaserFlow = ({
       const y = event.clientY - rect.top;
       state.pointer.x = x;
       state.pointer.y = y;
-      state.pointer.inside = x >= 0 && y >= 0 && x <= rect.width && y <= rect.height;
+      state.pointer.inside =
+        x >= 0 && y >= 0 && x <= rect.width && y <= rect.height;
       wake();
     };
 
@@ -878,17 +989,17 @@ export const LaserFlow = ({
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(container);
-    const intersection = new IntersectionObserver(entries => {
-      visible = entries.some(entry => entry.isIntersecting);
+    const intersection = new IntersectionObserver((entries) => {
+      visible = entries.some((entry) => entry.isIntersecting);
       if (visible) {
         last = 0;
         wake();
       }
     });
     intersection.observe(container);
-    window.addEventListener('pointermove', onPointerMove, { passive: true });
-    document.documentElement.addEventListener('pointerleave', onPointerLeave);
-    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    document.documentElement.addEventListener("pointerleave", onPointerLeave);
+    document.addEventListener("visibilitychange", onVisibility);
     resize();
     wake();
 
@@ -903,9 +1014,12 @@ export const LaserFlow = ({
       wakeRef.current = null;
       resizeObserver.disconnect();
       intersection.disconnect();
-      window.removeEventListener('pointermove', onPointerMove);
-      document.documentElement.removeEventListener('pointerleave', onPointerLeave);
-      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener("pointermove", onPointerMove);
+      document.documentElement.removeEventListener(
+        "pointerleave",
+        onPointerLeave,
+      );
+      document.removeEventListener("visibilitychange", onVisibility);
       gl.deleteTexture(revealTexture);
       gl.deleteBuffer(buffer);
       gl.deleteVertexArray(vao);
@@ -917,15 +1031,19 @@ export const LaserFlow = ({
     wakeRef.current?.();
   });
 
-  const { className = '', ...attributes } = rest;
+  const { className = "", ...attributes } = rest;
 
   return (
     <div
       ref={containerRef}
-      className={`pointer-events-none relative h-full w-full${className ? ` ${className}` : ''}`}
+      className={`pointer-events-none relative h-full w-full${className ? ` ${className}` : ""}`}
       {...attributes}
     >
-      <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full" aria-hidden="true" />
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 block h-full w-full"
+        aria-hidden="true"
+      />
     </div>
   );
 };
