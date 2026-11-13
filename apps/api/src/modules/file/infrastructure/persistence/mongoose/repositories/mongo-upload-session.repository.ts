@@ -121,7 +121,7 @@ export class MongoUploadSessionRepository implements UploadSessionRepository {
             $inc: { revision: 1 },
           },
           {
-            new: true,
+            returnDocument: 'after',
             runValidators: true,
             session: this.session ?? undefined,
           }

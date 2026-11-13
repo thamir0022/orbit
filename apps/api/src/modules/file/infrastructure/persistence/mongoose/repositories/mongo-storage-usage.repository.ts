@@ -87,7 +87,7 @@ export class MongoStorageUsageRepository implements StorageUsageRepository {
             $inc: { revision: 1 },
           },
           {
-            new: true,
+            returnDocument: 'after',
             runValidators: true,
             session: this.session ?? undefined,
           }
