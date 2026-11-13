@@ -41,7 +41,7 @@ export function AttachmentPill({
           ? { duration: 0 }
           : { type: 'spring', stiffness: 460, damping: 34 }
       }
-      className="relative flex h-9 max-w-full items-center rounded-full border bg-background shadow-xs transition-colors hover:bg-muted/60 sm:max-w-72"
+      className="relative flex h-9 max-w-full items-center rounded-full border shadow-xs transition-colors hover:bg-muted/60 sm:max-w-72"
     >
       <Tooltip>
         <TooltipTrigger asChild>

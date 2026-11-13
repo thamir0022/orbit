@@ -138,9 +138,9 @@ export function AttachmentPreview({
         className="w-full max-w-[calc(100vw-2rem)] gap-4 rounded-xl p-4 sm:max-w-5xl"
       >
         <div className="flex min-w-0 items-start justify-between gap-3 pr-9">
-            <DialogTitle className="truncate text-base">
-              {attachmentTitle(attachment)}
-            </DialogTitle>
+          <DialogTitle className="truncate text-base my-auto">
+            {attachmentTitle(attachment)}
+          </DialogTitle>
           <DropdownMenu>
             <Tooltip>
               <TooltipTrigger asChild>
